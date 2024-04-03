@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>thesubbuveeravasarapu | portfolio</title>
+    <link rel="icon" type="image" href="./assets/favicon.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Comfortaa:700" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"
+        integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css"
+        integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+    <link rel="stylesheet" href="index.css">
+</head>
+
+<body>
+    <div id="loading">
+        <div id="spinner"></div>
+    </div>
+    <div id="particles-js"></div>
+    <div id="box">
+        <div class="box1 onlywide animated bounceOutLeft" style="animation-delay: 1700ms;"></div>
+        <div class="box2 onlywide animated bounceOutLeft" style="animation-delay: 1800ms;"></div>
+        <div class="box2 onlywide animated bounceOutLeft" style="animation-delay: 1900ms;"></div>
+        <div class="box2 animated bounceOutRight" style="animation-delay: 1900ms;"></div>
+        <div class="box2 onlywide animated bounceOutRight" style="animation-delay: 1800ms;"></div>
+        <div class="box2 onlywide animated bounceOutRight" style="animation-delay: 1700ms;"></div>
+    </div>
+    <a id="about" onclick="showabout()" class="animated fadeIn" style="animation-delay: 1000ms;">about</a>
+    <a id="work" onclick="showwork()" class="animated fadeIn" style="animation-delay: 1000ms;">work</a>
+    <a id="contact" onclick="showcontact()" class="animated fadeIn" style="animation-delay: 1000ms;">contact</a>
+    <a id="projects" onclick="showprojects()" class="animated fadeIn" style="animation-delay: 1000ms;">projects</a>
+    <div id="middle" class="animated slideInDown" style="animation-delay: 2000ms;">
+        <h1>Subbu Veeravasarapu, Ph.D.</h1>
+        <h2>Machine Learning / Computer Vision / GenAI / MLOps / LLMOps</h2>
+        <div id="menu">
+            <a onclick="showabout()">about</a>
+            <a onclick="showwork()">work</a>
+            <a onclick="showcontact()">contact</a>
+            <a onclick="showprojects()">projects</a>
+        </div>
+        <table>
+            <tr>
+                <td class="animated zoomIn" style="animation-delay:2.2s;"><a class="social"
+                        href="https://linkedin.com/in/vsrveera"><i class="fab fa-linkedin"></i></a></td>
+                <td class="animated zoomIn" style="animation-delay:2.4s;"><a class="social"
+                        href="https://github.com/vsrveera"><i class="fab fa-github"></i></a></td>
+                <td class="animated zoomIn" style="animation-delay:2.6s;"><a class="social"
+                        href="https://medium.com/@draiops"><i class="fab fa-medium-m"></i></a></td>
+                <td class="animated zoomIn" style="animation-delay:2.8s;"><a class="social"
+                        href="https://scholar.google.com/citations?user=hm59piMAAAAJ&hl=en"><i class="fab fa-readme"></i></a></td>
+
+
+                
+            </tr>
+        </table>
+    </div>
+    <div id="projects_container" class="container">
+        <div onclick="closeprojects()"><i class="fas fa-angle-right"></i></div>
+        <h1>projects.</h1>
+        <section>
+            <p>
+                Here are some of the projects I've worked on recently. 
+            </p>
+            <ul>
+                <div class="project_card">
+                    <div class="project_info">
+                        <h3>Portfolio</h3>
+                        <p>The Open-Source code for the Personal Portfolio this website is coming from! A minimal and
+                            ambient portfolio template for Developers! ⚡</p>
+                        <button class="btn_one"><a
+                                href="http"
+                                style="color: inherit; text-decoration: none"> View Project </a></button>
+                    </div>
+                </div>
+                
+                
+                
+            </ul>
+        </section>
+    </div>
+    <div id="work_container" class="container">
+        <div onclick="closework()"><i class="fas fa-angle-right"></i></div>
+        <h1>work.</h1>
+        <section>
+            <h2></h2>
+            <p>
+                a results-driven and strategic-minded professional with 10+ years of experience leading machine learning initiatives. Proven track record of successfully developing and deploying scalable machine learning models, leading cross-functional teams, and driving business impact. Deep understanding of computer vision (CV) and machine learning (ML) algorithms, statistical analysis, and data visualization techniques. Excellent communication and leadership skills with a passion for driving innovation.
+            </p>
+            <div id="used">
+                <div><i class="fas fa-circle"></i>&nbsp;Computer Vision</div>
+                <div><i class="fas fa-circle"></i>&nbsp;Machine Learning</div>
+                <div><i class="fas fa-circle"></i>&nbsp;AI</div>
+            </div>
+            
+        </section>
+    </div>
+    <div id="about_container" class="container">
+        <div onclick="closeabout()"><i class="fas fa-angle-left"></i></div>
+        <h1>about me</h1>
+        <section>
+            
+            <p>
+                Hi there! I'm Subbu Veeravasarapu, a results-driven and strategic-minded professional with 10+ years of experience leading machine learning initiatives. Proven track record of successfully developing and deploying scalable machine learning models, leading cross-functional teams, and driving business impact. Deep understanding of computer vision (CV) and machine learning (ML) algorithms, statistical analysis, and data visualization techniques. Excellent communication and leadership skills with a passion for driving innovation.
+
+        </section>
+        <section>
+            <h2>skills</h2>
+            <p>
+                Leadership & Communication (Team management, project planning, stakeholder coops, effective communication) <br>
+                Machine Learning (Deep learning, Reinforcement Learning, Generative models, Adversarial Models, Computer Vision, Natural Language Processing, and Speech) <br>Computer Vision (Image classification, Object detection, segmentation, registration, retrieval, 3D from X, OCR, Video) <br>
+                Programming Languages (Python, C++, JAVA, SQL) <br>
+                MLOps tools (PyTorch, TensorFlow, JAX, MLFlow, dvc, AWS SageMaker, KubeFlow, TFX, TorchServe, CL/CD pipelines, Docker, RESTapi) <br>
+                Cloud services (AWS, Google Cloud, Azure) <br>
+                Frontend tools (Flask, FastAPI, Gradio, StreamLit, JavaScript) <br>
+                Database tools (SQL, Postgres) <br>
+                Generative AI tools (Stable diffusion, ControlNets, DALL-E, Synthesia, ChatGPT) 
+
+
+            </p>
+        </section>
+    </div>
+    <div id="contact_container" class="container">
+        <div onclick="closecontact()"><i class="fas fa-angle-down"></i></div>
+        <h1>contact me</h1>
+        <section>
+            <p>
+            <form action="https://formcarry.com/s/wQlSXLFQTqR" method="POST" class="formcarry-form">
+                <input name="name" type="text" placeholder="name" required />
+                <input name="email" type="email" placeholder="email" required /><br>
+                <textarea name="message" placeholder="your message" required rows="5"></textarea><br>
+                <button class="btn_one">send</button>
+            </form>
+            </p>
+        </section>
+    </div>
+    
+    <script src="index.js" type="text/javascript"></script>
+    <script src="particles.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>
