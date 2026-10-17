@@ -1,0 +1,1679 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.19">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>19&nbsp; Optimization – Mathematics of Artificial Intelligence</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../chapters/ch20_the_geometry_and_dynamics_of_learning.html" rel="next">
+<link href="../chapters/ch18_chain_rule_and_backpropagation.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-43d2fa13cb35dd2022b3c25d65fdd634.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-19432b6b5c85f3ab30851b7038f884b0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="../site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
+<link href="../site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
+<link href="../site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar docked quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/ch16_change_and_derivatives.html">Part V — Learning</a></li><li class="breadcrumb-item"><a href="../chapters/ch19_optimization.html"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Optimization</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">Mathematics of Artificial Intelligence</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part I — The Mathematical Machine</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch01_ai_as_a_mathematical_system.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">AI as a Mathematical System</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch02_language_of_mathematical_ai.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">The Language of Mathematical AI</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part II — Representation</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch03_vectors_representing_information.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Vectors: Representing Information</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch04_geometry_of_representations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Geometry of Representations</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch05_matrices_representing_transformations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Matrices: Representing Transformations</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch06_tensors_and_high_dimensional_data.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Tensors and High-Dimensional Data</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch07_structure_hidden_in_data.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Structure Hidden in Data</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part III — Transformation</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch08_functions_as_machines.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Functions as Machines</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch09_linear_transformations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Linear Transformations</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch10_nonlinearity_and_expressiveness.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Nonlinearity and Expressiveness</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch11_neural_networks_as_function_composition.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Neural Networks as Function Composition</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch12_convolution_and_structured_transformations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Convolution and Structured Transformations</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part IV — Measurement</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch13_distance_similarity_and_geometry.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Distance, Similarity and Geometry</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch14_loss_functions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Loss Functions</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch15_information_as_a_mathematical_quantity.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Information as a Mathematical Quantity</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part V — Learning</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch16_change_and_derivatives.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Change and Derivatives</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch17_gradients_and_multivariable_calculus.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Gradients and Multivariable Calculus</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch18_chain_rule_and_backpropagation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">The Chain Rule and Backpropagation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch19_optimization.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Optimization</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch20_the_geometry_and_dynamics_of_learning.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">The Geometry and Dynamics of Learning</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part VI — Uncertainty</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch21_probability_as_a_language_of_uncertainty.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Probability as a Language of Uncertainty</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch22_conditional_probability_and_bayes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Conditional Probability and Bayes</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch23_probability_distributions_used_in_ai.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Probability Distributions Used in AI</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch24_from_scores_to_probabilities.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">From Scores to Probabilities</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch25_statistical_estimation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Statistical Estimation</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part VII — Generalization</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch26_from_samples_to_populations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">From Samples to Populations</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch27_generalization.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Generalization</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch28_bias_variance_and_regularization.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Bias, Variance and Regularization</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch29_statistical_learning_theory.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Statistical Learning Theory</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part VIII — Putting the Mathematical Systems Together</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch30_the_mathematics_of_attention.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">30</span>&nbsp; <span class="chapter-title">The Mathematics of Attention</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch31_the_mathematics_of_the_transformer.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">31</span>&nbsp; <span class="chapter-title">The Mathematics of the Transformer</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch32_decoder_only_language_models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">32</span>&nbsp; <span class="chapter-title">Decoder-only Language Models</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch33_autoregressive_generation_and_sampling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">33</span>&nbsp; <span class="chapter-title">Autoregressive Generation and Sampling</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch34_mixture_of_experts_scale_and_numerical_precision.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">34</span>&nbsp; <span class="chapter-title">Mixture-of-Experts, Scale and Numerical Precision</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch35_convolutional_vision_in_depth.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">Convolutional Vision in Depth</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch36_vision_transformers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Vision Transformers</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch37_detection_and_structured_prediction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">Detection and Structured Prediction</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch38_representation_and_self_supervised_learning.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">38</span>&nbsp; <span class="chapter-title">Representation and Self-Supervised Learning</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch39_clip_and_multimodal_language_models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">39</span>&nbsp; <span class="chapter-title">CLIP and Multimodal Language Models</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch40_latent_variable_models_and_vaes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">40</span>&nbsp; <span class="chapter-title">Latent-Variable Models and VAEs</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch41_diffusion_models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">41</span>&nbsp; <span class="chapter-title">Diffusion Models</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch42_latent_diffusion_and_diffusion_transformers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">42</span>&nbsp; <span class="chapter-title">Latent Diffusion and Diffusion Transformers</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch43_flow_matching.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">43</span>&nbsp; <span class="chapter-title">Flow Matching</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch44_one_ai_system_all_the_mathematics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">44</span>&nbsp; <span class="chapter-title">One AI System, All the Mathematics</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part IX — Systems Thinking and Performance Characterisation</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch45_systems_thinking_components_and_interfaces.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">45</span>&nbsp; <span class="chapter-title">Systems Thinking: Components, Interfaces and Contracts</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch46_feedback_coupling_and_stability.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">46</span>&nbsp; <span class="chapter-title">Feedback, Coupling and Stability</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch47_performance_characterisation_the_paradigm.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">47</span>&nbsp; <span class="chapter-title">Performance Characterisation: The Paradigm</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch48_random_perturbation_and_error_propagation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">48</span>&nbsp; <span class="chapter-title">Random Perturbation and Error Propagation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch49_operating_curves_roc_and_confidence.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">49</span>&nbsp; <span class="chapter-title">Operating Curves, ROC and Confidence</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch50_characterisation_protocol_and_experimental_design.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">50</span>&nbsp; <span class="chapter-title">A Characterisation Protocol: Experimental Design and Reporting</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch51_characterising_large_models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">51</span>&nbsp; <span class="chapter-title">Characterising Large Models</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#sec-system-problem" id="toc-sec-system-problem" class="nav-link active" data-scroll-target="#sec-system-problem"><span class="header-section-number">19.1</span> The system problem</a></li>
+  <li><a href="#sec-gd" id="toc-sec-gd" class="nav-link" data-scroll-target="#sec-gd"><span class="header-section-number">19.2</span> Gradient descent</a></li>
+  <li><a href="#sec-sgd" id="toc-sec-sgd" class="nav-link" data-scroll-target="#sec-sgd"><span class="header-section-number">19.3</span> Stochastic gradient descent</a></li>
+  <li><a href="#sec-momentum" id="toc-sec-momentum" class="nav-link" data-scroll-target="#sec-momentum"><span class="header-section-number">19.4</span> Momentum</a></li>
+  <li><a href="#sec-adam" id="toc-sec-adam" class="nav-link" data-scroll-target="#sec-adam"><span class="header-section-number">19.5</span> RMSProp and Adam</a>
+  <ul class="collapse">
+  <li><a href="#why-the-bias-correction" id="toc-why-the-bias-correction" class="nav-link" data-scroll-target="#why-the-bias-correction"><span class="header-section-number">19.5.1</span> Why the bias correction</a></li>
+  </ul></li>
+  <li><a href="#sec-schedules" id="toc-sec-schedules" class="nav-link" data-scroll-target="#sec-schedules"><span class="header-section-number">19.6</span> Learning-rate schedules</a></li>
+  <li><a href="#sec-race" id="toc-sec-race" class="nav-link" data-scroll-target="#sec-race"><span class="header-section-number">19.7</span> A race on the Rosenbrock valley</a></li>
+  <li><a href="#sec-train" id="toc-sec-train" class="nav-link" data-scroll-target="#sec-train"><span class="header-section-number">19.8</span> Training a network</a></li>
+  <li><a href="#sec-production" id="toc-sec-production" class="nav-link" data-scroll-target="#sec-production"><span class="header-section-number">19.9</span> Production: checking against PyTorch</a></li>
+  <li><a href="#sec-adamw" id="toc-sec-adamw" class="nav-link" data-scroll-target="#sec-adamw"><span class="header-section-number">19.10</span> AdamW: weight decay done properly</a></li>
+  <li><a href="#sec-failure" id="toc-sec-failure" class="nav-link" data-scroll-target="#sec-failure"><span class="header-section-number">19.11</span> Failure modes</a></li>
+  <li><a href="#sec-ai-connection" id="toc-sec-ai-connection" class="nav-link" data-scroll-target="#sec-ai-connection"><span class="header-section-number">19.12</span> Where this appears in modern AI</a></li>
+  <li><a href="#sec-system-connection" id="toc-sec-system-connection" class="nav-link" data-scroll-target="#sec-system-connection"><span class="header-section-number">19.13</span> System connection</a></li>
+  <li><a href="#chapter-summary" id="toc-chapter-summary" class="nav-link" data-scroll-target="#chapter-summary">Chapter summary</a></li>
+  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises">Exercises</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/ch16_change_and_derivatives.html">Part V — Learning</a></li><li class="breadcrumb-item"><a href="../chapters/ch19_optimization.html"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Optimization</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Optimization</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="callout callout-style-default callout-note callout-titled" title="Key ideas">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Key ideas
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li>An <strong>optimiser</strong> turns a gradient into a parameter update. The simplest rule is <span class="math inline">\(\theta\leftarrow\theta-\eta\,g\)</span>.</li>
+<li><strong>SGD</strong> uses the gradient of a random minibatch. It is an unbiased estimate with variance that falls as <span class="math inline">\(1/B\)</span>.</li>
+<li><strong>Momentum</strong> averages past gradients. It speeds up along valleys and damps zig-zag.</li>
+<li><strong>Adaptive methods</strong> (RMSProp, Adam) divide each coordinate’s step by its recent gradient size.</li>
+<li><strong>Learning-rate schedules</strong> (warmup, cosine decay) matter as much as the choice of optimiser.</li>
+</ul>
+</div>
+</div>
+<section id="sec-system-problem" class="level2" data-number="19.1">
+<h2 data-number="19.1" class="anchored" data-anchor-id="sec-system-problem"><span class="header-section-number">19.1</span> The system problem</h2>
+<p>Chapter 18 gives us <span class="math inline">\(\nabla_\theta L\)</span> for the cost of a few forward passes. Chapter 17 showed that the gradient gives the direction of steepest descent but says nothing about <strong>how far</strong> to go, or what to do when the surface is a long narrow valley.</p>
+<blockquote class="blockquote">
+<p><strong>Given a gradient, how large and in what direction should each parameter step be?</strong></p>
+</blockquote>
+<div id="cell-fig-where" class="cell" data-execution_count="2">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>system_map(highlight<span class="op">=</span>[<span class="st">"Measurement"</span>, <span class="st">"Learning"</span>],</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>           sublabels<span class="op">=</span>{<span class="st">"Learning"</span>: <span class="st">"Ch. 16–20"</span>})<span class="op">;</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="fig-where" class="quarto-float quarto-figure quarto-figure-center anchored" alt="System map with Measurement and Learning highlighted.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-where-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="ch19_optimization_files/figure-html/fig-where-output-1.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-1" title="Figure&nbsp;19.1: Chapter 19 turns the gradient of the Learning stage into updates."><img src="ch19_optimization_files/figure-html/fig-where-output-1.svg" class="img-fluid figure-img" alt="System map with Measurement and Learning highlighted."></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-where-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;19.1: Chapter 19 turns the gradient of the Learning stage into updates.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="sec-gd" class="level2" data-number="19.2">
+<h2 data-number="19.2" class="anchored" data-anchor-id="sec-gd"><span class="header-section-number">19.2</span> Gradient descent</h2>
+<p>The basic update (Chapter 1) is</p>
+<p><span id="eq-gd"><span class="math display">\[
+\theta_{t+1}=\theta_t-\eta\,\nabla L(\theta_t).
+\tag{19.1}\]</span></span></p>
+<p>We test it on an <strong>ill-conditioned quadratic</strong>: <span class="math inline">\(f(x,y)=\frac12(x^2+50\,y^2)\)</span>. The curvature is 1 along <span class="math inline">\(x\)</span> and 50 along <span class="math inline">\(y\)</span>. The condition number is <span class="math inline">\(\kappa=50\)</span>.</p>
+<p>On a quadratic, each coordinate decouples: <span class="math inline">\(y_{t+1}=(1-50\eta)\,y_t\)</span> and <span class="math inline">\(x_{t+1}=(1-\eta)\,x_t\)</span>. We need <span class="math inline">\(|1-50\eta|&lt;1\)</span> for stability. This is the condition <span class="math inline">\(\eta&lt;2/\lambda_{\max}=0.04\)</span> (derived in Chapter 20).</p>
+<div id="cell-fig-quad-gd" class="cell" data-execution_count="3">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>grad <span class="op">=</span> <span class="kw">lambda</span> p: np.array([p[<span class="dv">0</span>], <span class="dv">50</span> <span class="op">*</span> p[<span class="dv">1</span>]])</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>f <span class="op">=</span> <span class="kw">lambda</span> p: <span class="fl">0.5</span> <span class="op">*</span> (p[<span class="dv">0</span>] <span class="op">**</span> <span class="dv">2</span> <span class="op">+</span> <span class="dv">50</span> <span class="op">*</span> p[<span class="dv">1</span>] <span class="op">**</span> <span class="dv">2</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> run_gd(lr, steps, p0<span class="op">=</span>(<span class="fl">8.0</span>, <span class="fl">1.0</span>)):</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    p <span class="op">=</span> np.array(p0)<span class="op">;</span> path <span class="op">=</span> [p.copy()]</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(steps):</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>        p <span class="op">=</span> p <span class="op">-</span> lr <span class="op">*</span> grad(p)<span class="op">;</span> path.append(p.copy())</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.array(path)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>gx, gy <span class="op">=</span> np.meshgrid(np.linspace(<span class="op">-</span><span class="dv">9</span>, <span class="dv">9</span>, <span class="dv">200</span>), np.linspace(<span class="op">-</span><span class="fl">1.6</span>, <span class="fl">1.6</span>, <span class="dv">200</span>))</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="fl">3.4</span>))</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax, lr, n <span class="kw">in</span> <span class="bu">zip</span>(axes, [<span class="fl">0.036</span>, <span class="fl">0.01</span>], [<span class="dv">40</span>, <span class="dv">40</span>]):</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    P <span class="op">=</span> run_gd(lr, n)</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    ax.contour(gx, gy, <span class="fl">0.5</span> <span class="op">*</span> (gx <span class="op">**</span> <span class="dv">2</span> <span class="op">+</span> <span class="dv">50</span> <span class="op">*</span> gy <span class="op">**</span> <span class="dv">2</span>), levels<span class="op">=</span><span class="dv">12</span>, cmap<span class="op">=</span><span class="st">"viridis"</span>)</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    ax.plot(<span class="op">*</span>P.T, <span class="st">"o-"</span>, color<span class="op">=</span>PALETTE[<span class="st">"loss"</span>], ms<span class="op">=</span><span class="dv">3</span>, lw<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    ax.set_title(<span class="ss">f"η = </span><span class="sc">{</span>lr<span class="sc">}</span><span class="ss">   after </span><span class="sc">{</span>n<span class="sc">}</span><span class="ss"> steps: f = </span><span class="sc">{</span>f(P[<span class="op">-</span><span class="dv">1</span>])<span class="sc">:.3g}</span><span class="ss">"</span>, fontsize<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="fig-quad-gd" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Two contour plots of narrow ellipses with gradient descent paths: one zig-zagging with large steps, one smooth with small steps.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-quad-gd-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="ch19_optimization_files/figure-html/fig-quad-gd-output-1.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-2" title="Figure&nbsp;19.2: Gradient descent on f = ½(x² + 50y²). Left: with η = 0.036, close to the stability limit 0.04, the path zig-zags across the steep y direction while crawling along x. Right: with η = 0.01 the path is smooth but needs many more steps along x. No single step size fits both directions."><img src="ch19_optimization_files/figure-html/fig-quad-gd-output-1.svg" class="img-fluid figure-img" alt="Two contour plots of narrow ellipses with gradient descent paths: one zig-zagging with large steps, one smooth with small steps."></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-quad-gd-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;19.2: Gradient descent on f = ½(x² + 50y²). Left: with η = 0.036, close to the stability limit 0.04, the path zig-zags across the steep y direction while crawling along x. Right: with η = 0.01 the path is smooth but needs many more steps along x. No single step size fits both directions.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="sec-sgd" class="level2" data-number="19.3">
+<h2 data-number="19.3" class="anchored" data-anchor-id="sec-sgd"><span class="header-section-number">19.3</span> Stochastic gradient descent</h2>
+<p>The loss is an average over <span class="math inline">\(N\)</span> examples: <span class="math inline">\(L(\theta)=\frac1N\sum_{i}\ell_i(\theta)\)</span>. The full gradient needs all <span class="math inline">\(N\)</span>. For large <span class="math inline">\(N\)</span> this is too slow for every step.</p>
+<p><strong>SGD</strong> picks a random <strong>minibatch</strong> <span class="math inline">\(\mathcal{B}\)</span> of <span class="math inline">\(B\)</span> examples and uses</p>
+<p><span id="eq-sgd"><span class="math display">\[
+\hat{g}=\frac1B\sum_{i\in\mathcal{B}}\nabla\ell_i(\theta).
+\tag{19.2}\]</span></span></p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Why the minibatch gradient is a good estimate">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Why the minibatch gradient is a good estimate
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Draw each example uniformly at random. Then each <span class="math inline">\(\nabla\ell_i\)</span> has expectation <span class="math inline">\(\nabla L\)</span>. By linearity of expectation (Chapter 15), <span class="math display">\[
+\mathbb{E}[\hat{g}]=\frac1B\sum_{i\in\mathcal{B}}\mathbb{E}[\nabla\ell_i]=\nabla L.
+\]</span> The estimate is <strong>unbiased</strong>. For independent draws with per-example gradient variance <span class="math inline">\(\sigma^2\)</span>, the variance of the average is <span class="math inline">\(\sigma^2/B\)</span>. The error shrinks like <span class="math inline">\(1/\sqrt{B}\)</span>. <span class="math inline">\(\blacksquare\)</span></p>
+</div>
+</div>
+<p>Four times as many examples per step halves the noise, but costs four times as much compute. We verify both properties on the line-fit loss.</p>
+<div id="cell-fig-sgd-noise" class="cell" data-execution_count="4">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">0</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>N <span class="op">=</span> <span class="dv">5000</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> rng.uniform(<span class="op">-</span><span class="dv">2</span>, <span class="dv">2</span>, N)<span class="op">;</span> y <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> x <span class="op">+</span> <span class="dv">1</span> <span class="op">+</span> rng.normal(<span class="dv">0</span>, <span class="fl">0.5</span>, N)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>a, b <span class="op">=</span> <span class="fl">0.5</span>, <span class="fl">0.0</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>per_ex <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> (a <span class="op">*</span> x <span class="op">+</span> b <span class="op">-</span> y) <span class="op">*</span> x                          <span class="co"># ∂ℓ_i/∂a for every example</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>full <span class="op">=</span> per_ex.mean()</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>Bs <span class="op">=</span> [<span class="dv">1</span>, <span class="dv">4</span>, <span class="dv">16</span>, <span class="dv">64</span>, <span class="dv">256</span>, <span class="dv">1024</span>]</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>stds, means <span class="op">=</span> [], []</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> B <span class="kw">in</span> Bs:</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    g <span class="op">=</span> np.array([per_ex[rng.integers(<span class="dv">0</span>, N, B)].mean() <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">2000</span>)])</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    stds.append(g.std())<span class="op">;</span> means.append(g.mean())</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">5.6</span>, <span class="fl">3.4</span>))</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>ax.loglog(Bs, stds, <span class="st">"o-"</span>, color<span class="op">=</span>PALETTE[<span class="st">"loss"</span>], label<span class="op">=</span><span class="st">"measured"</span>)</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>ax.loglog(Bs, stds[<span class="dv">0</span>] <span class="op">/</span> np.sqrt(Bs), <span class="st">"--"</span>, color<span class="op">=</span>PALETTE[<span class="st">"neutral"</span>], label<span class="op">=</span><span class="st">"∝ 1/√B"</span>)</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"batch size B"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"std of minibatch gradient"</span>)<span class="op">;</span> ax.legend()</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"full gradient </span><span class="sc">{</span>full<span class="sc">:.3f}</span><span class="ss">;  mean of batch gradients </span><span class="sc">{</span>np<span class="sc">.</span><span class="bu">round</span>(means, <span class="dv">3</span>)<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="fig-sgd-noise" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Log-log plot of gradient standard deviation versus batch size with a straight falling line of slope minus one half.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-sgd-noise-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="ch19_optimization_files/figure-html/fig-sgd-noise-output-1.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-3" title="Figure&nbsp;19.3: Gradient noise versus batch size. Each point is the standard deviation of the minibatch gradient for slope parameter a, over 2000 random batches at a fixed θ. The line has slope −½ on a log-log plot: the noise falls as 1/√B. The mean of the batch gradients equals the full gradient."><img src="ch19_optimization_files/figure-html/fig-sgd-noise-output-1.svg" class="img-fluid figure-img" alt="Log-log plot of gradient standard deviation versus batch size with a straight falling line of slope minus one half."></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-sgd-noise-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;19.3: Gradient noise versus batch size. Each point is the standard deviation of the minibatch gradient for slope parameter a, over 2000 random batches at a fixed θ. The line has slope −½ on a log-log plot: the noise falls as 1/√B. The mean of the batch gradients equals the full gradient.
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>full gradient -4.010;  mean of batch gradients [-3.869 -4.077 -3.994 -3.991 -4.017 -4.014]</code></pre>
+</div>
+</div>
+<p><strong>Noise has benefits and costs.</strong> It lets the optimiser jitter out of shallow traps (Chapter 20). It also prevents settling exactly at a minimum unless the learning rate is lowered.</p>
+</section>
+<section id="sec-momentum" class="level2" data-number="19.4">
+<h2 data-number="19.4" class="anchored" data-anchor-id="sec-momentum"><span class="header-section-number">19.4</span> Momentum</h2>
+<p>Along a valley floor, successive gradients mostly agree. Across it, they alternate. <strong>Momentum</strong> keeps a running sum of past gradients and steps along it:</p>
+<p><span id="eq-momentum"><span class="math display">\[
+\mathbf{v}_{t+1}=\beta\,\mathbf{v}_t+\mathbf{g}_t,\qquad
+\theta_{t+1}=\theta_t-\eta\,\mathbf{v}_{t+1}.
+\tag{19.3}\]</span></span></p>
+<p>Unrolling, <span class="math inline">\(\mathbf{v}_t=\sum_{i}\beta^{t-i}\mathbf{g}_i\)</span>: an exponentially weighted sum of past gradients. If the gradient is constant, <span class="math inline">\(\mathbf{v}\to\mathbf{g}/(1-\beta)\)</span>. With <span class="math inline">\(\beta=0.9\)</span> the effective step is <strong>10 times</strong> larger along consistent directions. Components that flip sign cancel.</p>
+</section>
+<section id="sec-adam" class="level2" data-number="19.5">
+<h2 data-number="19.5" class="anchored" data-anchor-id="sec-adam"><span class="header-section-number">19.5</span> RMSProp and Adam</h2>
+<p>Momentum fixes direction. It does not fix the scale mismatch between parameters. In a network, gradients of different layers can differ by orders of magnitude.</p>
+<p><strong>RMSProp</strong> keeps a running average of the squared gradient per parameter and divides by its square root:</p>
+<p><span id="eq-rmsprop"><span class="math display">\[
+\mathbf{s}_{t+1}=\rho\,\mathbf{s}_t+(1-\rho)\,\mathbf{g}_t^{2},\qquad
+\theta_{t+1}=\theta_t-\eta\,\frac{\mathbf{g}_t}{\sqrt{\mathbf{s}_{t+1}}+\epsilon}.
+\tag{19.4}\]</span></span></p>
+<p>Each coordinate takes a step of roughly size <span class="math inline">\(\eta\)</span>, whatever the scale of its gradient.</p>
+<p><strong>Adam</strong> combines momentum (first moment <span class="math inline">\(\mathbf{m}\)</span>) with RMSProp (second moment <span class="math inline">\(\mathbf{v}\)</span>):</p>
+<p><span id="eq-adam"><span class="math display">\[
+\begin{aligned}
+\mathbf{m}_t&amp;=\beta_{1}\mathbf{m}_{t-1}+(1-\beta_1)\mathbf{g}_t,&amp;
+\hat{\mathbf{m}}_t&amp;=\mathbf{m}_t/(1-\beta_1^t),\\
+\mathbf{v}_t&amp;=\beta_{2}\mathbf{v}_{t-1}+(1-\beta_2)\mathbf{g}_t^2,&amp;
+\hat{\mathbf{v}}_t&amp;=\mathbf{v}_t/(1-\beta_2^t),\\
+\theta_t&amp;=\theta_{t-1}-\eta\,\frac{\hat{\mathbf{m}}_t}{\sqrt{\hat{\mathbf{v}}_t}+\epsilon}.
+\end{aligned}
+\tag{19.5}\]</span></span></p>
+<p>The common values are <span class="math inline">\(\beta_1=0.9\)</span>, <span class="math inline">\(\beta_2=0.999\)</span>, <span class="math inline">\(\epsilon=10^{-8}\)</span>.</p>
+<section id="why-the-bias-correction" class="level3" data-number="19.5.1">
+<h3 data-number="19.5.1" class="anchored" data-anchor-id="why-the-bias-correction"><span class="header-section-number">19.5.1</span> Why the bias correction</h3>
+<p>The averages start at <span class="math inline">\(\mathbf{m}_0=\mathbf{0}\)</span>. Early on they are <strong>too small</strong>, because most of the weight sits on the zero.</p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Derivation: the factor $1-\beta^t$">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Derivation: the factor <span class="math inline">\(1-\beta^t\)</span>
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Unrolling, <span class="math inline">\(\mathbf{m}_t=(1-\beta_1)\sum_{i=1}^{t}\beta_1^{\,t-i}\mathbf{g}_i\)</span>. If the gradients have a common mean <span class="math inline">\(\bar{\mathbf{g}}\)</span>, <span class="math display">\[
+\mathbb{E}[\mathbf{m}_t]=(1-\beta_1)\,\bar{\mathbf{g}}\sum_{i=1}^{t}\beta_1^{\,t-i}=(1-\beta_1)\,\bar{\mathbf{g}}\,\frac{1-\beta_1^t}{1-\beta_1}=(1-\beta_1^t)\,\bar{\mathbf{g}}.
+\]</span> So <span class="math inline">\(\mathbf{m}_t\)</span> underestimates <span class="math inline">\(\bar{\mathbf{g}}\)</span> by the factor <span class="math inline">\(1-\beta_1^t\)</span>. Dividing by it removes the bias. The same argument applies to <span class="math inline">\(\mathbf{v}_t\)</span>. <span class="math inline">\(\blacksquare\)</span></p>
+</div>
+</div>
+<div id="code-bias" class="cell" data-execution_count="5">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>beta1 <span class="op">=</span> <span class="fl">0.9</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> <span class="fl">0.0</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span><span class="st">'t'</span><span class="sc">:&gt;3s}</span><span class="ss"> </span><span class="sc">{</span><span class="st">'m_t'</span><span class="sc">:&gt;8s}</span><span class="ss"> </span><span class="sc">{</span><span class="st">'m_t/(1-β^t)'</span><span class="sc">:&gt;12s}</span><span class="ss">   (true gradient is a constant 1.0)"</span>)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> t <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">11</span>):</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    m <span class="op">=</span> beta1 <span class="op">*</span> m <span class="op">+</span> (<span class="dv">1</span> <span class="op">-</span> beta1) <span class="op">*</span> <span class="fl">1.0</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> t <span class="kw">in</span> (<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">5</span>, <span class="dv">10</span>):</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>t<span class="sc">:3d}</span><span class="ss"> </span><span class="sc">{</span>m<span class="sc">:8.3f}</span><span class="ss"> </span><span class="sc">{</span>m <span class="op">/</span> (<span class="dv">1</span> <span class="op">-</span> beta1 <span class="op">**</span> t)<span class="sc">:12.3f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  t      m_t  m_t/(1-β^t)   (true gradient is a constant 1.0)
+  1    0.100        1.000
+  2    0.190        1.000
+  3    0.271        1.000
+  5    0.410        1.000
+ 10    0.651        1.000</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="sec-schedules" class="level2" data-number="19.6">
+<h2 data-number="19.6" class="anchored" data-anchor-id="sec-schedules"><span class="header-section-number">19.6</span> Learning-rate schedules</h2>
+<p>The learning rate need not be constant. Common schedules:</p>
+<ul>
+<li><strong>Warmup</strong>: increase <span class="math inline">\(\eta\)</span> linearly from 0 over the first steps. Early gradient statistics are noisy, and a large first step can break a model.</li>
+<li><strong>Cosine decay</strong>: <span class="math inline">\(\eta_t=\eta_{\min}+\frac12(\eta_{\max}-\eta_{\min})\bigl(1+\cos\frac{\pi t}{T}\bigr)\)</span>. Large steps early, small ones late, for fine convergence.</li>
+</ul>
+<div id="cell-fig-schedules" class="cell" data-execution_count="6">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>T, warm <span class="op">=</span> <span class="dv">1000</span>, <span class="dv">100</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> np.arange(T)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>const <span class="op">=</span> np.full(T, <span class="fl">1.0</span>)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>step <span class="op">=</span> <span class="fl">1.0</span> <span class="op">*</span> <span class="fl">0.3</span> <span class="op">**</span> (t <span class="op">//</span> <span class="dv">300</span>)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>cosine <span class="op">=</span> <span class="fl">0.5</span> <span class="op">*</span> (<span class="dv">1</span> <span class="op">+</span> np.cos(np.pi <span class="op">*</span> t <span class="op">/</span> T))</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>warm_cos <span class="op">=</span> np.where(t <span class="op">&lt;</span> warm, t <span class="op">/</span> warm, <span class="fl">0.5</span> <span class="op">*</span> (<span class="dv">1</span> <span class="op">+</span> np.cos(np.pi <span class="op">*</span> (t <span class="op">-</span> warm) <span class="op">/</span> (T <span class="op">-</span> warm))))</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">6.2</span>, <span class="fl">3.4</span>))</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> y, name, c <span class="kw">in</span> [(const, <span class="st">"constant"</span>, PALETTE[<span class="st">"neutral"</span>]), (step, <span class="st">"step decay"</span>, PALETTE[<span class="st">"data"</span>]),</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>                   (cosine, <span class="st">"cosine"</span>, PALETTE[<span class="st">"model"</span>]), (warm_cos, <span class="st">"warmup + cosine"</span>, PALETTE[<span class="st">"grad"</span>])]:</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    ax.plot(t, y, label<span class="op">=</span>name, color<span class="op">=</span>c, lw<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"step"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"η / η_max"</span>)<span class="op">;</span> ax.legend(fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="fig-schedules" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Four curves of learning rate versus step: constant, step decay, cosine, and warmup followed by cosine.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-schedules-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="ch19_optimization_files/figure-html/fig-schedules-output-1.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-4" title="Figure&nbsp;19.4: Four learning-rate schedules over 1000 steps. Large language models typically use a short linear warmup followed by cosine decay."><img src="ch19_optimization_files/figure-html/fig-schedules-output-1.svg" class="img-fluid figure-img" alt="Four curves of learning rate versus step: constant, step decay, cosine, and warmup followed by cosine."></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-schedules-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;19.4: Four learning-rate schedules over 1000 steps. Large language models typically use a short linear warmup followed by cosine decay.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="sec-race" class="level2" data-number="19.7">
+<h2 data-number="19.7" class="anchored" data-anchor-id="sec-race"><span class="header-section-number">19.7</span> A race on the Rosenbrock valley</h2>
+<p>We implement the four optimisers in a few lines each. They take the parameter, the gradient, a state dictionary, and the step number.</p>
+<div id="code-optimisers" class="cell" data-execution_count="7">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> sgd(lr):</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">lambda</span> p, g, s, t: p <span class="op">-</span> lr <span class="op">*</span> g</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> momentum(lr, beta<span class="op">=</span><span class="fl">0.9</span>):</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> step(p, g, s, t):</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>        s[<span class="st">"v"</span>] <span class="op">=</span> beta <span class="op">*</span> s.get(<span class="st">"v"</span>, <span class="fl">0.0</span>) <span class="op">+</span> g</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> p <span class="op">-</span> lr <span class="op">*</span> s[<span class="st">"v"</span>]</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> step</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> rmsprop(lr, rho<span class="op">=</span><span class="fl">0.9</span>, eps<span class="op">=</span><span class="fl">1e-8</span>):</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> step(p, g, s, t):</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>        s[<span class="st">"s"</span>] <span class="op">=</span> rho <span class="op">*</span> s.get(<span class="st">"s"</span>, <span class="fl">0.0</span>) <span class="op">+</span> (<span class="dv">1</span> <span class="op">-</span> rho) <span class="op">*</span> g <span class="op">*</span> g</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> p <span class="op">-</span> lr <span class="op">*</span> g <span class="op">/</span> (np.sqrt(s[<span class="st">"s"</span>]) <span class="op">+</span> eps)</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> step</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> adam(lr, b1<span class="op">=</span><span class="fl">0.9</span>, b2<span class="op">=</span><span class="fl">0.999</span>, eps<span class="op">=</span><span class="fl">1e-8</span>):</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> step(p, g, s, t):</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>        s[<span class="st">"m"</span>] <span class="op">=</span> b1 <span class="op">*</span> s.get(<span class="st">"m"</span>, <span class="fl">0.0</span>) <span class="op">+</span> (<span class="dv">1</span> <span class="op">-</span> b1) <span class="op">*</span> g</span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>        s[<span class="st">"v"</span>] <span class="op">=</span> b2 <span class="op">*</span> s.get(<span class="st">"v"</span>, <span class="fl">0.0</span>) <span class="op">+</span> (<span class="dv">1</span> <span class="op">-</span> b2) <span class="op">*</span> g <span class="op">*</span> g</span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>        m_hat <span class="op">=</span> s[<span class="st">"m"</span>] <span class="op">/</span> (<span class="dv">1</span> <span class="op">-</span> b1 <span class="op">**</span> t)<span class="op">;</span> v_hat <span class="op">=</span> s[<span class="st">"v"</span>] <span class="op">/</span> (<span class="dv">1</span> <span class="op">-</span> b2 <span class="op">**</span> t)</span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> p <span class="op">-</span> lr <span class="op">*</span> m_hat <span class="op">/</span> (np.sqrt(v_hat) <span class="op">+</span> eps)</span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> step</span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>rosen <span class="op">=</span> <span class="kw">lambda</span> p: (<span class="dv">1</span> <span class="op">-</span> p[<span class="dv">0</span>]) <span class="op">**</span> <span class="dv">2</span> <span class="op">+</span> <span class="dv">100</span> <span class="op">*</span> (p[<span class="dv">1</span>] <span class="op">-</span> p[<span class="dv">0</span>] <span class="op">**</span> <span class="dv">2</span>) <span class="op">**</span> <span class="dv">2</span></span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> rosen_grad(p):</span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>    x, y <span class="op">=</span> p</span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.array([<span class="op">-</span><span class="dv">2</span> <span class="op">*</span> (<span class="dv">1</span> <span class="op">-</span> x) <span class="op">-</span> <span class="dv">400</span> <span class="op">*</span> x <span class="op">*</span> (y <span class="op">-</span> x <span class="op">**</span> <span class="dv">2</span>), <span class="dv">200</span> <span class="op">*</span> (y <span class="op">-</span> x <span class="op">**</span> <span class="dv">2</span>)])</span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> run(opt, steps, p0<span class="op">=</span>(<span class="op">-</span><span class="fl">1.5</span>, <span class="fl">2.0</span>)):</span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>    p, state <span class="op">=</span> np.array(p0), {}</span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>    path, vals <span class="op">=</span> [p.copy()], [rosen(p)]</span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> t <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, steps <span class="op">+</span> <span class="dv">1</span>):</span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a>        p <span class="op">=</span> opt(p, rosen_grad(p), state, t)</span>
+<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a>        path.append(p.copy())<span class="op">;</span> vals.append(rosen(p))</span>
+<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.array(path), np.array(vals)</span>
+<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a>configs <span class="op">=</span> {<span class="st">"SGD (η=0.001)"</span>: sgd(<span class="fl">0.001</span>),</span>
+<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a>           <span class="st">"Momentum (η=0.001)"</span>: momentum(<span class="fl">0.001</span>),</span>
+<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a>           <span class="st">"RMSProp (η=0.005)"</span>: rmsprop(<span class="fl">0.005</span>),</span>
+<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a>           <span class="st">"Adam (η=0.05)"</span>: adam(<span class="fl">0.05</span>)}</span>
+<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a>results <span class="op">=</span> {name: run(opt, <span class="dv">3000</span>) <span class="cf">for</span> name, opt <span class="kw">in</span> configs.items()}</span>
+<span id="cb8-42"><a href="#cb8-42" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span><span class="st">'optimiser'</span><span class="sc">:22s}</span><span class="ss"> </span><span class="sc">{</span><span class="st">'f after 500'</span><span class="sc">:&gt;12s}</span><span class="ss"> </span><span class="sc">{</span><span class="st">'f after 3000'</span><span class="sc">:&gt;13s}</span><span class="ss">"</span>)</span>
+<span id="cb8-43"><a href="#cb8-43" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> name, (path, vals) <span class="kw">in</span> results.items():</span>
+<span id="cb8-44"><a href="#cb8-44" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>name<span class="sc">:22s}</span><span class="ss"> </span><span class="sc">{</span>vals[<span class="dv">500</span>]<span class="sc">:12.4f}</span><span class="ss"> </span><span class="sc">{</span>vals[<span class="op">-</span><span class="dv">1</span>]<span class="sc">:13.2e}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>optimiser               f after 500  f after 3000
+SGD (η=0.001)                4.4705      4.87e-02
+Momentum (η=0.001)           0.0044      3.32e-12
+RMSProp (η=0.005)            2.4219      5.95e-03
+Adam (η=0.05)                0.1122      5.33e-29</code></pre>
+</div>
+</div>
+<div id="cell-fig-race" class="cell" data-execution_count="8">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>gx, gy <span class="op">=</span> np.meshgrid(np.linspace(<span class="op">-</span><span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">300</span>), np.linspace(<span class="op">-</span><span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">300</span>))</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>cols <span class="op">=</span> [PALETTE[<span class="st">"neutral"</span>], PALETTE[<span class="st">"data"</span>], PALETTE[<span class="st">"model"</span>], PALETTE[<span class="st">"loss"</span>]]</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>fig, (ax1, ax2) <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="fl">10.5</span>, <span class="dv">4</span>))</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>ax1.contour(gx, gy, np.log1p((<span class="dv">1</span> <span class="op">-</span> gx) <span class="op">**</span> <span class="dv">2</span> <span class="op">+</span> <span class="dv">100</span> <span class="op">*</span> (gy <span class="op">-</span> gx <span class="op">**</span> <span class="dv">2</span>) <span class="op">**</span> <span class="dv">2</span>), levels<span class="op">=</span><span class="dv">18</span>, cmap<span class="op">=</span><span class="st">"Greys"</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (name, (path, vals)), c <span class="kw">in</span> <span class="bu">zip</span>(results.items(), cols):</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    ax1.plot(<span class="op">*</span>path[::<span class="dv">10</span>].T, color<span class="op">=</span>c, lw<span class="op">=</span><span class="fl">1.4</span>, label<span class="op">=</span>name)</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    ax2.semilogy(vals <span class="op">+</span> <span class="fl">1e-12</span>, color<span class="op">=</span>c, lw<span class="op">=</span><span class="fl">1.6</span>, label<span class="op">=</span>name)</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>ax1.plot(<span class="dv">1</span>, <span class="dv">1</span>, <span class="st">"*"</span>, color<span class="op">=</span><span class="st">"black"</span>, ms<span class="op">=</span><span class="dv">14</span>)<span class="op">;</span> ax1.set_aspect(<span class="st">"equal"</span>)<span class="op">;</span> ax1.legend(fontsize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>ax2.set_xlabel(<span class="st">"step"</span>)<span class="op">;</span> ax2.set_ylabel(<span class="st">"f(x, y)"</span>)</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="fig-race" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Left: contour plot with four optimiser paths towards the minimum at one one. Right: log-scale curves of function value against step for the four optimisers.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-race-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="ch19_optimization_files/figure-html/fig-race-output-1.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-5" title="Figure&nbsp;19.5: Four optimisers on the Rosenbrock valley, from the same start (−1.5, 2). Left: paths. Right: the function value on a log scale. Momentum and Adam reach the minimum. Plain SGD at the same learning rate is much slower. Learning rates were set by a short manual search, so this is a demonstration, not a ranking."><img src="ch19_optimization_files/figure-html/fig-race-output-1.svg" class="img-fluid figure-img" alt="Left: contour plot with four optimiser paths towards the minimum at one one. Right: log-scale curves of function value against step for the four optimisers."></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-race-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;19.5: Four optimisers on the Rosenbrock valley, from the same start (−1.5, 2). Left: paths. Right: the function value on a log scale. Momentum and Adam reach the minimum. Plain SGD at the same learning rate is much slower. Learning rates were set by a short manual search, so this is a demonstration, not a ranking.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="sec-train" class="level2" data-number="19.8">
+<h2 data-number="19.8" class="anchored" data-anchor-id="sec-train"><span class="header-section-number">19.8</span> Training a network</h2>
+<p>We train the digits MLP of Chapter 11 with three optimisers from the same start, for 300 full-batch steps.</p>
+<div id="cell-fig-digits-opt" class="cell" data-execution_count="9">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch, torch.nn <span class="im">as</span> nn</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.datasets <span class="im">import</span> load_digits</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.model_selection <span class="im">import</span> train_test_split</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>D <span class="op">=</span> load_digits()</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>Xtr, Xte, ytr, yte <span class="op">=</span> train_test_split(D.data <span class="op">/</span> <span class="fl">16.0</span>, D.target, test_size<span class="op">=</span><span class="fl">0.25</span>,</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>                                      random_state<span class="op">=</span><span class="dv">0</span>, stratify<span class="op">=</span>D.target)</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>Xt, yt <span class="op">=</span> torch.tensor(Xtr, dtype<span class="op">=</span>torch.float32), torch.tensor(ytr)</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>Xv, yv <span class="op">=</span> torch.tensor(Xte, dtype<span class="op">=</span>torch.float32), torch.tensor(yte)</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> train(make_opt, steps<span class="op">=</span><span class="dv">300</span>):</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>    torch.manual_seed(<span class="dv">0</span>)</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>    m <span class="op">=</span> nn.Sequential(nn.Linear(<span class="dv">64</span>, <span class="dv">32</span>), nn.ReLU(), nn.Linear(<span class="dv">32</span>, <span class="dv">10</span>))</span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>    opt <span class="op">=</span> make_opt(m.parameters())<span class="op">;</span> hist <span class="op">=</span> []</span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(steps):</span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>        opt.zero_grad()</span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>        loss <span class="op">=</span> nn.functional.cross_entropy(m(Xt), yt)</span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>        loss.backward()<span class="op">;</span> opt.step()<span class="op">;</span> hist.append(loss.item())</span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>    acc <span class="op">=</span> (m(Xv).argmax(<span class="dv">1</span>) <span class="op">==</span> yv).<span class="bu">float</span>().mean().item()</span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> hist, acc</span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>runs <span class="op">=</span> {<span class="st">"SGD (lr 0.5)"</span>:         <span class="kw">lambda</span> p: torch.optim.SGD(p, lr<span class="op">=</span><span class="fl">0.5</span>),</span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a>        <span class="st">"SGD+momentum (lr 0.1)"</span>: <span class="kw">lambda</span> p: torch.optim.SGD(p, lr<span class="op">=</span><span class="fl">0.1</span>, momentum<span class="op">=</span><span class="fl">0.9</span>),</span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Adam (lr 0.01)"</span>:        <span class="kw">lambda</span> p: torch.optim.Adam(p, lr<span class="op">=</span><span class="fl">0.01</span>)}</span>
+<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">6.4</span>, <span class="fl">3.5</span>))</span>
+<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (name, mk), c <span class="kw">in</span> <span class="bu">zip</span>(runs.items(), [PALETTE[<span class="st">"neutral"</span>], PALETTE[<span class="st">"model"</span>], PALETTE[<span class="st">"loss"</span>]]):</span>
+<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a>    hist, acc <span class="op">=</span> train(mk)</span>
+<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a>    ax.semilogy(hist, label<span class="op">=</span>name, color<span class="op">=</span>c, lw<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>name<span class="sc">:24s}</span><span class="ss"> final loss </span><span class="sc">{</span>hist[<span class="op">-</span><span class="dv">1</span>]<span class="sc">:.4f}</span><span class="ss">   test accuracy </span><span class="sc">{</span>acc<span class="sc">:.3f}</span><span class="ss">"</span>)</span>
+<span id="cb11-29"><a href="#cb11-29" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"step"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"training loss"</span>)<span class="op">;</span> ax.legend()</span>
+<span id="cb11-30"><a href="#cb11-30" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>SGD (lr 0.5)             final loss 0.0789   test accuracy 0.967
+SGD+momentum (lr 0.1)    final loss 0.0429   test accuracy 0.971
+Adam (lr 0.01)           final loss 0.0077   test accuracy 0.973</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div id="fig-digits-opt" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Three loss curves on a log scale over 300 steps. SGD is highest, momentum is lower, and Adam is lowest.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-digits-opt-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="ch19_optimization_files/figure-html/fig-digits-opt-output-2.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-6" title="Figure&nbsp;19.6: Training loss of the digits MLP with SGD, SGD with momentum, and Adam, from the same initial weights. Adam reaches a much lower loss in 300 steps at its default-style learning rate. Each optimiser’s learning rate was chosen from a small grid."><img src="ch19_optimization_files/figure-html/fig-digits-opt-output-2.svg" class="img-fluid figure-img" alt="Three loss curves on a log scale over 300 steps. SGD is highest, momentum is lower, and Adam is lowest."></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-digits-opt-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;19.6: Training loss of the digits MLP with SGD, SGD with momentum, and Adam, from the same initial weights. Adam reaches a much lower loss in 300 steps at its default-style learning rate. Each optimiser’s learning rate was chosen from a small grid.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="sec-production" class="level2" data-number="19.9">
+<h2 data-number="19.9" class="anchored" data-anchor-id="sec-production"><span class="header-section-number">19.9</span> Production: checking against PyTorch</h2>
+<p>Our optimisers should do exactly what <code>torch.optim</code> does. We run both for 100 steps on Rosenbrock and compare the paths.</p>
+<div id="code-torch-check" class="cell" data-execution_count="10">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> torch_path(make_opt, steps<span class="op">=</span><span class="dv">100</span>, p0<span class="op">=</span>(<span class="op">-</span><span class="fl">1.5</span>, <span class="fl">2.0</span>)):</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    p <span class="op">=</span> torch.tensor(p0, dtype<span class="op">=</span>torch.float64, requires_grad<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    opt <span class="op">=</span> make_opt([p])<span class="op">;</span> out <span class="op">=</span> []</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(steps):</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>        opt.zero_grad()</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>        loss <span class="op">=</span> (<span class="dv">1</span> <span class="op">-</span> p[<span class="dv">0</span>]) <span class="op">**</span> <span class="dv">2</span> <span class="op">+</span> <span class="dv">100</span> <span class="op">*</span> (p[<span class="dv">1</span>] <span class="op">-</span> p[<span class="dv">0</span>] <span class="op">**</span> <span class="dv">2</span>) <span class="op">**</span> <span class="dv">2</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>        loss.backward()<span class="op">;</span> opt.step()<span class="op">;</span> out.append(p.detach().numpy().copy())</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.array(out)</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>pairs <span class="op">=</span> [(<span class="st">"momentum"</span>, momentum(<span class="fl">0.001</span>, <span class="fl">0.9</span>),</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>          <span class="kw">lambda</span> ps: torch.optim.SGD(ps, lr<span class="op">=</span><span class="fl">0.001</span>, momentum<span class="op">=</span><span class="fl">0.9</span>)),</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>         (<span class="st">"Adam"</span>, adam(<span class="fl">0.05</span>), <span class="kw">lambda</span> ps: torch.optim.Adam(ps, lr<span class="op">=</span><span class="fl">0.05</span>))]</span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> name, ours, theirs <span class="kw">in</span> pairs:</span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>    mine, _ <span class="op">=</span> run(ours, <span class="dv">100</span>)</span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>    ref <span class="op">=</span> torch_path(theirs, <span class="dv">100</span>)</span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>name<span class="sc">:9s}</span><span class="ss"> max |ours − torch.optim| over 100 steps: "</span></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>          <span class="ss">f"</span><span class="sc">{</span>np<span class="sc">.</span><span class="bu">abs</span>(mine[<span class="dv">1</span>:] <span class="op">-</span> ref)<span class="sc">.</span><span class="bu">max</span>()<span class="sc">:.2e}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>momentum  max |ours − torch.optim| over 100 steps: 1.67e-15
+Adam      max |ours − torch.optim| over 100 steps: 2.22e-16</code></pre>
+</div>
+</div>
+</section>
+<section id="sec-adamw" class="level2" data-number="19.10">
+<h2 data-number="19.10" class="anchored" data-anchor-id="sec-adamw"><span class="header-section-number">19.10</span> AdamW: weight decay done properly</h2>
+<p><strong>Weight decay</strong> shrinks weights towards zero. For plain SGD it equals adding <span class="math inline">\(\lambda\theta\)</span> to the gradient (the L2 penalty of Chapter 28). With Adam it does <strong>not</strong>: the added gradient passes through the adaptive scaling, which changes its effect.</p>
+<p><strong>AdamW</strong> applies the decay directly to the weights:</p>
+<p><span id="eq-adamw"><span class="math display">\[
+\theta_t=\theta_{t-1}-\eta\left(\frac{\hat{\mathbf{m}}_t}{\sqrt{\hat{\mathbf{v}}_t}+\epsilon}+\lambda\,\theta_{t-1}\right).
+\tag{19.6}\]</span></span></p>
+<p>We see the difference with a parameter that has <strong>no loss gradient at all</strong>, only decay.</p>
+<div id="code-adamw" class="cell" data-execution_count="11">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> decay_run(coupled, steps<span class="op">=</span><span class="dv">100</span>, lr<span class="op">=</span><span class="fl">0.01</span>, lam<span class="op">=</span><span class="fl">0.5</span>):</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    out <span class="op">=</span> {}</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> start <span class="kw">in</span> [<span class="fl">1.0</span>, <span class="fl">5.0</span>]:</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>        p, m, v <span class="op">=</span> start, <span class="fl">0.0</span>, <span class="fl">0.0</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> t <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, steps <span class="op">+</span> <span class="dv">1</span>):</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>            g <span class="op">=</span> lam <span class="op">*</span> p <span class="cf">if</span> coupled <span class="cf">else</span> <span class="fl">0.0</span>               <span class="co"># L2 inside the gradient</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>            m <span class="op">=</span> <span class="fl">0.9</span> <span class="op">*</span> m <span class="op">+</span> <span class="fl">0.1</span> <span class="op">*</span> g<span class="op">;</span> v <span class="op">=</span> <span class="fl">0.999</span> <span class="op">*</span> v <span class="op">+</span> <span class="fl">0.001</span> <span class="op">*</span> g <span class="op">*</span> g</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>            step <span class="op">=</span> (m <span class="op">/</span> (<span class="dv">1</span> <span class="op">-</span> <span class="fl">0.9</span> <span class="op">**</span> t)) <span class="op">/</span> (np.sqrt(v <span class="op">/</span> (<span class="dv">1</span> <span class="op">-</span> <span class="fl">0.999</span> <span class="op">**</span> t)) <span class="op">+</span> <span class="fl">1e-8</span>)</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>            p <span class="op">=</span> p <span class="op">-</span> lr <span class="op">*</span> step <span class="op">-</span> (<span class="dv">0</span> <span class="cf">if</span> coupled <span class="cf">else</span> lr <span class="op">*</span> lam <span class="op">*</span> p)</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>        out[start] <span class="op">=</span> p</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> out</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"start values 1.0 and 5.0, 100 steps, no loss gradient"</span>)</span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"  Adam + L2 (coupled)  :"</span>, {k: <span class="bu">round</span>(<span class="bu">float</span>(v), <span class="dv">3</span>) <span class="cf">for</span> k, v <span class="kw">in</span> decay_run(<span class="va">True</span>).items()})</span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"  AdamW    (decoupled) :"</span>, {k: <span class="bu">round</span>(<span class="bu">float</span>(v), <span class="dv">3</span>) <span class="cf">for</span> k, v <span class="kw">in</span> decay_run(<span class="va">False</span>).items()})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>start values 1.0 and 5.0, 100 steps, no loss gradient
+  Adam + L2 (coupled)  : {1.0: 0.224, 5.0: 4.036}
+  AdamW    (decoupled) : {1.0: 0.606, 5.0: 3.029}</code></pre>
+</div>
+</div>
+<p>With coupled decay, both weights fall by almost the same absolute amount (about 0.8 and 1.0 here, roughly <span class="math inline">\(\eta\)</span> per step), whatever their size, because Adam normalises the tiny gradient to a unit step. AdamW shrinks each weight by the same <em>fraction</em> (both end at 61% of their start). This is the behaviour that “weight decay” means, which is why AdamW is the standard for Transformers.</p>
+</section>
+<section id="sec-failure" class="level2" data-number="19.11">
+<h2 data-number="19.11" class="anchored" data-anchor-id="sec-failure"><span class="header-section-number">19.11</span> Failure modes</h2>
+<p><strong>Learning rate too large.</strong> The loss grows or becomes <code>nan</code>. Reduce <span class="math inline">\(\eta\)</span> or add warmup and gradient clipping (Chapter 20).</p>
+<p><strong>Learning rate too small.</strong> Training is slow and may look converged. A learning-rate sweep on a log scale is the first diagnostic.</p>
+<p><strong>Epsilon.</strong> In Adam, <span class="math inline">\(\epsilon\)</span> prevents division by zero. For very small gradients, a large <span class="math inline">\(\epsilon\)</span> makes the optimiser behave like SGD. In 16-bit arithmetic, <span class="math inline">\(10^{-8}\)</span> underflows to zero.</p>
+<p><strong>Weight decay on the wrong parameters.</strong> Biases and normalisation scales are normally excluded from decay.</p>
+<p><strong>No warmup.</strong> Large models with Adam can diverge in the first steps, before the second-moment estimates are reliable.</p>
+<p><strong>Batch size and learning rate.</strong> Larger batches give less noise. They usually allow, and need, a larger learning rate. The rule of thumb is to scale <span class="math inline">\(\eta\)</span> linearly with <span class="math inline">\(B\)</span> up to a limit.</p>
+<p><strong>Generalisation.</strong> An optimiser that fits the training set faster does not always generalise better. Some settings favour SGD with momentum for vision models.</p>
+</section>
+<section id="sec-ai-connection" class="level2" data-number="19.12">
+<h2 data-number="19.12" class="anchored" data-anchor-id="sec-ai-connection"><span class="header-section-number">19.12</span> Where this appears in modern AI</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Place</th>
+<th>Practice</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>LLM pre-training</td>
+<td>AdamW, <span class="math inline">\(\beta_{2}\approx0.95\)</span>, linear warmup then cosine decay, gradient clipping</td>
+</tr>
+<tr class="even">
+<td>Vision models</td>
+<td>SGD with momentum or AdamW, cosine schedule</td>
+</tr>
+<tr class="odd">
+<td>Fine-tuning</td>
+<td>small learning rate (<span class="math inline">\(10^{-5}\)</span> to <span class="math inline">\(10^{-4}\)</span>), few steps</td>
+</tr>
+<tr class="even">
+<td>LoRA (Chapter 7)</td>
+<td>AdamW on the low-rank factors only</td>
+</tr>
+<tr class="odd">
+<td>Memory</td>
+<td>Adam stores two extra tensors per parameter</td>
+</tr>
+<tr class="even">
+<td>Large batches</td>
+<td>learning-rate scaling and warmup</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="sec-system-connection" class="level2" data-number="19.13">
+<h2 data-number="19.13" class="anchored" data-anchor-id="sec-system-connection"><span class="header-section-number">19.13</span> System connection</h2>
+<div class="callout callout-style-default callout-note callout-titled" title="What the system gained in this chapter">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>What the system gained in this chapter
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The system can now <strong>move</strong>. It has update rules that use momentum, adapt each parameter’s step, and follow a schedule. Together with the gradient (Chapter 18), the learning loop of Chapter 1 is complete and practical:</p>
+<p><span class="math display">\[
+x\to f_\theta(x)\to L\to\nabla_\theta L\to\theta'.
+\]</span></p>
+<p>What remains is understanding <strong>when</strong> this loop works, and why it sometimes does not. Chapter 20 studies stability, conditioning, initialisation, and normalisation.</p>
+</div>
+</div>
+</section>
+<section id="chapter-summary" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="chapter-summary">Chapter summary</h2>
+<ul>
+<li>GD: <span class="math inline">\(\theta\leftarrow\theta-\eta g\)</span>. On a quadratic, it is stable only for <span class="math inline">\(\eta&lt;2/\lambda_{\max}\)</span>.</li>
+<li>SGD uses a minibatch gradient: unbiased, with variance <span class="math inline">\(\propto1/B\)</span>.</li>
+<li>Momentum: <span class="math inline">\(v\leftarrow\beta v+g\)</span>. It accelerates consistent directions and damps oscillation.</li>
+<li>RMSProp divides by the running RMS of the gradient. Adam adds momentum and bias correction.</li>
+<li>The bias correction <span class="math inline">\(1/(1-\beta^t)\)</span> compensates for the zero start.</li>
+<li>AdamW decouples weight decay from the adaptive step.</li>
+<li>Warmup and cosine decay are standard schedules.</li>
+</ul>
+</section>
+<section id="exercises" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="exercises">Exercises</h2>
+<ol type="1">
+<li><strong>Compute.</strong> Starting at <span class="math inline">\(\theta_0=5\)</span> with <span class="math inline">\(L=\frac12\theta^2\)</span>, do three steps of gradient descent with <span class="math inline">\(\eta=0.5\)</span>. Then do three steps with momentum <span class="math inline">\(\beta=0.9\)</span>, <span class="math inline">\(\eta=0.1\)</span>.</li>
+<li><strong>Derive.</strong> On <span class="math inline">\(f=\frac12\lambda\theta^2\)</span>, show that GD gives <span class="math inline">\(\theta_t=(1-\eta\lambda)^{t}\theta_0\)</span>. For which <span class="math inline">\(\eta\)</span> does it converge? For which does it oscillate?</li>
+<li><strong>Derive.</strong> Show that with a constant gradient <span class="math inline">\(g\)</span>, momentum reaches the velocity <span class="math inline">\(g/(1-\beta)\)</span>.</li>
+<li><strong>Derive.</strong> Show that the first Adam step, with bias correction, is <span class="math inline">\(-\eta\,\text{sign}(g)\)</span> (ignoring <span class="math inline">\(\epsilon\)</span>).</li>
+<li><strong>Code.</strong> Measure how many steps SGD needs to reach <span class="math inline">\(f&lt;10^{-6}\)</span> on the ill-conditioned quadratic for <span class="math inline">\(\kappa=10,100,1000\)</span>. Plot steps against <span class="math inline">\(\kappa\)</span>.</li>
+<li><strong>Code.</strong> Train the digits MLP with batch sizes 8, 64, and the full set, with a fixed number of <em>epochs</em>. Compare the test accuracy.</li>
+<li><strong>Code.</strong> Add linear warmup (50 steps) to the Adam run on the digits. Does it change the loss curve?</li>
+<li><strong>Code.</strong> Implement Nesterov momentum and compare it with standard momentum on the Rosenbrock function.</li>
+<li><strong>Diagnose.</strong> A model trained with Adam diverges at step 12 and never recovers. Give three possible causes and one change for each.</li>
+<li><strong>Explain.</strong> Why does Adam use less manual learning-rate tuning than SGD? What does it still need?</li>
+</ol>
+
+
+</section>
+
+</main> <!-- /main -->
+<script>
+/* Keep the left navigation stable between pages: all parts expanded,
+   and the sidebar scroll position remembered across page loads. */
+(function () {
+  var KEY = "mathsystems-sidebar-scroll";
+  function side() { return document.getElementById("quarto-sidebar"); }
+  function scroller() {
+    var s = side(); if (!s) return null;
+    return s.querySelector(".sidebar-menu-container") || s;
+  }
+  function expandAll() {
+    var s = side(); if (!s) return;
+    s.querySelectorAll(".collapse").forEach(function (el) { el.classList.add("show"); });
+    s.querySelectorAll('[aria-expanded="false"]').forEach(function (el) { el.setAttribute("aria-expanded", "true"); });
+    s.querySelectorAll(".sidebar-item-toggle.collapsed, a.collapsed").forEach(function (el) { el.classList.remove("collapsed"); });
+  }
+  function restore() {
+    var sc = scroller(), v = null;
+    try { v = sessionStorage.getItem(KEY); } catch (e) {}
+    if (sc && v !== null) sc.scrollTop = parseInt(v, 10);
+  }
+  function save() {
+    var sc = scroller();
+    if (!sc) return;
+    try { sessionStorage.setItem(KEY, String(sc.scrollTop)); } catch (e) {}
+  }
+  document.addEventListener("DOMContentLoaded", function () {
+    expandAll(); restore();
+    var sc = scroller();
+    if (sc) sc.addEventListener("scroll", save, { passive: true });
+    document.addEventListener("click", save, true);
+    window.addEventListener("pagehide", save);
+  });
+  window.addEventListener("load", function () {
+    expandAll(); restore();
+    setTimeout(restore, 50); setTimeout(restore, 250);   /* after the theme's own scroll-into-view */
+  });
+})();
+</script>
+<style>
+/* no jump while the menu is being expanded */
+#quarto-sidebar .collapse { transition: none !important; }
+</style>
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/vsrveera\.github\.io\/books\/mathai\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../chapters/ch18_chain_rule_and_backpropagation.html" class="pagination-link" aria-label="The Chain Rule and Backpropagation">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">The Chain Rule and Backpropagation</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../chapters/ch20_the_geometry_and_dynamics_of_learning.html" class="pagination-link" aria-label="The Geometry and Dynamics of Learning">
+        <span class="nav-page-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">The Geometry and Dynamics of Learning</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<script>var lightboxQuarto = GLightbox({"closeEffect":"zoom","descPosition":"bottom","loop":false,"openEffect":"zoom","selector":".lightbox"});
+(function() {
+  let previousOnload = window.onload;
+  window.onload = () => {
+    if (previousOnload) {
+      previousOnload();
+    }
+    lightboxQuarto.on('slide_before_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      const href = trigger.getAttribute('href');
+      if (href !== null) {
+        const imgEl = window.document.querySelector(`a[href="${href}"] img`);
+        if (imgEl !== null) {
+          const srcAttr = imgEl.getAttribute("src");
+          if (srcAttr && srcAttr.startsWith("data:")) {
+            slideConfig.href = srcAttr;
+          }
+        }
+      } 
+    });
+  
+    lightboxQuarto.on('slide_after_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(slideNode);
+      }
+    });
+  
+  };
+  
+})();
+          </script>
+
+
+
+
+<script src="../site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

@@ -1,0 +1,2147 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.19">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>18&nbsp; The Chain Rule and Backpropagation – Mathematics of Artificial Intelligence</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../chapters/ch19_optimization.html" rel="next">
+<link href="../chapters/ch17_gradients_and_multivariable_calculus.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-43d2fa13cb35dd2022b3c25d65fdd634.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-19432b6b5c85f3ab30851b7038f884b0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="../site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
+<link href="../site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
+<link href="../site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar docked quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/ch16_change_and_derivatives.html">Part V — Learning</a></li><li class="breadcrumb-item"><a href="../chapters/ch18_chain_rule_and_backpropagation.html"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">The Chain Rule and Backpropagation</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">Mathematics of Artificial Intelligence</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part I — The Mathematical Machine</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch01_ai_as_a_mathematical_system.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">AI as a Mathematical System</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch02_language_of_mathematical_ai.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">The Language of Mathematical AI</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part II — Representation</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch03_vectors_representing_information.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Vectors: Representing Information</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch04_geometry_of_representations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Geometry of Representations</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch05_matrices_representing_transformations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Matrices: Representing Transformations</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch06_tensors_and_high_dimensional_data.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Tensors and High-Dimensional Data</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch07_structure_hidden_in_data.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Structure Hidden in Data</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part III — Transformation</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch08_functions_as_machines.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Functions as Machines</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch09_linear_transformations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Linear Transformations</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch10_nonlinearity_and_expressiveness.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Nonlinearity and Expressiveness</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch11_neural_networks_as_function_composition.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Neural Networks as Function Composition</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch12_convolution_and_structured_transformations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Convolution and Structured Transformations</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part IV — Measurement</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch13_distance_similarity_and_geometry.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Distance, Similarity and Geometry</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch14_loss_functions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Loss Functions</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch15_information_as_a_mathematical_quantity.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Information as a Mathematical Quantity</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part V — Learning</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch16_change_and_derivatives.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Change and Derivatives</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch17_gradients_and_multivariable_calculus.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Gradients and Multivariable Calculus</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch18_chain_rule_and_backpropagation.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">The Chain Rule and Backpropagation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch19_optimization.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Optimization</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch20_the_geometry_and_dynamics_of_learning.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">The Geometry and Dynamics of Learning</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part VI — Uncertainty</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch21_probability_as_a_language_of_uncertainty.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Probability as a Language of Uncertainty</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch22_conditional_probability_and_bayes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Conditional Probability and Bayes</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch23_probability_distributions_used_in_ai.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Probability Distributions Used in AI</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch24_from_scores_to_probabilities.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">From Scores to Probabilities</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch25_statistical_estimation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Statistical Estimation</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part VII — Generalization</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch26_from_samples_to_populations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">From Samples to Populations</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch27_generalization.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Generalization</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch28_bias_variance_and_regularization.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Bias, Variance and Regularization</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch29_statistical_learning_theory.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Statistical Learning Theory</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part VIII — Putting the Mathematical Systems Together</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch30_the_mathematics_of_attention.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">30</span>&nbsp; <span class="chapter-title">The Mathematics of Attention</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch31_the_mathematics_of_the_transformer.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">31</span>&nbsp; <span class="chapter-title">The Mathematics of the Transformer</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch32_decoder_only_language_models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">32</span>&nbsp; <span class="chapter-title">Decoder-only Language Models</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch33_autoregressive_generation_and_sampling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">33</span>&nbsp; <span class="chapter-title">Autoregressive Generation and Sampling</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch34_mixture_of_experts_scale_and_numerical_precision.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">34</span>&nbsp; <span class="chapter-title">Mixture-of-Experts, Scale and Numerical Precision</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch35_convolutional_vision_in_depth.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">Convolutional Vision in Depth</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch36_vision_transformers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Vision Transformers</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch37_detection_and_structured_prediction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">Detection and Structured Prediction</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch38_representation_and_self_supervised_learning.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">38</span>&nbsp; <span class="chapter-title">Representation and Self-Supervised Learning</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch39_clip_and_multimodal_language_models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">39</span>&nbsp; <span class="chapter-title">CLIP and Multimodal Language Models</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch40_latent_variable_models_and_vaes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">40</span>&nbsp; <span class="chapter-title">Latent-Variable Models and VAEs</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch41_diffusion_models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">41</span>&nbsp; <span class="chapter-title">Diffusion Models</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch42_latent_diffusion_and_diffusion_transformers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">42</span>&nbsp; <span class="chapter-title">Latent Diffusion and Diffusion Transformers</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch43_flow_matching.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">43</span>&nbsp; <span class="chapter-title">Flow Matching</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch44_one_ai_system_all_the_mathematics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">44</span>&nbsp; <span class="chapter-title">One AI System, All the Mathematics</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part IX — Systems Thinking and Performance Characterisation</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch45_systems_thinking_components_and_interfaces.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">45</span>&nbsp; <span class="chapter-title">Systems Thinking: Components, Interfaces and Contracts</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch46_feedback_coupling_and_stability.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">46</span>&nbsp; <span class="chapter-title">Feedback, Coupling and Stability</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch47_performance_characterisation_the_paradigm.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">47</span>&nbsp; <span class="chapter-title">Performance Characterisation: The Paradigm</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch48_random_perturbation_and_error_propagation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">48</span>&nbsp; <span class="chapter-title">Random Perturbation and Error Propagation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch49_operating_curves_roc_and_confidence.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">49</span>&nbsp; <span class="chapter-title">Operating Curves, ROC and Confidence</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch50_characterisation_protocol_and_experimental_design.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">50</span>&nbsp; <span class="chapter-title">A Characterisation Protocol: Experimental Design and Reporting</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch51_characterising_large_models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">51</span>&nbsp; <span class="chapter-title">Characterising Large Models</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#sec-system-problem" id="toc-sec-system-problem" class="nav-link active" data-scroll-target="#sec-system-problem"><span class="header-section-number">18.1</span> The system problem</a></li>
+  <li><a href="#sec-intuition" id="toc-sec-intuition" class="nav-link" data-scroll-target="#sec-intuition"><span class="header-section-number">18.2</span> Intuition: sensitivity flows backward</a></li>
+  <li><a href="#sec-object" id="toc-sec-object" class="nav-link" data-scroll-target="#sec-object"><span class="header-section-number">18.3</span> The mathematical object</a>
+  <ul class="collapse">
+  <li><a href="#single-variable" id="toc-single-variable" class="nav-link" data-scroll-target="#single-variable"><span class="header-section-number">18.3.1</span> Single variable</a></li>
+  <li><a href="#many-variables" id="toc-many-variables" class="nav-link" data-scroll-target="#many-variables"><span class="header-section-number">18.3.2</span> Many variables</a></li>
+  <li><a href="#the-computational-graph" id="toc-the-computational-graph" class="nav-link" data-scroll-target="#the-computational-graph"><span class="header-section-number">18.3.3</span> The computational graph</a></li>
+  </ul></li>
+  <li><a href="#sec-local" id="toc-sec-local" class="nav-link" data-scroll-target="#sec-local"><span class="header-section-number">18.4</span> Operations: local derivatives</a>
+  <ul class="collapse">
+  <li><a href="#paths-add-fan-out" id="toc-paths-add-fan-out" class="nav-link" data-scroll-target="#paths-add-fan-out"><span class="header-section-number">18.4.1</span> Paths add: fan-out</a></li>
+  </ul></li>
+  <li><a href="#sec-derivation" id="toc-sec-derivation" class="nav-link" data-scroll-target="#sec-derivation"><span class="header-section-number">18.5</span> Derivation: backpropagation through a network</a>
+  <ul class="collapse">
+  <li><a href="#setup" id="toc-setup" class="nav-link" data-scroll-target="#setup"><span class="header-section-number">18.5.1</span> Setup</a></li>
+  <li><a href="#step-1-the-output-layer" id="toc-step-1-the-output-layer" class="nav-link" data-scroll-target="#step-1-the-output-layer"><span class="header-section-number">18.5.2</span> Step 1: the output layer</a></li>
+  <li><a href="#step-2-from-one-layer-back-to-the-previous-one" id="toc-step-2-from-one-layer-back-to-the-previous-one" class="nav-link" data-scroll-target="#step-2-from-one-layer-back-to-the-previous-one"><span class="header-section-number">18.5.3</span> Step 2: from one layer back to the previous one</a></li>
+  <li><a href="#step-3-the-parameter-gradients" id="toc-step-3-the-parameter-gradients" class="nav-link" data-scroll-target="#step-3-the-parameter-gradients"><span class="header-section-number">18.5.4</span> Step 3: the parameter gradients</a></li>
+  <li><a href="#the-algorithm" id="toc-the-algorithm" class="nav-link" data-scroll-target="#the-algorithm"><span class="header-section-number">18.5.5</span> The algorithm</a></li>
+  <li><a href="#special-case-logistic-output-with-cross-entropy" id="toc-special-case-logistic-output-with-cross-entropy" class="nav-link" data-scroll-target="#special-case-logistic-output-with-cross-entropy"><span class="header-section-number">18.5.6</span> Special case: logistic output with cross-entropy</a></li>
+  </ul></li>
+  <li><a href="#sec-geometry" id="toc-sec-geometry" class="nav-link" data-scroll-target="#sec-geometry"><span class="header-section-number">18.6</span> Geometry: two flows</a></li>
+  <li><a href="#sec-computation" id="toc-sec-computation" class="nav-link" data-scroll-target="#sec-computation"><span class="header-section-number">18.7</span> Computation: from first principles</a>
+  <ul class="collapse">
+  <li><a href="#a-scalar-engine-in-plain-python" id="toc-a-scalar-engine-in-plain-python" class="nav-link" data-scroll-target="#a-scalar-engine-in-plain-python"><span class="header-section-number">18.7.1</span> A scalar engine in plain Python</a></li>
+  <li><a href="#a-tiny-neural-network-on-the-engine" id="toc-a-tiny-neural-network-on-the-engine" class="nav-link" data-scroll-target="#a-tiny-neural-network-on-the-engine"><span class="header-section-number">18.7.2</span> A tiny neural network on the engine</a></li>
+  <li><a href="#matrix-backpropagation-in-numpy" id="toc-matrix-backpropagation-in-numpy" class="nav-link" data-scroll-target="#matrix-backpropagation-in-numpy"><span class="header-section-number">18.7.3</span> Matrix backpropagation in NumPy</a></li>
+  <li><a href="#gradient-checking" id="toc-gradient-checking" class="nav-link" data-scroll-target="#gradient-checking"><span class="header-section-number">18.7.4</span> Gradient checking</a></li>
+  </ul></li>
+  <li><a href="#sec-cost" id="toc-sec-cost" class="nav-link" data-scroll-target="#sec-cost"><span class="header-section-number">18.8</span> Why backpropagation matters: cost</a></li>
+  <li><a href="#sec-training" id="toc-sec-training" class="nav-link" data-scroll-target="#sec-training"><span class="header-section-number">18.9</span> Training a network</a></li>
+  <li><a href="#sec-production" id="toc-sec-production" class="nav-link" data-scroll-target="#sec-production"><span class="header-section-number">18.10</span> Production: PyTorch autograd</a>
+  <ul class="collapse">
+  <li><a href="#what-autograd-stores" id="toc-what-autograd-stores" class="nav-link" data-scroll-target="#what-autograd-stores"><span class="header-section-number">18.10.1</span> What autograd stores</a></li>
+  </ul></li>
+  <li><a href="#sec-failure" id="toc-sec-failure" class="nav-link" data-scroll-target="#sec-failure"><span class="header-section-number">18.11</span> Failure modes</a>
+  <ul class="collapse">
+  <li><a href="#vanishing-gradients" id="toc-vanishing-gradients" class="nav-link" data-scroll-target="#vanishing-gradients"><span class="header-section-number">18.11.1</span> Vanishing gradients</a></li>
+  <li><a href="#exploding-gradients" id="toc-exploding-gradients" class="nav-link" data-scroll-target="#exploding-gradients"><span class="header-section-number">18.11.2</span> Exploding gradients</a></li>
+  <li><a href="#dead-relus" id="toc-dead-relus" class="nav-link" data-scroll-target="#dead-relus"><span class="header-section-number">18.11.3</span> Dead ReLUs</a></li>
+  <li><a href="#numerical-issues" id="toc-numerical-issues" class="nav-link" data-scroll-target="#numerical-issues"><span class="header-section-number">18.11.4</span> Numerical issues</a></li>
+  </ul></li>
+  <li><a href="#sec-ai-connection" id="toc-sec-ai-connection" class="nav-link" data-scroll-target="#sec-ai-connection"><span class="header-section-number">18.12</span> Where this appears in modern AI</a></li>
+  <li><a href="#sec-system-connection" id="toc-sec-system-connection" class="nav-link" data-scroll-target="#sec-system-connection"><span class="header-section-number">18.13</span> System connection</a></li>
+  <li><a href="#chapter-summary" id="toc-chapter-summary" class="nav-link" data-scroll-target="#chapter-summary">Chapter summary</a></li>
+  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises">Exercises</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/ch16_change_and_derivatives.html">Part V — Learning</a></li><li class="breadcrumb-item"><a href="../chapters/ch18_chain_rule_and_backpropagation.html"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">The Chain Rule and Backpropagation</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">The Chain Rule and Backpropagation</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="callout callout-style-default callout-note callout-titled" title="Key ideas">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Key ideas
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li>A model is a <strong>composition</strong> of simple functions. The <strong>chain rule</strong> gives the derivative of a composition.</li>
+<li>A <strong>computational graph</strong> records the composition. Each node has a simple <strong>local derivative</strong>.</li>
+<li><strong>Backpropagation</strong> applies the chain rule from the loss backward through the graph. It reuses each partial result.</li>
+<li>One forward pass and one backward pass give the gradient for <strong>all</strong> parameters. The cost is about three forward passes, not one per parameter.</li>
+<li>Backpropagation can fail in a predictable way: gradients shrink (vanish) or grow (explode) with depth.</li>
+</ul>
+</div>
+</div>
+<section id="sec-system-problem" class="level2" data-number="18.1">
+<h2 data-number="18.1" class="anchored" data-anchor-id="sec-system-problem"><span class="header-section-number">18.1</span> The system problem</h2>
+<p>In Chapter 1, a model had two parameters. We computed two derivatives by hand. A modern model has billions of parameters. We cannot write each derivative by hand. We also cannot afford to measure each one by trial.</p>
+<p>The learning loop needs one thing from this chapter:</p>
+<blockquote class="blockquote">
+<p><strong>How can we compute <span class="math inline">\(\partial L / \partial \theta_i\)</span> for every parameter <span class="math inline">\(\theta_i\)</span>, quickly and exactly?</strong></p>
+</blockquote>
+<p>The answer is the <strong>chain rule</strong> applied in a clever order. This algorithm is called <strong>backpropagation</strong>. It is the computational engine of almost all modern AI.</p>
+<div id="cell-fig-where" class="cell" data-execution_count="2">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>system_map(highlight<span class="op">=</span>[<span class="st">"Measurement"</span>, <span class="st">"Learning"</span>],</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>           sublabels<span class="op">=</span>{<span class="st">"Learning"</span>: <span class="st">"Ch. 16–20"</span>})<span class="op">;</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="fig-where" class="quarto-float quarto-figure quarto-figure-center anchored" alt="System map with Measurement and Learning highlighted.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-where-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="ch18_chain_rule_and_backpropagation_files/figure-html/fig-where-output-1.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-1" title="Figure&nbsp;18.1: This chapter completes the Learning stage. The system already has a loss. Now it gets a fast way to compute the gradient."><img src="ch18_chain_rule_and_backpropagation_files/figure-html/fig-where-output-1.svg" class="img-fluid figure-img" alt="System map with Measurement and Learning highlighted."></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-where-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;18.1: This chapter completes the Learning stage. The system already has a loss. Now it gets a fast way to compute the gradient.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="Recall from Chapters 16 and 17">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Recall from Chapters 16 and 17
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li>The derivative <span class="math inline">\(f'(x)\)</span> is the slope of <span class="math inline">\(f\)</span>. Near <span class="math inline">\(x\)</span>, <span class="math inline">\(f(x+h)\approx f(x)+f'(x)h\)</span> (<a href="ch16_change_and_derivatives.html#eq-linear-approx" class="quarto-xref">Equation&nbsp;<span>16.2</span></a> of Chapter 16).</li>
+<li>A partial derivative <span class="math inline">\(\partial L/\partial\theta_i\)</span> is the sensitivity of the loss to one parameter, with the others held fixed.</li>
+<li>The gradient <span class="math inline">\(\nabla_\theta L\)</span> collects all partial derivatives. It points in the direction of steepest increase (Chapter 17).</li>
+<li>The Jacobian of a vector function is the matrix of its partial derivatives. The Jacobian of a composition is the product of Jacobians.</li>
+</ul>
+<p>This chapter shows how to compute <span class="math inline">\(\nabla_\theta L\)</span> for a deep network in one backward pass.</p>
+</div>
+</div>
+</section>
+<section id="sec-intuition" class="level2" data-number="18.2">
+<h2 data-number="18.2" class="anchored" data-anchor-id="sec-intuition"><span class="header-section-number">18.2</span> Intuition: sensitivity flows backward</h2>
+<p>Think of a row of three gears. Turn the first gear by a small amount. The second gear turns by a fixed multiple of that. The third gear turns by a fixed multiple of the second. The total effect is the <strong>product</strong> of the multiples.</p>
+<p>This is the chain rule. If <span class="math inline">\(y\)</span> depends on <span class="math inline">\(u\)</span>, and <span class="math inline">\(u\)</span> depends on <span class="math inline">\(x\)</span>:</p>
+<p><span id="eq-chain"><span class="math display">\[
+\frac{dy}{dx} = \frac{dy}{du} \cdot \frac{du}{dx}
+\tag{18.1}\]</span></span></p>
+<p>Each factor is a <strong>local</strong> quantity. It depends only on one step. The global derivative is the product of local ones.</p>
+<p>A model is a long chain of such steps. To find how the <em>last</em> output depends on a parameter <em>early</em> in the chain, multiply the local factors along the way. The efficient method starts at the output and moves backward. At each step it keeps the running product.</p>
+</section>
+<section id="sec-object" class="level2" data-number="18.3">
+<h2 data-number="18.3" class="anchored" data-anchor-id="sec-object"><span class="header-section-number">18.3</span> The mathematical object</h2>
+<section id="single-variable" class="level3" data-number="18.3.1">
+<h3 data-number="18.3.1" class="anchored" data-anchor-id="single-variable"><span class="header-section-number">18.3.1</span> Single variable</h3>
+<p>Take <span class="math inline">\(f(x) = (3x + 1)^2\)</span>. Write it as a chain: <span class="math inline">\(u = 3x + 1\)</span>, then <span class="math inline">\(y = u^2\)</span>.</p>
+<p><span class="math display">\[
+\frac{du}{dx} = 3, \qquad \frac{dy}{du} = 2u \quad\Rightarrow\quad \frac{dy}{dx} = 2u \cdot 3 = 6(3x+1).
+\]</span></p>
+</section>
+<section id="many-variables" class="level3" data-number="18.3.2">
+<h3 data-number="18.3.2" class="anchored" data-anchor-id="many-variables"><span class="header-section-number">18.3.2</span> Many variables</h3>
+<p>A parameter can affect the loss through <strong>more than one path</strong>. The multivariable chain rule says: <em>add the contributions of all paths.</em></p>
+<p>If <span class="math inline">\(L\)</span> depends on <span class="math inline">\(x\)</span> through intermediate values <span class="math inline">\(u_1, \dots, u_m\)</span>:</p>
+<p><span id="eq-chain-multi"><span class="math display">\[
+\frac{\partial L}{\partial x} = \sum_{j=1}^{m} \frac{\partial L}{\partial u_j} \, \frac{\partial u_j}{\partial x}
+\tag{18.2}\]</span></span></p>
+<p>Two rules summarize it.</p>
+<ol type="1">
+<li><strong>Along a path: multiply</strong> the local derivatives.</li>
+<li><strong>Across paths: add</strong> the path results.</li>
+</ol>
+</section>
+<section id="the-computational-graph" class="level3" data-number="18.3.3">
+<h3 data-number="18.3.3" class="anchored" data-anchor-id="the-computational-graph"><span class="header-section-number">18.3.3</span> The computational graph</h3>
+<p>A <strong>computational graph</strong> writes a calculation as nodes and arrows. Each node is one simple operation. Each arrow shows which values feed which operation.</p>
+<p>Take the squared error of a one-weight model:</p>
+<p><span id="eq-example-loss"><span class="math display">\[
+L = (w x + b - y)^2
+\tag{18.3}\]</span></span></p>
+<p>We split it into four simple steps:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Step</th>
+<th>Operation</th>
+<th>Value for <span class="math inline">\(w{=}2,\ x{=}3,\ b{=}1,\ y{=}5\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(p = w x\)</span></td>
+<td>multiply</td>
+<td>6</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(s = p + b\)</span></td>
+<td>add</td>
+<td>7</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(e = s - y\)</span></td>
+<td>subtract</td>
+<td>2</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(L = e^2\)</span></td>
+<td>square</td>
+<td>4</td>
+</tr>
+</tbody>
+</table>
+<p>We run the graph <strong>forward</strong> to get the values. Then we run it <strong>backward</strong> to get the gradients. The backward pass starts with <span class="math inline">\(\partial L / \partial L = 1\)</span> and applies one local rule per node.</p>
+</section>
+</section>
+<section id="sec-local" class="level2" data-number="18.4">
+<h2 data-number="18.4" class="anchored" data-anchor-id="sec-local"><span class="header-section-number">18.4</span> Operations: local derivatives</h2>
+<p>A graph needs only a small table of local rules. Each rule says how the node output changes when one input changes. Everything in a neural network is built from this table.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Operation</th>
+<th>Forward</th>
+<th>Local derivative(s)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Add</td>
+<td><span class="math inline">\(c = a + b\)</span></td>
+<td><span class="math inline">\(\partial c/\partial a = 1,\ \partial c/\partial b = 1\)</span></td>
+</tr>
+<tr class="even">
+<td>Subtract</td>
+<td><span class="math inline">\(c = a - b\)</span></td>
+<td><span class="math inline">\(1,\ -1\)</span></td>
+</tr>
+<tr class="odd">
+<td>Multiply</td>
+<td><span class="math inline">\(c = a\,b\)</span></td>
+<td><span class="math inline">\(\partial c/\partial a = b,\ \partial c/\partial b = a\)</span></td>
+</tr>
+<tr class="even">
+<td>Square</td>
+<td><span class="math inline">\(c = a^2\)</span></td>
+<td><span class="math inline">\(2a\)</span></td>
+</tr>
+<tr class="odd">
+<td>Tanh</td>
+<td><span class="math inline">\(c = \tanh a\)</span></td>
+<td><span class="math inline">\(1 - c^2\)</span></td>
+</tr>
+<tr class="even">
+<td>Sigmoid</td>
+<td><span class="math inline">\(c = \sigma(a)\)</span></td>
+<td><span class="math inline">\(c\,(1 - c)\)</span></td>
+</tr>
+<tr class="odd">
+<td>ReLU</td>
+<td><span class="math inline">\(c = \max(0, a)\)</span></td>
+<td><span class="math inline">\(1\)</span> if <span class="math inline">\(a &gt; 0\)</span>, else <span class="math inline">\(0\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>In backpropagation, each node receives the gradient of the loss with respect to its <strong>output</strong>, called the <strong>upstream gradient</strong>. It multiplies by its local derivative to give the gradient with respect to its <strong>input</strong>.</p>
+<p><span id="eq-backprop-rule"><span class="math display">\[
+\underbrace{\frac{\partial L}{\partial a}}_{\text{gradient for input}} =
+\underbrace{\frac{\partial L}{\partial c}}_{\text{upstream}} \cdot
+\underbrace{\frac{\partial c}{\partial a}}_{\text{local}}
+\tag{18.4}\]</span></span></p>
+<div id="cell-fig-graph-forward-backward" class="cell" data-execution_count="3">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>w, x, b, y <span class="op">=</span> <span class="fl">2.0</span>, <span class="fl">3.0</span>, <span class="fl">1.0</span>, <span class="fl">5.0</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co"># forward pass</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>p <span class="op">=</span> w <span class="op">*</span> x<span class="op">;</span>  s <span class="op">=</span> p <span class="op">+</span> b<span class="op">;</span>  e <span class="op">=</span> s <span class="op">-</span> y<span class="op">;</span>  L <span class="op">=</span> e <span class="op">**</span> <span class="dv">2</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># backward pass: one local rule per node</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>dL <span class="op">=</span> <span class="fl">1.0</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>de <span class="op">=</span> dL <span class="op">*</span> <span class="dv">2</span> <span class="op">*</span> e              <span class="co"># square</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>ds <span class="op">=</span> de <span class="op">*</span> <span class="fl">1.0</span>                <span class="co"># subtract, input s</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>dy <span class="op">=</span> de <span class="op">*</span> <span class="op">-</span><span class="fl">1.0</span>               <span class="co"># subtract, input y</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>dp <span class="op">=</span> ds <span class="op">*</span> <span class="fl">1.0</span>                <span class="co"># add, input p</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>db <span class="op">=</span> ds <span class="op">*</span> <span class="fl">1.0</span>                <span class="co"># add, input b</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>dw <span class="op">=</span> dp <span class="op">*</span> x                  <span class="co"># multiply, input w</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>dx <span class="op">=</span> dp <span class="op">*</span> w                  <span class="co"># multiply, input x</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"L = </span><span class="sc">{</span>L<span class="sc">}</span><span class="ss">,  dL/dw = </span><span class="sc">{</span>dw<span class="sc">}</span><span class="ss">,  dL/dx = </span><span class="sc">{</span>dx<span class="sc">}</span><span class="ss">,  dL/db = </span><span class="sc">{</span>db<span class="sc">}</span><span class="ss">,  dL/dy = </span><span class="sc">{</span>dy<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>nodes <span class="op">=</span> {<span class="st">"w"</span>: (<span class="dv">0</span>, <span class="dv">2</span>, <span class="st">"w"</span>), <span class="st">"x"</span>: (<span class="dv">0</span>, <span class="fl">0.7</span>, <span class="st">"x"</span>), <span class="st">"b"</span>: (<span class="fl">2.2</span>, <span class="fl">2.2</span>, <span class="st">"b"</span>),</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>         <span class="st">"y"</span>: (<span class="fl">3.4</span>, <span class="fl">0.4</span>, <span class="st">"y"</span>), <span class="st">"p"</span>: (<span class="fl">1.4</span>, <span class="fl">1.35</span>, <span class="st">"×"</span>), <span class="st">"s"</span>: (<span class="fl">3.0</span>, <span class="fl">1.9</span>, <span class="st">"+"</span>),</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>         <span class="st">"e"</span>: (<span class="fl">4.6</span>, <span class="fl">1.2</span>, <span class="st">"−"</span>), <span class="st">"L"</span>: (<span class="fl">6.2</span>, <span class="fl">1.2</span>, <span class="st">"(·)²"</span>)}</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>edges <span class="op">=</span> [(<span class="st">"w"</span>, <span class="st">"p"</span>), (<span class="st">"x"</span>, <span class="st">"p"</span>), (<span class="st">"p"</span>, <span class="st">"s"</span>), (<span class="st">"b"</span>, <span class="st">"s"</span>),</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>         (<span class="st">"s"</span>, <span class="st">"e"</span>), (<span class="st">"y"</span>, <span class="st">"e"</span>), (<span class="st">"e"</span>, <span class="st">"L"</span>)]</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>fwd <span class="op">=</span> {<span class="st">"w"</span>: w, <span class="st">"x"</span>: x, <span class="st">"b"</span>: b, <span class="st">"y"</span>: y, <span class="st">"p"</span>: p, <span class="st">"s"</span>: s, <span class="st">"e"</span>: e, <span class="st">"L"</span>: L}</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>bwd <span class="op">=</span> {<span class="st">"w"</span>: dw, <span class="st">"x"</span>: dx, <span class="st">"b"</span>: db, <span class="st">"y"</span>: dy, <span class="st">"p"</span>: dp, <span class="st">"s"</span>: ds, <span class="st">"e"</span>: de, <span class="st">"L"</span>: dL}</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>, <span class="fl">3.4</span>))</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>draw_graph(ax, nodes, edges, fwd<span class="op">=</span>fwd, bwd<span class="op">=</span>bwd)</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>L = 4.0,  dL/dw = 12.0,  dL/dx = 8.0,  dL/db = 4.0,  dL/dy = -4.0</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div id="fig-graph-forward-backward" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A computational graph with inputs w, x, b, y flowing through multiply, add, subtract, and square nodes to the loss L. Forward values are blue below each node, gradients are green above each node.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-graph-forward-backward-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="ch18_chain_rule_and_backpropagation_files/figure-html/fig-graph-forward-backward-output-2.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-2" title="Figure&nbsp;18.2: Forward and backward through one graph. Blue numbers are values (forward pass). Green numbers are gradients of L (backward pass). The backward pass reuses each result once."><img src="ch18_chain_rule_and_backpropagation_files/figure-html/fig-graph-forward-backward-output-2.svg" class="img-fluid figure-img" alt="A computational graph with inputs w, x, b, y flowing through multiply, add, subtract, and square nodes to the loss L. Forward values are blue below each node, gradients are green above each node."></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-graph-forward-backward-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;18.2: Forward and backward through one graph. Blue numbers are values (forward pass). Green numbers are gradients of L (backward pass). The backward pass reuses each result once.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>We check this by hand. <span class="math inline">\(\partial L/\partial w = 2e \cdot x = 2 \cdot 2 \cdot 3 = 12\)</span>. The graph gives the same value.</p>
+<section id="paths-add-fan-out" class="level3" data-number="18.4.1">
+<h3 data-number="18.4.1" class="anchored" data-anchor-id="paths-add-fan-out"><span class="header-section-number">18.4.1</span> Paths add: fan-out</h3>
+<p>When a value is used in two places, its gradient is the <strong>sum</strong> of the gradients from both uses. This is <a href="#eq-chain-multi" class="quarto-xref">Equation&nbsp;<span>18.2</span></a> in graph form.</p>
+<p>Take <span class="math inline">\(L = a\,b + a\)</span>. The variable <span class="math inline">\(a\)</span> feeds two nodes.</p>
+<div id="cell-fig-fanout" class="cell" data-execution_count="4">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>a_, b_ <span class="op">=</span> <span class="fl">2.0</span>, <span class="fl">3.0</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> a_ <span class="op">*</span> b_<span class="op">;</span>  s_ <span class="op">=</span> m <span class="op">+</span> a_</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>da <span class="op">=</span> b_ <span class="op">*</span> <span class="fl">1.0</span> <span class="op">+</span> <span class="fl">1.0</span>          <span class="co"># path through the product + direct path</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>db_ <span class="op">=</span> a_ <span class="op">*</span> <span class="fl">1.0</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"L = </span><span class="sc">{</span>s_<span class="sc">}</span><span class="ss">,  dL/da = </span><span class="sc">{</span>da<span class="sc">}</span><span class="ss">  (= b + 1),  dL/db = </span><span class="sc">{</span>db_<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>nodes <span class="op">=</span> {<span class="st">"a"</span>: (<span class="dv">0</span>, <span class="fl">1.4</span>, <span class="st">"a"</span>), <span class="st">"b"</span>: (<span class="dv">0</span>, <span class="op">-</span><span class="fl">0.2</span>, <span class="st">"b"</span>),</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>         <span class="st">"m"</span>: (<span class="fl">2.0</span>, <span class="fl">0.6</span>, <span class="st">"×"</span>), <span class="st">"s"</span>: (<span class="fl">4.0</span>, <span class="fl">1.4</span>, <span class="st">"+"</span>)}</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>edges <span class="op">=</span> [(<span class="st">"a"</span>, <span class="st">"m"</span>), (<span class="st">"b"</span>, <span class="st">"m"</span>), (<span class="st">"m"</span>, <span class="st">"s"</span>), (<span class="st">"a"</span>, <span class="st">"s"</span>)]</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">6.4</span>, <span class="fl">3.2</span>))</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>draw_graph(ax, nodes, edges, fwd<span class="op">=</span>{<span class="st">"a"</span>: a_, <span class="st">"b"</span>: b_, <span class="st">"m"</span>: m, <span class="st">"s"</span>: s_},</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>           bwd<span class="op">=</span>{<span class="st">"a"</span>: da, <span class="st">"b"</span>: db_, <span class="st">"m"</span>: <span class="fl">1.0</span>, <span class="st">"s"</span>: <span class="fl">1.0</span>})</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>L = 8.0,  dL/da = 4.0  (= b + 1),  dL/db = 2.0</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div id="fig-fanout" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A graph where a feeds both a multiply node and an add node. Gradient annotations show a receives 4, the sum of 3 and 1.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-fanout-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="ch18_chain_rule_and_backpropagation_files/figure-html/fig-fanout-output-2.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-3" title="Figure&nbsp;18.3: Fan-out. The variable a is used twice. Its gradient is the sum of two path contributions: b = 3 through the product and 1 through the direct sum."><img src="ch18_chain_rule_and_backpropagation_files/figure-html/fig-fanout-output-2.svg" class="img-fluid figure-img" alt="A graph where a feeds both a multiply node and an add node. Gradient annotations show a receives 4, the sum of 3 and 1."></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-fanout-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;18.3: Fan-out. The variable a is used twice. Its gradient is the sum of two path contributions: b = 3 through the product and 1 through the direct sum.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="sec-derivation" class="level2" data-number="18.5">
+<h2 data-number="18.5" class="anchored" data-anchor-id="sec-derivation"><span class="header-section-number">18.5</span> Derivation: backpropagation through a network</h2>
+<p>Scalars show the idea. Real networks use vectors and matrices. We now derive the rules for a stack of layers. The result is only four lines.</p>
+<section id="setup" class="level3" data-number="18.5.1">
+<h3 data-number="18.5.1" class="anchored" data-anchor-id="setup"><span class="header-section-number">18.5.1</span> Setup</h3>
+<p>A network with <span class="math inline">\(L_n\)</span> layers computes, for layer <span class="math inline">\(l = 1, \dots, L_n\)</span>:</p>
+<p><span id="eq-forward"><span class="math display">\[
+\mathbf{z}_l = \mathbf{W}_l \,\mathbf{a}_{l-1} + \mathbf{b}_l,
+\qquad
+\mathbf{a}_l = \sigma(\mathbf{z}_l),
+\qquad
+\mathbf{a}_0 = \mathbf{x}.
+\tag{18.5}\]</span></span></p>
+<p>The last layer has no activation in this chapter: <span class="math inline">\(\mathbf{a}_{L_n} = \mathbf{z}_{L_n}\)</span>, the output. The loss is a scalar <span class="math inline">\(L\)</span> of the output.</p>
+<p>We define the <strong>error signal</strong> of layer <span class="math inline">\(l\)</span> as the gradient of the loss with respect to its pre-activation:</p>
+<p><span id="eq-delta"><span class="math display">\[
+\boldsymbol{\delta}_l \;=\; \frac{\partial L}{\partial \mathbf{z}_l}.
+\tag{18.6}\]</span></span></p>
+</section>
+<section id="step-1-the-output-layer" class="level3" data-number="18.5.2">
+<h3 data-number="18.5.2" class="anchored" data-anchor-id="step-1-the-output-layer"><span class="header-section-number">18.5.2</span> Step 1: the output layer</h3>
+<p>The signal at the output is the derivative of the loss with respect to the output. For the squared error <span class="math inline">\(L = \lVert \mathbf{z}_{L_n} - \mathbf{y} \rVert^2\)</span> it is <span class="math inline">\(\boldsymbol{\delta}_{L_n} = 2(\mathbf{z}_{L_n} - \mathbf{y})\)</span>.</p>
+</section>
+<section id="step-2-from-one-layer-back-to-the-previous-one" class="level3" data-number="18.5.3">
+<h3 data-number="18.5.3" class="anchored" data-anchor-id="step-2-from-one-layer-back-to-the-previous-one"><span class="header-section-number">18.5.3</span> Step 2: from one layer back to the previous one</h3>
+<p>Take <span class="math inline">\(\mathbf{z}_l = \mathbf{W}_l \mathbf{a}_{l-1} + \mathbf{b}_l\)</span>. A small change of <span class="math inline">\(\mathbf{a}_{l-1}\)</span> changes <span class="math inline">\(\mathbf{z}_l\)</span> through <span class="math inline">\(\mathbf{W}_l\)</span>. By the multivariable chain rule (<a href="#eq-chain-multi" class="quarto-xref">Equation&nbsp;<span>18.2</span></a>):</p>
+<p><span class="math display">\[
+\frac{\partial L}{\partial a_{l-1,i}} = \sum_j \frac{\partial L}{\partial z_{l,j}} \frac{\partial z_{l,j}}{\partial a_{l-1,i}}
+= \sum_j \delta_{l,j}\, W_{l,ji}.
+\]</span></p>
+<p>The sum over <span class="math inline">\(j\)</span> is a product with the <strong>transpose</strong> of <span class="math inline">\(\mathbf{W}_l\)</span>:</p>
+<p><span id="eq-back-a"><span class="math display">\[
+\frac{\partial L}{\partial \mathbf{a}_{l-1}} = \mathbf{W}_l^{\intercal} \boldsymbol{\delta}_l.
+\tag{18.7}\]</span></span></p>
+<p>Next we pass the signal through the activation. It acts element by element, so its Jacobian is diagonal. We get an element-wise product, written <span class="math inline">\(\odot\)</span>:</p>
+<p><span id="eq-back-delta"><span class="math display">\[
+\boldsymbol{\delta}_{l-1} = \bigl(\mathbf{W}_l^{\intercal} \boldsymbol{\delta}_{l}\bigr) \odot \sigma'(\mathbf{z}_{l-1}).
+\tag{18.8}\]</span></span></p>
+</section>
+<section id="step-3-the-parameter-gradients" class="level3" data-number="18.5.4">
+<h3 data-number="18.5.4" class="anchored" data-anchor-id="step-3-the-parameter-gradients"><span class="header-section-number">18.5.4</span> Step 3: the parameter gradients</h3>
+<p>The pre-activation <span class="math inline">\(z_{l,j} = \sum_i W_{l,ji}\, a_{l-1,i} + b_{l,j}\)</span> depends on <span class="math inline">\(W_{l,ji}\)</span> only through one term. Therefore:</p>
+<p><span class="math display">\[
+\frac{\partial L}{\partial W_{l,ji}} = \delta_{l,j}\, a_{l-1,i},
+\qquad
+\frac{\partial L}{\partial b_{l,j}} = \delta_{l,j}.
+\]</span></p>
+<p>In matrix form, the weight gradient is an <strong>outer product</strong>:</p>
+<p><span id="eq-back-params"><span class="math display">\[
+\frac{\partial L}{\partial \mathbf{W}_l} = \boldsymbol{\delta}_l \, \mathbf{a}_{l-1}^{\intercal},
+\qquad
+\frac{\partial L}{\partial \mathbf{b}_l} = \boldsymbol{\delta}_l.
+\tag{18.9}\]</span></span></p>
+</section>
+<section id="the-algorithm" class="level3" data-number="18.5.5">
+<h3 data-number="18.5.5" class="anchored" data-anchor-id="the-algorithm"><span class="header-section-number">18.5.5</span> The algorithm</h3>
+<div class="callout callout-style-default callout-important callout-titled" title="Backpropagation">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>Backpropagation
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Forward.</strong> For <span class="math inline">\(l = 1 \dots L_n\)</span>: compute and <strong>store</strong> <span class="math inline">\(\mathbf{z}_l\)</span> and <span class="math inline">\(\mathbf{a}_l\)</span>.</p>
+<p><strong>Backward.</strong> Start with <span class="math inline">\(\boldsymbol{\delta}_{L_n}\)</span>. For <span class="math inline">\(l = L_n \dots 1\)</span>:</p>
+<ol type="1">
+<li><span class="math inline">\(\partial L/\partial \mathbf{W}_l = \boldsymbol{\delta}_l \mathbf{a}_{l-1}^{\intercal}\)</span>, <span class="math inline">\(\ \partial L/\partial \mathbf{b}_l = \boldsymbol{\delta}_l\)</span></li>
+<li><span class="math inline">\(\boldsymbol{\delta}_{l-1} = (\mathbf{W}_l^{\intercal} \boldsymbol{\delta}_l) \odot \sigma'(\mathbf{z}_{l-1})\)</span></li>
+</ol>
+</div>
+</div>
+<p>Two observations explain why this is fast.</p>
+<ol type="1">
+<li>The signal <span class="math inline">\(\boldsymbol{\delta}_l\)</span> is computed <strong>once</strong> and used for both the parameter gradient and the next signal. Nothing is recomputed.</li>
+<li>Each layer needs two matrix products in the backward pass (<span class="math inline">\(\mathbf{W}^{\intercal}\boldsymbol{\delta}\)</span> and <span class="math inline">\(\boldsymbol{\delta}\mathbf{a}^{\intercal}\)</span>). The forward pass needs one. So the backward pass costs about <strong>twice</strong> the forward pass.</li>
+</ol>
+</section>
+<section id="special-case-logistic-output-with-cross-entropy" class="level3" data-number="18.5.6">
+<h3 data-number="18.5.6" class="anchored" data-anchor-id="special-case-logistic-output-with-cross-entropy"><span class="header-section-number">18.5.6</span> Special case: logistic output with cross-entropy</h3>
+<p>For binary classification, the output <span class="math inline">\(z\)</span> is a <strong>logit</strong>. The probability is <span class="math inline">\(p = \sigma(z)\)</span>. The loss for label <span class="math inline">\(y \in \{0, 1\}\)</span> is <span class="math inline">\(\ell = -y \ln p - (1-y)\ln(1-p)\)</span>.</p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Derivation: the error signal is prediction minus target">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Derivation: the error signal is prediction minus target
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Use <span class="math inline">\(\sigma'(z) = p(1-p)\)</span>. Then</p>
+<p><span class="math display">\[
+\frac{\partial \ell}{\partial z}
+= \frac{\partial \ell}{\partial p}\,\frac{\partial p}{\partial z}
+= \left( -\frac{y}{p} + \frac{1-y}{1-p} \right) p(1-p)
+= -y(1-p) + (1-y)p
+= p - y.
+\]</span></p>
+<p>The factors <span class="math inline">\(p\)</span> and <span class="math inline">\(1-p\)</span> cancel. The signal is simply <strong>prediction minus target</strong>. This is the same simple form as for squared error with a linear output. It is not a coincidence. We explain it in Chapter 25.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="sec-geometry" class="level2" data-number="18.6">
+<h2 data-number="18.6" class="anchored" data-anchor-id="sec-geometry"><span class="header-section-number">18.6</span> Geometry: two flows</h2>
+<p>The algorithm has two flows through the same graph. Values flow forward. Error signals flow backward through the <strong>transposed</strong> weights.</p>
+<div id="cell-fig-two-flows" class="cell" data-execution_count="5">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.patches <span class="im">import</span> FancyBboxPatch</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">9.5</span>, <span class="fl">3.4</span>))</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="op">-</span><span class="fl">0.1</span>, <span class="fl">5.6</span>)<span class="op">;</span> ax.set_ylim(<span class="op">-</span><span class="fl">0.1</span>, <span class="fl">2.6</span>)<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>top <span class="op">=</span> [<span class="st">"x"</span>, <span class="st">"layer 1</span><span class="ch">\n</span><span class="st">z₁ = W₁x + b₁"</span>, <span class="st">"layer 2</span><span class="ch">\n</span><span class="st">z₂ = W₂a₁ + b₂"</span>,</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>       <span class="st">"layer 3</span><span class="ch">\n</span><span class="st">z₃ = W₃a₂ + b₃"</span>, <span class="st">"loss L"</span>]</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>bot <span class="op">=</span> [<span class="st">"∂L/∂x"</span>, <span class="st">"δ₁ = (W₂ᵀδ₂) ⊙ σ′"</span>, <span class="st">"δ₂ = (W₃ᵀδ₃) ⊙ σ′"</span>,</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>       <span class="st">"δ₃ = ∂L/∂z₃"</span>, <span class="st">"1"</span>]</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">5</span>):</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> row, (labels, y0, col) <span class="kw">in</span> <span class="bu">enumerate</span>([(top, <span class="fl">1.55</span>, PALETTE[<span class="st">"data"</span>]),</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>                                             (bot, <span class="fl">0.2</span>, PALETTE[<span class="st">"grad"</span>])]):</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>        ax.add_patch(FancyBboxPatch((i <span class="op">*</span> <span class="fl">1.1</span> <span class="op">+</span> <span class="fl">0.02</span>, y0), <span class="fl">1.0</span>, <span class="fl">0.75</span>,</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>                     boxstyle<span class="op">=</span><span class="st">"round,pad=0.02"</span>, fc<span class="op">=</span>col, ec<span class="op">=</span><span class="st">"none"</span>))</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>        ax.text(i <span class="op">*</span> <span class="fl">1.1</span> <span class="op">+</span> <span class="fl">0.52</span>, y0 <span class="op">+</span> <span class="fl">0.37</span>, labels[i], ha<span class="op">=</span><span class="st">"center"</span>, va<span class="op">=</span><span class="st">"center"</span>,</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>                color<span class="op">=</span><span class="st">"white"</span>, fontsize<span class="op">=</span><span class="fl">7.6</span>, fontweight<span class="op">=</span><span class="st">"bold"</span>)</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> i <span class="op">&lt;</span> <span class="dv">4</span>:</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>        ax.annotate(<span class="st">""</span>, xy<span class="op">=</span>(i <span class="op">*</span> <span class="fl">1.1</span> <span class="op">+</span> <span class="fl">1.14</span>, <span class="fl">1.92</span>), xytext<span class="op">=</span>(i <span class="op">*</span> <span class="fl">1.1</span> <span class="op">+</span> <span class="fl">1.04</span>, <span class="fl">1.92</span>),</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>                    arrowprops<span class="op">=</span><span class="bu">dict</span>(arrowstyle<span class="op">=</span><span class="st">"-&gt;"</span>, lw<span class="op">=</span><span class="fl">1.6</span>, color<span class="op">=</span><span class="st">"#374151"</span>))</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>        ax.annotate(<span class="st">""</span>, xy<span class="op">=</span>(i <span class="op">*</span> <span class="fl">1.1</span> <span class="op">+</span> <span class="fl">1.04</span>, <span class="fl">0.57</span>), xytext<span class="op">=</span>(i <span class="op">*</span> <span class="fl">1.1</span> <span class="op">+</span> <span class="fl">1.14</span>, <span class="fl">0.57</span>),</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>                    arrowprops<span class="op">=</span><span class="bu">dict</span>(arrowstyle<span class="op">=</span><span class="st">"-&gt;"</span>, lw<span class="op">=</span><span class="fl">1.6</span>, color<span class="op">=</span><span class="st">"#374151"</span>))</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">2.75</span>, <span class="fl">2.55</span>, <span class="st">"forward: store values"</span>, ha<span class="op">=</span><span class="st">"center"</span>, color<span class="op">=</span>PALETTE[<span class="st">"data"</span>],</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>        fontweight<span class="op">=</span><span class="st">"bold"</span>)</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">2.75</span>, <span class="op">-</span><span class="fl">0.1</span>, <span class="st">"backward: propagate signals"</span>, ha<span class="op">=</span><span class="st">"center"</span>,</span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>        color<span class="op">=</span>PALETTE[<span class="st">"grad"</span>], fontweight<span class="op">=</span><span class="st">"bold"</span>)</span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="fig-two-flows" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Two rows of boxes. The top row goes left to right from x through layers 1, 2, 3 to the loss. The bottom row goes right to left from the loss gradient back through layers 3, 2, 1 to the input.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-two-flows-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="ch18_chain_rule_and_backpropagation_files/figure-html/fig-two-flows-output-1.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-4" title="Figure&nbsp;18.4: Two flows through a 3-layer network. Forward (top): values a₀ → a₃. Backward (bottom): error signals δ₃ → δ₁. The backward pass uses the stored forward values and the transposed weights."><img src="ch18_chain_rule_and_backpropagation_files/figure-html/fig-two-flows-output-1.svg" class="img-fluid figure-img" alt="Two rows of boxes. The top row goes left to right from x through layers 1, 2, 3 to the loss. The bottom row goes right to left from the loss gradient back through layers 3, 2, 1 to the input."></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-two-flows-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;18.4: Two flows through a 3-layer network. Forward (top): values a₀ → a₃. Backward (bottom): error signals δ₃ → δ₁. The backward pass uses the stored forward values and the transposed weights.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="sec-computation" class="level2" data-number="18.7">
+<h2 data-number="18.7" class="anchored" data-anchor-id="sec-computation"><span class="header-section-number">18.7</span> Computation: from first principles</h2>
+<p>We now build backpropagation twice. First as a tiny engine on scalars. Then as a matrix implementation.</p>
+<section id="a-scalar-engine-in-plain-python" class="level3" data-number="18.7.1">
+<h3 data-number="18.7.1" class="anchored" data-anchor-id="a-scalar-engine-in-plain-python"><span class="header-section-number">18.7.1</span> A scalar engine in plain Python</h3>
+<p>The engine stores a value, a gradient, the nodes it came from, and a function that applies its local rule. This is about 45 lines. It is the design idea behind every autodiff library.</p>
+<div id="code-engine" class="cell" data-execution_count="6">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> math</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Value:</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, data, parents<span class="op">=</span>()):</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.data <span class="op">=</span> data</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.grad <span class="op">=</span> <span class="fl">0.0</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>._parents <span class="op">=</span> parents</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>._backward <span class="op">=</span> <span class="kw">lambda</span>: <span class="va">None</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__add__</span>(<span class="va">self</span>, o):</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>        o <span class="op">=</span> o <span class="cf">if</span> <span class="bu">isinstance</span>(o, Value) <span class="cf">else</span> Value(o)</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>        out <span class="op">=</span> Value(<span class="va">self</span>.data <span class="op">+</span> o.data, (<span class="va">self</span>, o))</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>        <span class="kw">def</span> _backward():                       <span class="co"># local rule: 1 and 1</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.grad <span class="op">+=</span> out.grad</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>            o.grad <span class="op">+=</span> out.grad</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>        out._backward <span class="op">=</span> _backward</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> out</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__mul__</span>(<span class="va">self</span>, o):</span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>        o <span class="op">=</span> o <span class="cf">if</span> <span class="bu">isinstance</span>(o, Value) <span class="cf">else</span> Value(o)</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>        out <span class="op">=</span> Value(<span class="va">self</span>.data <span class="op">*</span> o.data, (<span class="va">self</span>, o))</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>        <span class="kw">def</span> _backward():                       <span class="co"># local rule: other input</span></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.grad <span class="op">+=</span> o.data <span class="op">*</span> out.grad</span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>            o.grad <span class="op">+=</span> <span class="va">self</span>.data <span class="op">*</span> out.grad</span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>        out._backward <span class="op">=</span> _backward</span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> out</span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__pow__</span>(<span class="va">self</span>, k):</span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>        out <span class="op">=</span> Value(<span class="va">self</span>.data <span class="op">**</span> k, (<span class="va">self</span>,))</span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>        <span class="kw">def</span> _backward():                       <span class="co"># local rule: k * a^(k-1)</span></span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.grad <span class="op">+=</span> k <span class="op">*</span> <span class="va">self</span>.data <span class="op">**</span> (k <span class="op">-</span> <span class="dv">1</span>) <span class="op">*</span> out.grad</span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>        out._backward <span class="op">=</span> _backward</span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> out</span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> tanh(<span class="va">self</span>):</span>
+<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a>        t <span class="op">=</span> math.tanh(<span class="va">self</span>.data)</span>
+<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a>        out <span class="op">=</span> Value(t, (<span class="va">self</span>,))</span>
+<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a>        <span class="kw">def</span> _backward():                       <span class="co"># local rule: 1 - t^2</span></span>
+<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.grad <span class="op">+=</span> (<span class="dv">1</span> <span class="op">-</span> t <span class="op">**</span> <span class="dv">2</span>) <span class="op">*</span> out.grad</span>
+<span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a>        out._backward <span class="op">=</span> _backward</span>
+<span id="cb7-41"><a href="#cb7-41" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> out</span>
+<span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-43"><a href="#cb7-43" aria-hidden="true" tabindex="-1"></a>    <span class="fu">__radd__</span> <span class="op">=</span> <span class="fu">__add__</span></span>
+<span id="cb7-44"><a href="#cb7-44" aria-hidden="true" tabindex="-1"></a>    <span class="fu">__rmul__</span> <span class="op">=</span> <span class="fu">__mul__</span></span>
+<span id="cb7-45"><a href="#cb7-45" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__neg__</span>(<span class="va">self</span>): <span class="cf">return</span> <span class="va">self</span> <span class="op">*</span> <span class="op">-</span><span class="dv">1</span></span>
+<span id="cb7-46"><a href="#cb7-46" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__sub__</span>(<span class="va">self</span>, o): <span class="cf">return</span> <span class="va">self</span> <span class="op">+</span> (<span class="op">-</span>o)</span>
+<span id="cb7-47"><a href="#cb7-47" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__rsub__</span>(<span class="va">self</span>, o): <span class="cf">return</span> (<span class="op">-</span><span class="va">self</span>) <span class="op">+</span> o</span>
+<span id="cb7-48"><a href="#cb7-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-49"><a href="#cb7-49" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> backward(<span class="va">self</span>):</span>
+<span id="cb7-50"><a href="#cb7-50" aria-hidden="true" tabindex="-1"></a>        order, seen <span class="op">=</span> [], <span class="bu">set</span>()</span>
+<span id="cb7-51"><a href="#cb7-51" aria-hidden="true" tabindex="-1"></a>        <span class="kw">def</span> visit(v):                          <span class="co"># topological order</span></span>
+<span id="cb7-52"><a href="#cb7-52" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> v <span class="kw">not</span> <span class="kw">in</span> seen:</span>
+<span id="cb7-53"><a href="#cb7-53" aria-hidden="true" tabindex="-1"></a>                seen.add(v)</span>
+<span id="cb7-54"><a href="#cb7-54" aria-hidden="true" tabindex="-1"></a>                <span class="cf">for</span> p <span class="kw">in</span> v._parents:</span>
+<span id="cb7-55"><a href="#cb7-55" aria-hidden="true" tabindex="-1"></a>                    visit(p)</span>
+<span id="cb7-56"><a href="#cb7-56" aria-hidden="true" tabindex="-1"></a>                order.append(v)</span>
+<span id="cb7-57"><a href="#cb7-57" aria-hidden="true" tabindex="-1"></a>        visit(<span class="va">self</span>)</span>
+<span id="cb7-58"><a href="#cb7-58" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.grad <span class="op">=</span> <span class="fl">1.0</span>                        <span class="co"># dL/dL = 1</span></span>
+<span id="cb7-59"><a href="#cb7-59" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> v <span class="kw">in</span> <span class="bu">reversed</span>(order):              <span class="co"># outputs before inputs</span></span>
+<span id="cb7-60"><a href="#cb7-60" aria-hidden="true" tabindex="-1"></a>            v._backward()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Note the <code>+=</code> in every rule. It implements the “add across paths” rule. A value used twice receives two contributions.</p>
+<p>We test the engine on <a href="#eq-example-loss" class="quarto-xref">Equation&nbsp;<span>18.3</span></a> and on the fan-out example.</p>
+<div id="code-engine-test" class="cell" data-execution_count="7">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>w, x, b, y <span class="op">=</span> Value(<span class="fl">2.0</span>), Value(<span class="fl">3.0</span>), Value(<span class="fl">1.0</span>), Value(<span class="fl">5.0</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>L <span class="op">=</span> (w <span class="op">*</span> x <span class="op">+</span> b <span class="op">-</span> y) <span class="op">**</span> <span class="dv">2</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>L.backward()</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"L = </span><span class="sc">{</span>L<span class="sc">.</span>data<span class="sc">}</span><span class="ss">,  dL/dw = </span><span class="sc">{</span>w<span class="sc">.</span>grad<span class="sc">}</span><span class="ss">,  dL/dx = </span><span class="sc">{</span>x<span class="sc">.</span>grad<span class="sc">}</span><span class="ss">,  dL/db = </span><span class="sc">{</span>b<span class="sc">.</span>grad<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>a, c <span class="op">=</span> Value(<span class="fl">2.0</span>), Value(<span class="fl">3.0</span>)</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>F <span class="op">=</span> a <span class="op">*</span> c <span class="op">+</span> a                      <span class="co"># a is used twice</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>F.backward()</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"dF/da = </span><span class="sc">{</span>a<span class="sc">.</span>grad<span class="sc">}</span><span class="ss">  (expected c + 1 = 4),  dF/dc = </span><span class="sc">{</span>c<span class="sc">.</span>grad<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> (w.grad, x.grad, b.grad) <span class="op">==</span> (<span class="fl">12.0</span>, <span class="fl">8.0</span>, <span class="fl">4.0</span>) <span class="kw">and</span> a.grad <span class="op">==</span> <span class="fl">4.0</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>L = 4.0,  dL/dw = 12.0,  dL/dx = 8.0,  dL/db = 4.0
+dF/da = 4.0  (expected c + 1 = 4),  dF/dc = 2.0</code></pre>
+</div>
+</div>
+<p>The values match the hand calculation. The engine knows nothing about this example. It only knows the local rules.</p>
+</section>
+<section id="a-tiny-neural-network-on-the-engine" class="level3" data-number="18.7.2">
+<h3 data-number="18.7.2" class="anchored" data-anchor-id="a-tiny-neural-network-on-the-engine"><span class="header-section-number">18.7.2</span> A tiny neural network on the engine</h3>
+<p>We build a one-neuron “network” and fit it by gradient descent. This is Chapter 1’s loop with backpropagation inside.</p>
+<div id="code-engine-train" class="cell" data-execution_count="8">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">0</span>)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>xs <span class="op">=</span> rng.uniform(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">20</span>)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>ys <span class="op">=</span> np.tanh(<span class="fl">1.5</span> <span class="op">*</span> xs <span class="op">-</span> <span class="fl">0.3</span>)                     <span class="co"># target rule</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>w, b <span class="op">=</span> Value(<span class="fl">0.1</span>), Value(<span class="fl">0.0</span>)                    <span class="co"># parameters</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> step <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">200</span>):</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    loss <span class="op">=</span> Value(<span class="fl">0.0</span>)</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> xi, yi <span class="kw">in</span> <span class="bu">zip</span>(xs, ys):</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>        loss <span class="op">=</span> loss <span class="op">+</span> (( w <span class="op">*</span> xi <span class="op">+</span> b).tanh() <span class="op">-</span> yi) <span class="op">**</span> <span class="dv">2</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>    loss <span class="op">=</span> loss <span class="op">*</span> (<span class="dv">1</span> <span class="op">/</span> <span class="bu">len</span>(xs))</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>    w.grad <span class="op">=</span> b.grad <span class="op">=</span> <span class="fl">0.0</span>                        <span class="co"># reset accumulated gradients</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>    loss.backward()</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>    w.data <span class="op">-=</span> <span class="fl">0.5</span> <span class="op">*</span> w.grad                       <span class="co"># update rule</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>    b.data <span class="op">-=</span> <span class="fl">0.5</span> <span class="op">*</span> b.grad</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"learned w = </span><span class="sc">{</span>w<span class="sc">.</span>data<span class="sc">:.3f}</span><span class="ss">, b = </span><span class="sc">{</span>b<span class="sc">.</span>data<span class="sc">:.3f}</span><span class="ss">   (true 1.5, -0.3)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>learned w = 1.500, b = -0.300   (true 1.5, -0.3)</code></pre>
+</div>
+</div>
+<div class="callout callout-style-default callout-warning callout-titled" title="Reset the gradients">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>Reset the gradients
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Because every rule uses <code>+=</code>, gradients accumulate across calls. We must set them to zero before each <code>backward()</code>. Forgetting this is a common bug. PyTorch has the same behavior: you call <code>optimizer.zero_grad()</code>.</p>
+</div>
+</div>
+</section>
+<section id="matrix-backpropagation-in-numpy" class="level3" data-number="18.7.3">
+<h3 data-number="18.7.3" class="anchored" data-anchor-id="matrix-backpropagation-in-numpy"><span class="header-section-number">18.7.3</span> Matrix backpropagation in NumPy</h3>
+<p>The scalar engine is clear but slow. Real code uses the matrix rules of <a href="#sec-derivation" class="quarto-xref"><span>Section 18.5</span></a>. We write the forward and backward pass for a network of any depth. The shape convention follows the book: a batch has shape <code>(N, d)</code>, a weight has shape <code>(d_out, d_in)</code>.</p>
+<div id="code-mlp" class="cell" data-execution_count="9">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>ACT <span class="op">=</span> {   <span class="co"># name -&gt; (f, derivative expressed with z and a = f(z))</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"tanh"</span>:    (np.tanh,                          <span class="kw">lambda</span> z, a: <span class="dv">1</span> <span class="op">-</span> a <span class="op">**</span> <span class="dv">2</span>),</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"sigmoid"</span>: (<span class="kw">lambda</span> z: <span class="dv">1</span> <span class="op">/</span> (<span class="dv">1</span> <span class="op">+</span> np.exp(<span class="op">-</span>z)),   <span class="kw">lambda</span> z, a: a <span class="op">*</span> (<span class="dv">1</span> <span class="op">-</span> a)),</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"relu"</span>:    (<span class="kw">lambda</span> z: np.maximum(<span class="dv">0</span>, z),       <span class="kw">lambda</span> z, a: (z <span class="op">&gt;</span> <span class="dv">0</span>) <span class="op">*</span> <span class="fl">1.0</span>),</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> init(sizes, act, rng):</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Weights ~ N(0, 1/fan_in); He scaling (2/fan_in) for ReLU."""</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>    gain <span class="op">=</span> <span class="fl">2.0</span> <span class="cf">if</span> act <span class="op">==</span> <span class="st">"relu"</span> <span class="cf">else</span> <span class="fl">1.0</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [(rng.normal(<span class="dv">0</span>, np.sqrt(gain <span class="op">/</span> n_in), (n_out, n_in)), np.zeros(n_out))</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> n_in, n_out <span class="kw">in</span> <span class="bu">zip</span>(sizes[:<span class="op">-</span><span class="dv">1</span>], sizes[<span class="dv">1</span>:])]</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> forward(params, X, act):</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>    f, _ <span class="op">=</span> ACT[act]</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>    cache, a <span class="op">=</span> [], X                                <span class="co"># a: (N, d_in)</span></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> l, (W, b) <span class="kw">in</span> <span class="bu">enumerate</span>(params):</span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>        z <span class="op">=</span> a <span class="op">@</span> W.T <span class="op">+</span> b                             <span class="co"># (N, d_out)</span></span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>        out <span class="op">=</span> z <span class="cf">if</span> l <span class="op">==</span> <span class="bu">len</span>(params) <span class="op">-</span> <span class="dv">1</span> <span class="cf">else</span> f(z)   <span class="co"># no activation at the end</span></span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>        cache.append((a, z, out))</span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>        a <span class="op">=</span> out</span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> a, cache</span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> loss_and_signal(out, y, kind):</span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Return the loss and dL/d(output), averaged over the batch."""</span></span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a>    N <span class="op">=</span> <span class="bu">len</span>(y)</span>
+<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> kind <span class="op">==</span> <span class="st">"mse"</span>:</span>
+<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> np.mean((out <span class="op">-</span> y) <span class="op">**</span> <span class="dv">2</span>), <span class="dv">2</span> <span class="op">*</span> (out <span class="op">-</span> y) <span class="op">/</span> N</span>
+<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a>    p <span class="op">=</span> <span class="dv">1</span> <span class="op">/</span> (<span class="dv">1</span> <span class="op">+</span> np.exp(<span class="op">-</span>out))                      <span class="co"># "bce": out is a logit</span></span>
+<span id="cb12-29"><a href="#cb12-29" aria-hidden="true" tabindex="-1"></a>    loss <span class="op">=</span> np.mean(np.logaddexp(<span class="dv">0</span>, out) <span class="op">-</span> y <span class="op">*</span> out)  <span class="co"># stable cross-entropy</span></span>
+<span id="cb12-30"><a href="#cb12-30" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> loss, (p <span class="op">-</span> y) <span class="op">/</span> N</span>
+<span id="cb12-31"><a href="#cb12-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-32"><a href="#cb12-32" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> backward(params, cache, delta, act):</span>
+<span id="cb12-33"><a href="#cb12-33" aria-hidden="true" tabindex="-1"></a>    _, df <span class="op">=</span> ACT[act]</span>
+<span id="cb12-34"><a href="#cb12-34" aria-hidden="true" tabindex="-1"></a>    grads <span class="op">=</span> [<span class="va">None</span>] <span class="op">*</span> <span class="bu">len</span>(params)</span>
+<span id="cb12-35"><a href="#cb12-35" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> l <span class="kw">in</span> <span class="bu">reversed</span>(<span class="bu">range</span>(<span class="bu">len</span>(params))):</span>
+<span id="cb12-36"><a href="#cb12-36" aria-hidden="true" tabindex="-1"></a>        a_in, z, a <span class="op">=</span> cache[l]</span>
+<span id="cb12-37"><a href="#cb12-37" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> l <span class="op">&lt;</span> <span class="bu">len</span>(params) <span class="op">-</span> <span class="dv">1</span>:</span>
+<span id="cb12-38"><a href="#cb12-38" aria-hidden="true" tabindex="-1"></a>            delta <span class="op">=</span> delta <span class="op">*</span> df(z, a)                <span class="co"># through the activation</span></span>
+<span id="cb12-39"><a href="#cb12-39" aria-hidden="true" tabindex="-1"></a>        grads[l] <span class="op">=</span> (delta.T <span class="op">@</span> a_in, delta.<span class="bu">sum</span>(axis<span class="op">=</span><span class="dv">0</span>))   <span class="co"># dW, db</span></span>
+<span id="cb12-40"><a href="#cb12-40" aria-hidden="true" tabindex="-1"></a>        delta <span class="op">=</span> delta <span class="op">@</span> params[l][<span class="dv">0</span>]                <span class="co"># through W^T (row form)</span></span>
+<span id="cb12-41"><a href="#cb12-41" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> grads</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Check the shapes of <code>delta.T @ a_in</code>: <code>delta</code> is <code>(N, d_out)</code>, so <code>delta.T</code> is <code>(d_out, N)</code>. With <code>a_in</code> of shape <code>(N, d_in)</code> the result has shape <code>(d_out, d_in)</code>, the same as <code>W</code>. The sum over the batch is built into the matrix product.</p>
+</section>
+<section id="gradient-checking" class="level3" data-number="18.7.4">
+<h3 data-number="18.7.4" class="anchored" data-anchor-id="gradient-checking"><span class="header-section-number">18.7.4</span> Gradient checking</h3>
+<p>We now apply the habit from Chapter 1. We compare backpropagation with finite differences for <strong>every</strong> parameter.</p>
+<div id="code-gradcheck" class="cell" data-execution_count="10">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> flatten(params):</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.concatenate([np.concatenate([W.ravel(), b]) <span class="cf">for</span> W, b <span class="kw">in</span> params])</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> loss_at(params, X, y, act, kind):</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    out, _ <span class="op">=</span> forward(params, X, act)</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> loss_and_signal(out, y, kind)[<span class="dv">0</span>]</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> numeric_gradient(params, X, y, act, kind, eps<span class="op">=</span><span class="fl">1e-5</span>):</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>    g <span class="op">=</span> []</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> W, b <span class="kw">in</span> params:</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> arr <span class="kw">in</span> (W, b):</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>            gk <span class="op">=</span> np.zeros_like(arr)</span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> idx <span class="kw">in</span> np.ndindex(arr.shape):</span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>                old <span class="op">=</span> arr[idx]</span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>                arr[idx] <span class="op">=</span> old <span class="op">+</span> eps<span class="op">;</span> up <span class="op">=</span> loss_at(params, X, y, act, kind)</span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>                arr[idx] <span class="op">=</span> old <span class="op">-</span> eps<span class="op">;</span> dn <span class="op">=</span> loss_at(params, X, y, act, kind)</span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>                arr[idx] <span class="op">=</span> old</span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>                gk[idx] <span class="op">=</span> (up <span class="op">-</span> dn) <span class="op">/</span> (<span class="dv">2</span> <span class="op">*</span> eps)</span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>            g.append(gk.ravel())</span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.concatenate(g)</span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">0</span>)</span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> rng.normal(size<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">3</span>))</span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> rng.normal(size<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">1</span>))</span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>params <span class="op">=</span> init([<span class="dv">3</span>, <span class="dv">5</span>, <span class="dv">4</span>, <span class="dv">1</span>], <span class="st">"tanh"</span>, rng)</span>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a>out, cache <span class="op">=</span> forward(params, X, <span class="st">"tanh"</span>)</span>
+<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a>_, delta <span class="op">=</span> loss_and_signal(out, y, <span class="st">"mse"</span>)</span>
+<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a>g_bp <span class="op">=</span> flatten(backward(params, cache, delta, <span class="st">"tanh"</span>))</span>
+<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a>g_num <span class="op">=</span> numeric_gradient(params, X, y, <span class="st">"tanh"</span>, <span class="st">"mse"</span>)</span>
+<span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-32"><a href="#cb13-32" aria-hidden="true" tabindex="-1"></a>rel <span class="op">=</span> np.<span class="bu">abs</span>(g_bp <span class="op">-</span> g_num) <span class="op">/</span> (np.<span class="bu">abs</span>(g_bp) <span class="op">+</span> np.<span class="bu">abs</span>(g_num) <span class="op">+</span> <span class="fl">1e-12</span>)</span>
+<span id="cb13-33"><a href="#cb13-33" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"parameters checked:"</span>, g_bp.size)</span>
+<span id="cb13-34"><a href="#cb13-34" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"largest relative error: </span><span class="sc">{</span>rel<span class="sc">.</span><span class="bu">max</span>()<span class="sc">:.2e}</span><span class="ss">"</span>)</span>
+<span id="cb13-35"><a href="#cb13-35" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> rel.<span class="bu">max</span>() <span class="op">&lt;</span> <span class="fl">1e-6</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>parameters checked: 49
+largest relative error: 7.09e-08</code></pre>
+</div>
+</div>
+<p>Every gradient from backpropagation agrees with the finite-difference estimate. This check is slow, so we use it only for testing. A good habit is to run it on a small network whenever we write new backward code.</p>
+</section>
+</section>
+<section id="sec-cost" class="level2" data-number="18.8">
+<h2 data-number="18.8" class="anchored" data-anchor-id="sec-cost"><span class="header-section-number">18.8</span> Why backpropagation matters: cost</h2>
+<p>Finite differences need two forward passes <strong>per parameter</strong>. Backpropagation needs one forward pass and one backward pass, <strong>in total</strong>. We measure the difference.</p>
+<div id="cell-fig-cost" class="cell" data-execution_count="11">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">0</span>)</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> rng.normal(size<span class="op">=</span>(<span class="dv">64</span>, <span class="dv">10</span>))<span class="op">;</span> y <span class="op">=</span> rng.normal(size<span class="op">=</span>(<span class="dv">64</span>, <span class="dv">1</span>))</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>sizes_P, t_fd, t_bp <span class="op">=</span> [], [], []</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> h <span class="kw">in</span> [<span class="dv">2</span>, <span class="dv">4</span>, <span class="dv">8</span>, <span class="dv">16</span>, <span class="dv">32</span>]:</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>    params <span class="op">=</span> init([<span class="dv">10</span>, h, h, <span class="dv">1</span>], <span class="st">"tanh"</span>, rng)</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>    P <span class="op">=</span> <span class="bu">sum</span>(W.size <span class="op">+</span> b.size <span class="cf">for</span> W, b <span class="kw">in</span> params)</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>    t0 <span class="op">=</span> time.perf_counter()</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>    numeric_gradient(params, X, y, <span class="st">"tanh"</span>, <span class="st">"mse"</span>)</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>    t_fd.append(time.perf_counter() <span class="op">-</span> t0)</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>    t0 <span class="op">=</span> time.perf_counter()</span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">20</span>):                         <span class="co"># repeat: one call is too fast</span></span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>        out, cache <span class="op">=</span> forward(params, X, <span class="st">"tanh"</span>)</span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>        _, delta <span class="op">=</span> loss_and_signal(out, y, <span class="st">"mse"</span>)</span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>        backward(params, cache, delta, <span class="st">"tanh"</span>)</span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>    t_bp.append((time.perf_counter() <span class="op">-</span> t0) <span class="op">/</span> <span class="dv">20</span>)</span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>    sizes_P.append(P)</span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots()</span>
+<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a>ax.loglog(sizes_P, t_fd, <span class="st">"o-"</span>, color<span class="op">=</span>PALETTE[<span class="st">"loss"</span>], label<span class="op">=</span><span class="st">"finite differences"</span>)</span>
+<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a>ax.loglog(sizes_P, t_bp, <span class="st">"o-"</span>, color<span class="op">=</span>PALETTE[<span class="st">"grad"</span>], label<span class="op">=</span><span class="st">"backpropagation"</span>)</span>
+<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"number of parameters $P$"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"seconds per gradient"</span>)</span>
+<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a>ax.legend()</span>
+<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb15-27"><a href="#cb15-27" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"speed-up at largest size:"</span>, <span class="bu">round</span>(t_fd[<span class="op">-</span><span class="dv">1</span>] <span class="op">/</span> t_bp[<span class="op">-</span><span class="dv">1</span>]), <span class="st">"x"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="fig-cost" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Log-log plot of time versus number of parameters. A steeply rising line for finite differences and a nearly flat line for backpropagation.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-cost-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="ch18_chain_rule_and_backpropagation_files/figure-html/fig-cost-output-1.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-5" title="Figure&nbsp;18.5: Time to compute the full gradient. Finite differences grow linearly with the number of parameters P. Backpropagation stays almost flat. For a network with billions of parameters, the finite-difference method is not possible."><img src="ch18_chain_rule_and_backpropagation_files/figure-html/fig-cost-output-1.svg" class="img-fluid figure-img" alt="Log-log plot of time versus number of parameters. A steeply rising line for finite differences and a nearly flat line for backpropagation."></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-cost-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;18.5: Time to compute the full gradient. Finite differences grow linearly with the number of parameters P. Backpropagation stays almost flat. For a network with billions of parameters, the finite-difference method is not possible.
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>speed-up at largest size: 1564 x</code></pre>
+</div>
+</div>
+<p>The exact times depend on the computer. The trend does not. Finite differences cost <span class="math inline">\(O(P)\)</span> forward passes. Backpropagation costs <span class="math inline">\(O(1)\)</span> passes, a small constant. The speed-up is about <span class="math inline">\(P\)</span>.</p>
+</section>
+<section id="sec-training" class="level2" data-number="18.9">
+<h2 data-number="18.9" class="anchored" data-anchor-id="sec-training"><span class="header-section-number">18.9</span> Training a network</h2>
+<p>We now use the engine for a real task: separate two interleaved half-circles. A straight line cannot do this. A network with a hidden layer can.</p>
+<div id="cell-fig-moons" class="cell" data-execution_count="12">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.datasets <span class="im">import</span> make_moons</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>Xm, ym <span class="op">=</span> make_moons(n_samples<span class="op">=</span><span class="dv">300</span>, noise<span class="op">=</span><span class="fl">0.15</span>, random_state<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>ym <span class="op">=</span> ym.reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>).astype(<span class="bu">float</span>)                  <span class="co"># (300, 1)</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">1</span>)</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>params <span class="op">=</span> init([<span class="dv">2</span>, <span class="dv">16</span>, <span class="dv">16</span>, <span class="dv">1</span>], <span class="st">"tanh"</span>, rng)</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>history, lr <span class="op">=</span> [], <span class="fl">0.5</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> step <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1500</span>):</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>    out, cache <span class="op">=</span> forward(params, Xm, <span class="st">"tanh"</span>)</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>    loss, delta <span class="op">=</span> loss_and_signal(out, ym, <span class="st">"bce"</span>)</span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>    grads <span class="op">=</span> backward(params, cache, delta, <span class="st">"tanh"</span>)</span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>    params <span class="op">=</span> [(W <span class="op">-</span> lr <span class="op">*</span> dW, b <span class="op">-</span> lr <span class="op">*</span> db)</span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>              <span class="cf">for</span> (W, b), (dW, db) <span class="kw">in</span> <span class="bu">zip</span>(params, grads)]</span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>    history.append(loss)</span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>pred <span class="op">=</span> (forward(params, Xm, <span class="st">"tanh"</span>)[<span class="dv">0</span>] <span class="op">&gt;</span> <span class="dv">0</span>).astype(<span class="bu">float</span>)</span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>acc <span class="op">=</span> np.mean(pred <span class="op">==</span> ym)</span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"final loss </span><span class="sc">{</span>history[<span class="op">-</span><span class="dv">1</span>]<span class="sc">:.3f}</span><span class="ss">, training accuracy </span><span class="sc">{</span>acc<span class="sc">:.3f}</span><span class="ss">"</span>)</span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a>gx, gy <span class="op">=</span> np.meshgrid(np.linspace(<span class="op">-</span><span class="fl">1.8</span>, <span class="fl">2.8</span>, <span class="dv">200</span>), np.linspace(<span class="op">-</span><span class="fl">1.2</span>, <span class="fl">1.7</span>, <span class="dv">200</span>))</span>
+<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a>grid <span class="op">=</span> np.column_stack([gx.ravel(), gy.ravel()])</span>
+<span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a>zz <span class="op">=</span> forward(params, grid, <span class="st">"tanh"</span>)[<span class="dv">0</span>].reshape(gx.shape)</span>
+<span id="cb17-23"><a href="#cb17-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-24"><a href="#cb17-24" aria-hidden="true" tabindex="-1"></a>fig, (ax1, ax2) <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="fl">3.8</span>))</span>
+<span id="cb17-25"><a href="#cb17-25" aria-hidden="true" tabindex="-1"></a>ax1.plot(history, color<span class="op">=</span>PALETTE[<span class="st">"loss"</span>])</span>
+<span id="cb17-26"><a href="#cb17-26" aria-hidden="true" tabindex="-1"></a>ax1.set_xlabel(<span class="st">"step"</span>)<span class="op">;</span> ax1.set_ylabel(<span class="st">"cross-entropy loss"</span>)</span>
+<span id="cb17-27"><a href="#cb17-27" aria-hidden="true" tabindex="-1"></a>ax2.contourf(gx, gy, zz <span class="op">&gt;</span> <span class="dv">0</span>, alpha<span class="op">=</span><span class="fl">0.18</span>, levels<span class="op">=</span>[<span class="op">-</span><span class="fl">0.5</span>, <span class="fl">0.5</span>, <span class="fl">1.5</span>],</span>
+<span id="cb17-28"><a href="#cb17-28" aria-hidden="true" tabindex="-1"></a>             colors<span class="op">=</span>[PALETTE[<span class="st">"data"</span>], PALETTE[<span class="st">"model"</span>]])</span>
+<span id="cb17-29"><a href="#cb17-29" aria-hidden="true" tabindex="-1"></a>ax2.scatter(<span class="op">*</span>Xm[ym[:, <span class="dv">0</span>] <span class="op">==</span> <span class="dv">0</span>].T, color<span class="op">=</span>PALETTE[<span class="st">"data"</span>], s<span class="op">=</span><span class="dv">14</span>)</span>
+<span id="cb17-30"><a href="#cb17-30" aria-hidden="true" tabindex="-1"></a>ax2.scatter(<span class="op">*</span>Xm[ym[:, <span class="dv">0</span>] <span class="op">==</span> <span class="dv">1</span>].T, color<span class="op">=</span>PALETTE[<span class="st">"model"</span>], s<span class="op">=</span><span class="dv">14</span>)</span>
+<span id="cb17-31"><a href="#cb17-31" aria-hidden="true" tabindex="-1"></a>ax2.set_xlabel(<span class="st">"$x_1$"</span>)<span class="op">;</span> ax2.set_ylabel(<span class="st">"$x_2$"</span>)</span>
+<span id="cb17-32"><a href="#cb17-32" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>final loss 0.018, training accuracy 0.993</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div id="fig-moons" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Left: loss curve decreasing over 1500 steps. Right: scatter of two interleaved half-moons in two colors with a curved decision boundary between them.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-moons-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="ch18_chain_rule_and_backpropagation_files/figure-html/fig-moons-output-2.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-6" title="Figure&nbsp;18.6: Training with backpropagation. Left: the loss falls during training. Right: the decision boundary of the trained network separates the two classes with a curve. A single linear layer cannot do this."><img src="ch18_chain_rule_and_backpropagation_files/figure-html/fig-moons-output-2.svg" class="img-fluid figure-img" alt="Left: loss curve decreasing over 1500 steps. Right: scatter of two interleaved half-moons in two colors with a curved decision boundary between them."></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-moons-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;18.6: Training with backpropagation. Left: the loss falls during training. Right: the decision boundary of the trained network separates the two classes with a curve. A single linear layer cannot do this.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="sec-production" class="level2" data-number="18.10">
+<h2 data-number="18.10" class="anchored" data-anchor-id="sec-production"><span class="header-section-number">18.10</span> Production: PyTorch autograd</h2>
+<p>PyTorch does the same work with a general engine. It records each operation on tensors during the forward pass. Then <code>loss.backward()</code> walks the recorded graph in reverse order. This is <strong>reverse-mode automatic differentiation</strong>.</p>
+<p>We check that PyTorch and our NumPy code give the same gradients.</p>
+<div id="code-torch" class="cell" data-execution_count="13">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch.nn <span class="im">as</span> nn</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch.nn.functional <span class="im">as</span> F</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">3</span>)</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>Xs <span class="op">=</span> rng.normal(size<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">3</span>))<span class="op">;</span> ys <span class="op">=</span> (rng.uniform(size<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">1</span>)) <span class="op">&gt;</span> <span class="fl">0.5</span>) <span class="op">*</span> <span class="fl">1.0</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>params <span class="op">=</span> init([<span class="dv">3</span>, <span class="dv">5</span>, <span class="dv">4</span>, <span class="dv">1</span>], <span class="st">"tanh"</span>, rng)</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a><span class="co"># NumPy gradients</span></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>out, cache <span class="op">=</span> forward(params, Xs, <span class="st">"tanh"</span>)</span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>_, delta <span class="op">=</span> loss_and_signal(out, ys, <span class="st">"bce"</span>)</span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>g_np <span class="op">=</span> flatten(backward(params, cache, delta, <span class="st">"tanh"</span>))</span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a><span class="co"># PyTorch gradients, same weights</span></span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>net <span class="op">=</span> nn.Sequential(nn.Linear(<span class="dv">3</span>, <span class="dv">5</span>), nn.Tanh(), nn.Linear(<span class="dv">5</span>, <span class="dv">4</span>), nn.Tanh(),</span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>                    nn.Linear(<span class="dv">4</span>, <span class="dv">1</span>)).double()</span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> torch.no_grad():</span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> lin, (W, b) <span class="kw">in</span> <span class="bu">zip</span>([net[<span class="dv">0</span>], net[<span class="dv">2</span>], net[<span class="dv">4</span>]], params):</span>
+<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a>        lin.weight.copy_(torch.tensor(W))<span class="op">;</span> lin.bias.copy_(torch.tensor(b))</span>
+<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a>loss <span class="op">=</span> F.binary_cross_entropy_with_logits(net(torch.tensor(Xs)),</span>
+<span id="cb19-22"><a href="#cb19-22" aria-hidden="true" tabindex="-1"></a>                                          torch.tensor(ys))</span>
+<span id="cb19-23"><a href="#cb19-23" aria-hidden="true" tabindex="-1"></a>loss.backward()                                   <span class="co"># reverse-mode autodiff</span></span>
+<span id="cb19-24"><a href="#cb19-24" aria-hidden="true" tabindex="-1"></a>g_torch <span class="op">=</span> np.concatenate([torch.cat([lin.weight.grad.flatten(),</span>
+<span id="cb19-25"><a href="#cb19-25" aria-hidden="true" tabindex="-1"></a>                                     lin.bias.grad]).numpy()</span>
+<span id="cb19-26"><a href="#cb19-26" aria-hidden="true" tabindex="-1"></a>                          <span class="cf">for</span> lin <span class="kw">in</span> [net[<span class="dv">0</span>], net[<span class="dv">2</span>], net[<span class="dv">4</span>]]])</span>
+<span id="cb19-27"><a href="#cb19-27" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"max |NumPy - PyTorch| gradient difference:"</span>,</span>
+<span id="cb19-28"><a href="#cb19-28" aria-hidden="true" tabindex="-1"></a>      <span class="ss">f"</span><span class="sc">{</span>np<span class="sc">.</span><span class="bu">abs</span>(g_np <span class="op">-</span> g_torch)<span class="sc">.</span><span class="bu">max</span>()<span class="sc">:.2e}</span><span class="ss">"</span>)</span>
+<span id="cb19-29"><a href="#cb19-29" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> np.allclose(g_np, g_torch)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>max |NumPy - PyTorch| gradient difference: 1.39e-17</code></pre>
+</div>
+</div>
+<p>The two results agree. In real work, we never write backward code by hand. We still need to understand it. It tells us what the training step costs, where memory goes, and why training fails.</p>
+<section id="what-autograd-stores" class="level3" data-number="18.10.1">
+<h3 data-number="18.10.1" class="anchored" data-anchor-id="what-autograd-stores"><span class="header-section-number">18.10.1</span> What autograd stores</h3>
+<p>Look at <code>cache</code> in our code. The backward pass needs <span class="math inline">\(\mathbf{a}_{l-1}\)</span> and <span class="math inline">\(\mathbf{z}_l\)</span> for <strong>every</strong> layer. These <strong>activations</strong> must stay in memory until the backward pass uses them.</p>
+<p>For large models this is the main memory cost. It grows with batch size, sequence length, and depth. Two common remedies are:</p>
+<ul>
+<li><strong>Activation checkpointing.</strong> Store only some layers. Recompute the others during the backward pass. This trades extra compute for less memory.</li>
+<li><strong>Lower precision.</strong> Store activations in 16-bit numbers.</li>
+</ul>
+</section>
+</section>
+<section id="sec-failure" class="level2" data-number="18.11">
+<h2 data-number="18.11" class="anchored" data-anchor-id="sec-failure"><span class="header-section-number">18.11</span> Failure modes</h2>
+<section id="vanishing-gradients" class="level3" data-number="18.11.1">
+<h3 data-number="18.11.1" class="anchored" data-anchor-id="vanishing-gradients"><span class="header-section-number">18.11.1</span> Vanishing gradients</h3>
+<p>Look at <a href="#eq-back-delta" class="quarto-xref">Equation&nbsp;<span>18.8</span></a>. Each layer multiplies the signal by <span class="math inline">\(\mathbf{W}^{\intercal}\)</span> and by <span class="math inline">\(\sigma'(\mathbf{z})\)</span>. In a deep network, the signal is a <strong>product of many factors</strong>. If the typical factor is below 1, the product shrinks exponentially with depth.</p>
+<p>The sigmoid has a maximum derivative of only <span class="math inline">\(0.25\)</span>:</p>
+<div id="cell-fig-sigmoid-derivative" class="cell" data-execution_count="14">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>zs <span class="op">=</span> np.linspace(<span class="op">-</span><span class="dv">8</span>, <span class="dv">8</span>, <span class="dv">400</span>)</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>sig <span class="op">=</span> <span class="dv">1</span> <span class="op">/</span> (<span class="dv">1</span> <span class="op">+</span> np.exp(<span class="op">-</span>zs))</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots()</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>ax.plot(zs, sig, color<span class="op">=</span>PALETTE[<span class="st">"data"</span>], label<span class="op">=</span><span class="st">"σ(z)"</span>)</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>ax.plot(zs, sig <span class="op">*</span> (<span class="dv">1</span> <span class="op">-</span> sig), color<span class="op">=</span>PALETTE[<span class="st">"loss"</span>], label<span class="op">=</span><span class="st">"σ′(z)"</span>)</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>ax.axhline(<span class="fl">0.25</span>, ls<span class="op">=</span><span class="st">"--"</span>, color<span class="op">=</span>PALETTE[<span class="st">"neutral"</span>], lw<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>ax.legend()<span class="op">;</span> ax.set_xlabel(<span class="st">"z"</span>)</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="fig-sigmoid-derivative" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Two curves: the sigmoid rising from 0 to 1, and its derivative, a bump with maximum 0.25 at zero.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-sigmoid-derivative-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="ch18_chain_rule_and_backpropagation_files/figure-html/fig-sigmoid-derivative-output-1.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-7" title="Figure&nbsp;18.7: The sigmoid and its derivative. The derivative never exceeds 0.25. Each sigmoid layer scales the backward signal by at most this factor."><img src="ch18_chain_rule_and_backpropagation_files/figure-html/fig-sigmoid-derivative-output-1.svg" class="img-fluid figure-img" alt="Two curves: the sigmoid rising from 0 to 1, and its derivative, a bump with maximum 0.25 at zero."></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-sigmoid-derivative-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;18.7: The sigmoid and its derivative. The derivative never exceeds 0.25. Each sigmoid layer scales the backward signal by at most this factor.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>We measure the effect in a 30-layer network. For each layer we record the norm of the weight gradient.</p>
+<div id="cell-fig-vanishing" class="cell" data-execution_count="15">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">0</span>)</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>depth, width <span class="op">=</span> <span class="dv">30</span>, <span class="dv">32</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> rng.normal(size<span class="op">=</span>(<span class="dv">64</span>, width))<span class="op">;</span> y <span class="op">=</span> rng.normal(size<span class="op">=</span>(<span class="dv">64</span>, <span class="dv">1</span>))</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots()</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> act, color <span class="kw">in</span> [(<span class="st">"sigmoid"</span>, PALETTE[<span class="st">"loss"</span>]), (<span class="st">"relu"</span>, PALETTE[<span class="st">"grad"</span>])]:</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>    params <span class="op">=</span> init([width] <span class="op">*</span> depth <span class="op">+</span> [<span class="dv">1</span>], act, rng)</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>    out, cache <span class="op">=</span> forward(params, X, act)</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>    _, delta <span class="op">=</span> loss_and_signal(out, y, <span class="st">"mse"</span>)</span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>    grads <span class="op">=</span> backward(params, cache, delta, act)</span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>    norms <span class="op">=</span> [np.linalg.norm(dW) <span class="cf">for</span> dW, _ <span class="kw">in</span> grads]</span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>    ax.semilogy(<span class="bu">range</span>(<span class="dv">1</span>, depth <span class="op">+</span> <span class="dv">1</span>), norms, <span class="st">"o-"</span>, ms<span class="op">=</span><span class="dv">4</span>,</span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>                color<span class="op">=</span>color, label<span class="op">=</span>act)</span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>act<span class="sc">:8s}</span><span class="ss">  first layer / last layer gradient norm = "</span></span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>          <span class="ss">f"</span><span class="sc">{</span>norms[<span class="dv">0</span>] <span class="op">/</span> norms[<span class="op">-</span><span class="dv">1</span>]<span class="sc">:.1e}</span><span class="ss">"</span>)</span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"layer (1 = nearest the input)"</span>)</span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"‖∂L/∂W‖  (log scale)"</span>)<span class="op">;</span> ax.legend()</span>
+<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>sigmoid   first layer / last layer gradient norm = 2.7e-19
+relu      first layer / last layer gradient norm = 9.0e-01</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div id="fig-vanishing" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Log-scale plot of gradient norm versus layer index. The sigmoid line falls over many orders of magnitude toward the input layers. The ReLU line stays roughly level.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-vanishing-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="ch18_chain_rule_and_backpropagation_files/figure-html/fig-vanishing-output-2.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-8" title="Figure&nbsp;18.8: Gradient norm per layer in a 30-layer network (layer 1 is nearest the input). With sigmoid, the gradient reaches the first layers at a tiny size: they barely learn. With ReLU and He initialization, the gradient stays in a usable range."><img src="ch18_chain_rule_and_backpropagation_files/figure-html/fig-vanishing-output-2.svg" class="img-fluid figure-img" alt="Log-scale plot of gradient norm versus layer index. The sigmoid line falls over many orders of magnitude toward the input layers. The ReLU line stays roughly level."></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-vanishing-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;18.8: Gradient norm per layer in a 30-layer network (layer 1 is nearest the input). With sigmoid, the gradient reaches the first layers at a tiny size: they barely learn. With ReLU and He initialization, the gradient stays in a usable range.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>This is why deep networks needed new ideas: ReLU-type activations, careful initialization (Chapter 20), normalization (Chapter 20), and residual connections (Chapter 31). Each of these keeps the backward signal at a usable size.</p>
+</section>
+<section id="exploding-gradients" class="level3" data-number="18.11.2">
+<h3 data-number="18.11.2" class="anchored" data-anchor-id="exploding-gradients"><span class="header-section-number">18.11.2</span> Exploding gradients</h3>
+<p>If the typical factor is above 1, the signal grows exponentially instead. The weights receive huge updates and the loss becomes <code>nan</code>. The standard remedy is <strong>gradient clipping</strong>: if <span class="math inline">\(\lVert \nabla L \rVert &gt; c\)</span>, rescale the gradient to norm <span class="math inline">\(c\)</span>.</p>
+</section>
+<section id="dead-relus" class="level3" data-number="18.11.3">
+<h3 data-number="18.11.3" class="anchored" data-anchor-id="dead-relus"><span class="header-section-number">18.11.3</span> Dead ReLUs</h3>
+<p>If <span class="math inline">\(z \le 0\)</span> for all inputs, then <span class="math inline">\(\sigma'(z) = 0\)</span>. The backward signal through the unit is exactly zero. The unit’s weights never change. It stays “dead”.</p>
+</section>
+<section id="numerical-issues" class="level3" data-number="18.11.4">
+<h3 data-number="18.11.4" class="anchored" data-anchor-id="numerical-issues"><span class="header-section-number">18.11.4</span> Numerical issues</h3>
+<ul>
+<li><strong>Overflow.</strong> <code>exp</code> of a large number overflows. We used <code>np.logaddexp</code> for the cross-entropy to avoid it.</li>
+<li><strong>Not differentiable at a point.</strong> ReLU has no derivative at <span class="math inline">\(z = 0\)</span>. Libraries pick 0. This almost never matters in practice.</li>
+<li><strong>Wrong gradient code.</strong> A wrong backward function does not raise an error. Use gradient checking.</li>
+</ul>
+</section>
+</section>
+<section id="sec-ai-connection" class="level2" data-number="18.12">
+<h2 data-number="18.12" class="anchored" data-anchor-id="sec-ai-connection"><span class="header-section-number">18.12</span> Where this appears in modern AI</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Idea in this chapter</th>
+<th>Where it appears</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Reverse-mode autodiff</td>
+<td><code>loss.backward()</code> in PyTorch, <code>jax.grad</code> in JAX</td>
+</tr>
+<tr class="even">
+<td>Stored activations</td>
+<td>Memory use of LLM training; activation checkpointing</td>
+</tr>
+<tr class="odd">
+<td>Backward ≈ 2× forward cost</td>
+<td>The common estimate: training ≈ 3× the cost of inference per token</td>
+</tr>
+<tr class="even">
+<td>Gradient accumulation (<code>+=</code>)</td>
+<td>Training with large effective batch sizes</td>
+</tr>
+<tr class="odd">
+<td>Gradient clipping</td>
+<td>Standard in LLM training</td>
+</tr>
+<tr class="even">
+<td>Vanishing gradients</td>
+<td>Motivation for ReLU/GELU, normalization, residual connections</td>
+</tr>
+<tr class="odd">
+<td>Local derivative table</td>
+<td>Every operator in a framework has a registered backward rule</td>
+</tr>
+</tbody>
+</table>
+<p>The Transformer in Part VIII adds new operations: softmax, layer normalization, attention. For each one we only need its <strong>local derivative</strong>. Backpropagation then applies without change.</p>
+</section>
+<section id="sec-system-connection" class="level2" data-number="18.13">
+<h2 data-number="18.13" class="anchored" data-anchor-id="sec-system-connection"><span class="header-section-number">18.13</span> System connection</h2>
+<div class="callout callout-style-default callout-note callout-titled" title="What the system gained in this chapter">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>What the system gained in this chapter
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The system can now compute <span class="math inline">\(\nabla_\theta L\)</span> for <strong>any</strong> model that is a composition of differentiable operations, at about the cost of three forward passes.</p>
+<p>With the loss from Part IV, this completes the pipeline</p>
+<p><span class="math display">\[
+x \;\to\; f_\theta(x) \;\to\; L \;\to\; \nabla_\theta L.
+\]</span></p>
+<p>The gradient is known. We still need rules for <strong>how to use it</strong>. Chapter 19 develops the optimizer, and Chapter 20 studies why some training runs fail.</p>
+</div>
+</div>
+</section>
+<section id="chapter-summary" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="chapter-summary">Chapter summary</h2>
+<ul>
+<li>The chain rule: multiply local derivatives along a path, add across paths.</li>
+<li>A computational graph splits a function into simple operations with known local derivatives.</li>
+<li>Backpropagation runs the graph backward. It reuses the upstream gradient at each node.</li>
+<li>For a layer <span class="math inline">\(\mathbf{z} = \mathbf{W}\mathbf{a} + \mathbf{b}\)</span>: <span class="math inline">\(\ \partial L/\partial\mathbf{W} = \boldsymbol{\delta}\,\mathbf{a}^{\intercal}\)</span>, <span class="math inline">\(\ \partial L/\partial\mathbf{a} = \mathbf{W}^{\intercal}\boldsymbol{\delta}\)</span>.</li>
+<li>For a logit with cross-entropy, the error signal is <span class="math inline">\(p - y\)</span>.</li>
+<li>One forward and one backward pass give all gradients. The cost does not grow with the number of parameters.</li>
+<li>Deep networks can have vanishing or exploding gradients. Activation, initialization, and architecture control this.</li>
+<li>Always verify new backward code with a finite-difference check.</li>
+</ul>
+</section>
+<section id="exercises" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="exercises">Exercises</h2>
+<ol type="1">
+<li><strong>Compute.</strong> For <span class="math inline">\(L = (w x + b - y)^2\)</span> with <span class="math inline">\(w = 1\)</span>, <span class="math inline">\(x = 2\)</span>, <span class="math inline">\(b = 0\)</span>, <span class="math inline">\(y = 5\)</span>, find <span class="math inline">\(\partial L/\partial w\)</span>, <span class="math inline">\(\partial L/\partial x\)</span>, <span class="math inline">\(\partial L/\partial b\)</span> by running the graph forward and backward by hand.</li>
+<li><strong>Compute.</strong> Let <span class="math inline">\(L = \tanh(w x)\)</span> with <span class="math inline">\(w = 0.5\)</span> and <span class="math inline">\(x = 2\)</span>. Find <span class="math inline">\(dL/dw\)</span> using the chain rule. Compare with a finite difference with <span class="math inline">\(\epsilon = 10^{-4}\)</span>.</li>
+<li><strong>Derive.</strong> A node computes <span class="math inline">\(c = a / b\)</span>. Find <span class="math inline">\(\partial c/\partial a\)</span> and <span class="math inline">\(\partial c/\partial b\)</span>. Add <code>__truediv__</code> to the <code>Value</code> class and test it.</li>
+<li><strong>Derive.</strong> Show that for <span class="math inline">\(\sigma(z) = 1/(1+e^{-z})\)</span> we have <span class="math inline">\(\sigma'(z) = \sigma(z)(1-\sigma(z))\)</span>.</li>
+<li><strong>Derive.</strong> For the mean squared error over <span class="math inline">\(N\)</span> examples, show that the output signal is <span class="math inline">\(\boldsymbol{\delta} = \frac{2}{N}(\hat{\mathbf{y}} - \mathbf{y})\)</span>. Which line of <code>loss_and_signal</code> implements it?</li>
+<li><strong>Code.</strong> Add a <code>relu</code> method to the <code>Value</code> class. Train the one-neuron model from the scalar-engine section with it.</li>
+<li><strong>Code.</strong> Add L2 regularization <span class="math inline">\(\frac{\lambda}{2}\lVert\mathbf{W}\rVert^2\)</span> to the NumPy network. Which line of <code>backward</code> changes? Verify with the gradient check.</li>
+<li><strong>Code.</strong> Change the vanishing-gradient experiment to depth 60. At what depth does the sigmoid network’s first-layer gradient fall below <span class="math inline">\(10^{-30}\)</span>?</li>
+<li><strong>Diagnose.</strong> A training run prints <code>loss = nan</code> after 40 steps. List three possible causes from this chapter and one test for each.</li>
+<li><strong>Explain.</strong> Why do we run backpropagation from the loss to the input, and not from the input to the loss? (Hint: count the number of outputs and the number of inputs.)</li>
+</ol>
+
+
+</section>
+
+</main> <!-- /main -->
+<script>
+/* Keep the left navigation stable between pages: all parts expanded,
+   and the sidebar scroll position remembered across page loads. */
+(function () {
+  var KEY = "mathsystems-sidebar-scroll";
+  function side() { return document.getElementById("quarto-sidebar"); }
+  function scroller() {
+    var s = side(); if (!s) return null;
+    return s.querySelector(".sidebar-menu-container") || s;
+  }
+  function expandAll() {
+    var s = side(); if (!s) return;
+    s.querySelectorAll(".collapse").forEach(function (el) { el.classList.add("show"); });
+    s.querySelectorAll('[aria-expanded="false"]').forEach(function (el) { el.setAttribute("aria-expanded", "true"); });
+    s.querySelectorAll(".sidebar-item-toggle.collapsed, a.collapsed").forEach(function (el) { el.classList.remove("collapsed"); });
+  }
+  function restore() {
+    var sc = scroller(), v = null;
+    try { v = sessionStorage.getItem(KEY); } catch (e) {}
+    if (sc && v !== null) sc.scrollTop = parseInt(v, 10);
+  }
+  function save() {
+    var sc = scroller();
+    if (!sc) return;
+    try { sessionStorage.setItem(KEY, String(sc.scrollTop)); } catch (e) {}
+  }
+  document.addEventListener("DOMContentLoaded", function () {
+    expandAll(); restore();
+    var sc = scroller();
+    if (sc) sc.addEventListener("scroll", save, { passive: true });
+    document.addEventListener("click", save, true);
+    window.addEventListener("pagehide", save);
+  });
+  window.addEventListener("load", function () {
+    expandAll(); restore();
+    setTimeout(restore, 50); setTimeout(restore, 250);   /* after the theme's own scroll-into-view */
+  });
+})();
+</script>
+<style>
+/* no jump while the menu is being expanded */
+#quarto-sidebar .collapse { transition: none !important; }
+</style>
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/vsrveera\.github\.io\/books\/mathai\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../chapters/ch17_gradients_and_multivariable_calculus.html" class="pagination-link" aria-label="Gradients and Multivariable Calculus">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Gradients and Multivariable Calculus</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../chapters/ch19_optimization.html" class="pagination-link" aria-label="Optimization">
+        <span class="nav-page-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Optimization</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<script>var lightboxQuarto = GLightbox({"closeEffect":"zoom","descPosition":"bottom","loop":false,"openEffect":"zoom","selector":".lightbox"});
+(function() {
+  let previousOnload = window.onload;
+  window.onload = () => {
+    if (previousOnload) {
+      previousOnload();
+    }
+    lightboxQuarto.on('slide_before_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      const href = trigger.getAttribute('href');
+      if (href !== null) {
+        const imgEl = window.document.querySelector(`a[href="${href}"] img`);
+        if (imgEl !== null) {
+          const srcAttr = imgEl.getAttribute("src");
+          if (srcAttr && srcAttr.startsWith("data:")) {
+            slideConfig.href = srcAttr;
+          }
+        }
+      } 
+    });
+  
+    lightboxQuarto.on('slide_after_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(slideNode);
+      }
+    });
+  
+  };
+  
+})();
+          </script>
+
+
+
+
+<script src="../site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

@@ -1,0 +1,1584 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.19">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>16&nbsp; Change and Derivatives – Mathematics of Artificial Intelligence</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../chapters/ch17_gradients_and_multivariable_calculus.html" rel="next">
+<link href="../chapters/ch15_information_as_a_mathematical_quantity.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-43d2fa13cb35dd2022b3c25d65fdd634.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-19432b6b5c85f3ab30851b7038f884b0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="../site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
+<link href="../site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
+<link href="../site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar docked quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/ch16_change_and_derivatives.html">Part V — Learning</a></li><li class="breadcrumb-item"><a href="../chapters/ch16_change_and_derivatives.html"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Change and Derivatives</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">Mathematics of Artificial Intelligence</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part I — The Mathematical Machine</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch01_ai_as_a_mathematical_system.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">AI as a Mathematical System</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch02_language_of_mathematical_ai.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">The Language of Mathematical AI</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part II — Representation</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch03_vectors_representing_information.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Vectors: Representing Information</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch04_geometry_of_representations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Geometry of Representations</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch05_matrices_representing_transformations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Matrices: Representing Transformations</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch06_tensors_and_high_dimensional_data.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Tensors and High-Dimensional Data</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch07_structure_hidden_in_data.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Structure Hidden in Data</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part III — Transformation</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch08_functions_as_machines.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Functions as Machines</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch09_linear_transformations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Linear Transformations</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch10_nonlinearity_and_expressiveness.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Nonlinearity and Expressiveness</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch11_neural_networks_as_function_composition.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Neural Networks as Function Composition</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch12_convolution_and_structured_transformations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Convolution and Structured Transformations</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part IV — Measurement</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch13_distance_similarity_and_geometry.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Distance, Similarity and Geometry</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch14_loss_functions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Loss Functions</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch15_information_as_a_mathematical_quantity.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Information as a Mathematical Quantity</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part V — Learning</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch16_change_and_derivatives.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Change and Derivatives</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch17_gradients_and_multivariable_calculus.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Gradients and Multivariable Calculus</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch18_chain_rule_and_backpropagation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">The Chain Rule and Backpropagation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch19_optimization.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Optimization</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch20_the_geometry_and_dynamics_of_learning.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">The Geometry and Dynamics of Learning</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part VI — Uncertainty</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch21_probability_as_a_language_of_uncertainty.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Probability as a Language of Uncertainty</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch22_conditional_probability_and_bayes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Conditional Probability and Bayes</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch23_probability_distributions_used_in_ai.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Probability Distributions Used in AI</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch24_from_scores_to_probabilities.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">From Scores to Probabilities</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch25_statistical_estimation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Statistical Estimation</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part VII — Generalization</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch26_from_samples_to_populations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">From Samples to Populations</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch27_generalization.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Generalization</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch28_bias_variance_and_regularization.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Bias, Variance and Regularization</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch29_statistical_learning_theory.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Statistical Learning Theory</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part VIII — Putting the Mathematical Systems Together</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch30_the_mathematics_of_attention.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">30</span>&nbsp; <span class="chapter-title">The Mathematics of Attention</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch31_the_mathematics_of_the_transformer.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">31</span>&nbsp; <span class="chapter-title">The Mathematics of the Transformer</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch32_decoder_only_language_models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">32</span>&nbsp; <span class="chapter-title">Decoder-only Language Models</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch33_autoregressive_generation_and_sampling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">33</span>&nbsp; <span class="chapter-title">Autoregressive Generation and Sampling</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch34_mixture_of_experts_scale_and_numerical_precision.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">34</span>&nbsp; <span class="chapter-title">Mixture-of-Experts, Scale and Numerical Precision</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch35_convolutional_vision_in_depth.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">Convolutional Vision in Depth</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch36_vision_transformers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Vision Transformers</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch37_detection_and_structured_prediction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">Detection and Structured Prediction</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch38_representation_and_self_supervised_learning.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">38</span>&nbsp; <span class="chapter-title">Representation and Self-Supervised Learning</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch39_clip_and_multimodal_language_models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">39</span>&nbsp; <span class="chapter-title">CLIP and Multimodal Language Models</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch40_latent_variable_models_and_vaes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">40</span>&nbsp; <span class="chapter-title">Latent-Variable Models and VAEs</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch41_diffusion_models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">41</span>&nbsp; <span class="chapter-title">Diffusion Models</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch42_latent_diffusion_and_diffusion_transformers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">42</span>&nbsp; <span class="chapter-title">Latent Diffusion and Diffusion Transformers</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch43_flow_matching.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">43</span>&nbsp; <span class="chapter-title">Flow Matching</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch44_one_ai_system_all_the_mathematics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">44</span>&nbsp; <span class="chapter-title">One AI System, All the Mathematics</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part IX — Systems Thinking and Performance Characterisation</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch45_systems_thinking_components_and_interfaces.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">45</span>&nbsp; <span class="chapter-title">Systems Thinking: Components, Interfaces and Contracts</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch46_feedback_coupling_and_stability.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">46</span>&nbsp; <span class="chapter-title">Feedback, Coupling and Stability</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch47_performance_characterisation_the_paradigm.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">47</span>&nbsp; <span class="chapter-title">Performance Characterisation: The Paradigm</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch48_random_perturbation_and_error_propagation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">48</span>&nbsp; <span class="chapter-title">Random Perturbation and Error Propagation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch49_operating_curves_roc_and_confidence.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">49</span>&nbsp; <span class="chapter-title">Operating Curves, ROC and Confidence</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch50_characterisation_protocol_and_experimental_design.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">50</span>&nbsp; <span class="chapter-title">A Characterisation Protocol: Experimental Design and Reporting</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch51_characterising_large_models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">51</span>&nbsp; <span class="chapter-title">Characterising Large Models</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#sec-system-problem" id="toc-sec-system-problem" class="nav-link active" data-scroll-target="#sec-system-problem"><span class="header-section-number">16.1</span> The system problem</a></li>
+  <li><a href="#sec-intuition" id="toc-sec-intuition" class="nav-link" data-scroll-target="#sec-intuition"><span class="header-section-number">16.2</span> Intuition: slope at a point</a></li>
+  <li><a href="#sec-object" id="toc-sec-object" class="nav-link" data-scroll-target="#sec-object"><span class="header-section-number">16.3</span> The mathematical object</a>
+  <ul class="collapse">
+  <li><a href="#rules" id="toc-rules" class="nav-link" data-scroll-target="#rules"><span class="header-section-number">16.3.1</span> Rules</a></li>
+  <li><a href="#common-derivatives" id="toc-common-derivatives" class="nav-link" data-scroll-target="#common-derivatives"><span class="header-section-number">16.3.2</span> Common derivatives</a></li>
+  </ul></li>
+  <li><a href="#sec-partial" id="toc-sec-partial" class="nav-link" data-scroll-target="#sec-partial"><span class="header-section-number">16.4</span> Partial derivatives and sensitivity</a></li>
+  <li><a href="#sec-taylor" id="toc-sec-taylor" class="nav-link" data-scroll-target="#sec-taylor"><span class="header-section-number">16.5</span> Local linear approximation</a></li>
+  <li><a href="#sec-numerical" id="toc-sec-numerical" class="nav-link" data-scroll-target="#sec-numerical"><span class="header-section-number">16.6</span> Numerical differentiation</a></li>
+  <li><a href="#sec-kinks" id="toc-sec-kinks" class="nav-link" data-scroll-target="#sec-kinks"><span class="header-section-number">16.7</span> Where the derivative does not exist</a></li>
+  <li><a href="#sec-production" id="toc-sec-production" class="nav-link" data-scroll-target="#sec-production"><span class="header-section-number">16.8</span> Production: derivatives by machine</a></li>
+  <li><a href="#sec-failure" id="toc-sec-failure" class="nav-link" data-scroll-target="#sec-failure"><span class="header-section-number">16.9</span> Failure modes</a></li>
+  <li><a href="#sec-ai-connection" id="toc-sec-ai-connection" class="nav-link" data-scroll-target="#sec-ai-connection"><span class="header-section-number">16.10</span> Where this appears in modern AI</a></li>
+  <li><a href="#sec-system-connection" id="toc-sec-system-connection" class="nav-link" data-scroll-target="#sec-system-connection"><span class="header-section-number">16.11</span> System connection</a></li>
+  <li><a href="#chapter-summary" id="toc-chapter-summary" class="nav-link" data-scroll-target="#chapter-summary">Chapter summary</a></li>
+  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises">Exercises</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/ch16_change_and_derivatives.html">Part V — Learning</a></li><li class="breadcrumb-item"><a href="../chapters/ch16_change_and_derivatives.html"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Change and Derivatives</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Change and Derivatives</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="callout callout-style-default callout-note callout-titled" title="Key ideas">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Key ideas
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li>The <strong>derivative</strong> <span class="math inline">\(f'(x)\)</span> is the slope of <span class="math inline">\(f\)</span> at <span class="math inline">\(x\)</span>: the rate of change for a tiny step.</li>
+<li>Near a point, a smooth function is almost a <strong>straight line</strong>: <span class="math inline">\(f(x+h)\approx f(x)+f'(x)\,h\)</span>.</li>
+<li>A <strong>partial derivative</strong> measures the effect of one input when all others are held fixed.</li>
+<li>The derivative of the loss with respect to a parameter is its <strong>sensitivity</strong>. It tells the model which way to move.</li>
+<li>A numerical derivative has two errors that pull in opposite directions. The step <span class="math inline">\(h\)</span> has an optimum.</li>
+</ul>
+</div>
+</div>
+<section id="sec-system-problem" class="level2" data-number="16.1">
+<h2 data-number="16.1" class="anchored" data-anchor-id="sec-system-problem"><span class="header-section-number">16.1</span> The system problem</h2>
+<p>Part IV gave us a number, the loss, that says how wrong the model is. Part V asks how the model <strong>changes itself</strong> to reduce it.</p>
+<blockquote class="blockquote">
+<p><strong>If we change one parameter by a tiny amount, how much does the loss change?</strong></p>
+</blockquote>
+<p>The answer is a derivative. This chapter builds it from the slope of a curve. Chapter 17 handles many parameters at once. Chapter 18 computes all of them fast.</p>
+<div id="cell-fig-where" class="cell" data-execution_count="2">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>system_map(highlight<span class="op">=</span>[<span class="st">"Measurement"</span>, <span class="st">"Learning"</span>],</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>           sublabels<span class="op">=</span>{<span class="st">"Learning"</span>: <span class="st">"Ch. 16–20"</span>})<span class="op">;</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="fig-where" class="quarto-float quarto-figure quarto-figure-center anchored" alt="System map with Measurement and Learning highlighted.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-where-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="ch16_change_and_derivatives_files/figure-html/fig-where-output-1.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-1" title="Figure&nbsp;16.1: Part V builds the Learning stage. This chapter starts with the single derivative."><img src="ch16_change_and_derivatives_files/figure-html/fig-where-output-1.svg" class="img-fluid figure-img" alt="System map with Measurement and Learning highlighted."></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-where-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;16.1: Part V builds the Learning stage. This chapter starts with the single derivative.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="sec-intuition" class="level2" data-number="16.2">
+<h2 data-number="16.2" class="anchored" data-anchor-id="sec-intuition"><span class="header-section-number">16.2</span> Intuition: slope at a point</h2>
+<p>A car’s position is a function of time. Its speed at one moment is the rate at which position changes <em>at that moment</em>. We cannot measure it from a single instant. We measure the distance over a short time interval and shrink the interval.</p>
+<p>The same idea applies to any function. The <strong>secant</strong> through <span class="math inline">\((x,f(x))\)</span> and <span class="math inline">\((x+h,f(x+h))\)</span> has slope <span class="math inline">\(\frac{f(x+h)-f(x)}{h}\)</span>. As <span class="math inline">\(h\to0\)</span> the secant turns into the <strong>tangent</strong>.</p>
+<div id="cell-fig-secant" class="cell" data-execution_count="3">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>f <span class="op">=</span> <span class="kw">lambda</span> x: x <span class="op">**</span> <span class="dv">2</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>x0 <span class="op">=</span> <span class="fl">1.0</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>xs <span class="op">=</span> np.linspace(<span class="op">-</span><span class="fl">0.2</span>, <span class="fl">2.6</span>, <span class="dv">200</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">5.4</span>, <span class="fl">3.8</span>))</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>ax.plot(xs, f(xs), color<span class="op">=</span><span class="st">"black"</span>, lw<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> h, col <span class="kw">in</span> <span class="bu">zip</span>([<span class="fl">1.0</span>, <span class="fl">0.5</span>, <span class="fl">0.1</span>], [PALETTE[<span class="st">"loss"</span>], PALETTE[<span class="st">"model"</span>], PALETTE[<span class="st">"grad"</span>]]):</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    slope <span class="op">=</span> (f(x0 <span class="op">+</span> h) <span class="op">-</span> f(x0)) <span class="op">/</span> h</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    ax.plot(xs, f(x0) <span class="op">+</span> slope <span class="op">*</span> (xs <span class="op">-</span> x0), <span class="st">"--"</span>, color<span class="op">=</span>col, label<span class="op">=</span><span class="ss">f"h = </span><span class="sc">{</span>h<span class="sc">}</span><span class="ss">: slope </span><span class="sc">{</span>slope<span class="sc">:.2f}</span><span class="ss">"</span>)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    ax.plot([x0 <span class="op">+</span> h], [f(x0 <span class="op">+</span> h)], <span class="st">"o"</span>, color<span class="op">=</span>col)</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>ax.plot(xs, f(x0) <span class="op">+</span> <span class="dv">2</span> <span class="op">*</span> (xs <span class="op">-</span> x0), color<span class="op">=</span>PALETTE[<span class="st">"data"</span>], lw<span class="op">=</span><span class="dv">2</span>, label<span class="op">=</span><span class="st">"tangent: slope 2"</span>)</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>ax.plot([x0], [f(x0)], <span class="st">"ko"</span>)<span class="op">;</span> ax.set_ylim(<span class="op">-</span><span class="fl">0.5</span>, <span class="dv">5</span>)<span class="op">;</span> ax.legend(fontsize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="fig-secant" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A parabola with a point marked at x equals one and three dashed secant lines of decreasing steepness converging to a solid tangent line.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-secant-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="ch16_change_and_derivatives_files/figure-html/fig-secant-output-1.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-2" title="Figure&nbsp;16.2: From secant to tangent. For f(x) = x² at x = 1, the secant slopes for h = 1, 0.5, 0.1 approach the tangent slope 2. Each dashed line passes through (1, 1) and (1+h, f(1+h))."><img src="ch16_change_and_derivatives_files/figure-html/fig-secant-output-1.svg" class="img-fluid figure-img" alt="A parabola with a point marked at x equals one and three dashed secant lines of decreasing steepness converging to a solid tangent line."></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-secant-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;16.2: From secant to tangent. For f(x) = x² at x = 1, the secant slopes for h = 1, 0.5, 0.1 approach the tangent slope 2. Each dashed line passes through (1, 1) and (1+h, f(1+h)).
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="sec-object" class="level2" data-number="16.3">
+<h2 data-number="16.3" class="anchored" data-anchor-id="sec-object"><span class="header-section-number">16.3</span> The mathematical object</h2>
+<p>The <strong>derivative</strong> of <span class="math inline">\(f\)</span> at <span class="math inline">\(x\)</span> is the limit of the secant slope:</p>
+<p><span id="eq-derivative"><span class="math display">\[
+f'(x)=\frac{df}{dx}=\lim_{h\to0}\frac{f(x+h)-f(x)}{h}.
+\tag{16.1}\]</span></span></p>
+<p>A function is <strong>differentiable</strong> at <span class="math inline">\(x\)</span> if the limit exists. Then, for small <span class="math inline">\(h\)</span>,</p>
+<p><span id="eq-linear-approx"><span class="math display">\[
+f(x+h)\approx f(x)+f'(x)\,h.
+\tag{16.2}\]</span></span></p>
+<p>This is the most important use of the derivative. It replaces a curve by a <strong>straight line</strong> that is accurate close to <span class="math inline">\(x\)</span>. We study how accurate it is below.</p>
+<section id="rules" class="level3" data-number="16.3.1">
+<h3 data-number="16.3.1" class="anchored" data-anchor-id="rules"><span class="header-section-number">16.3.1</span> Rules</h3>
+<p>Derivatives of combinations follow from a few rules.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Rule</th>
+<th>Formula</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Constant multiple</td>
+<td><span class="math inline">\((c\,f)'=c\,f'\)</span></td>
+</tr>
+<tr class="even">
+<td>Sum</td>
+<td><span class="math inline">\((f+g)'=f'+g'\)</span></td>
+</tr>
+<tr class="odd">
+<td>Product</td>
+<td><span class="math inline">\((f\,g)'=f'g+f\,g'\)</span></td>
+</tr>
+<tr class="even">
+<td>Quotient</td>
+<td><span class="math inline">\((f/g)'=(f'g-f\,g')/g^2\)</span></td>
+</tr>
+<tr class="odd">
+<td>Chain (composition)</td>
+<td><span class="math inline">\((g\circ f)'(x)=g'(f(x))\,f'(x)\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>The chain rule is the engine of backpropagation. Chapter 18 develops it in full.</p>
+</section>
+<section id="common-derivatives" class="level3" data-number="16.3.2">
+<h3 data-number="16.3.2" class="anchored" data-anchor-id="common-derivatives"><span class="header-section-number">16.3.2</span> Common derivatives</h3>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th><span class="math inline">\(f(x)\)</span></th>
+<th><span class="math inline">\(f'(x)\)</span></th>
+<th>Note</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(x^n\)</span></td>
+<td><span class="math inline">\(n\,x^{n-1}\)</span></td>
+<td>powers</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(e^x\)</span></td>
+<td><span class="math inline">\(e^x\)</span></td>
+<td>its own slope</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(\ln x\)</span></td>
+<td><span class="math inline">\(1/x\)</span></td>
+<td><span class="math inline">\(x&gt;0\)</span></td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(\sigma(x)=\frac1{1+e^{-x}}\)</span></td>
+<td><span class="math inline">\(\sigma(x)(1-\sigma(x))\)</span></td>
+<td>sigmoid</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(\tanh x\)</span></td>
+<td><span class="math inline">\(1-\tanh^2x\)</span></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(\max(0,x)\)</span></td>
+<td><span class="math inline">\(1\)</span> for <span class="math inline">\(x&gt;0\)</span>, <span class="math inline">\(0\)</span> for <span class="math inline">\(x&lt;0\)</span></td>
+<td>not defined at <span class="math inline">\(0\)</span></td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-style-default callout-tip callout-titled" title="Derivation: the derivative of $x^n$ and of the sigmoid">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Derivation: the derivative of <span class="math inline">\(x^n\)</span> and of the sigmoid
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Power.</strong> By the binomial expansion, <span class="math inline">\((x+h)^n=x^n+n\,x^{n-1}h+O(h^2)\)</span>. So <span class="math inline">\(\frac{(x+h)^n-x^n}{h}=n\,x^{n-1}+O(h)\to n\,x^{n-1}\)</span>.</p>
+<p><strong>Sigmoid.</strong> Write <span class="math inline">\(\sigma(x)=(1+e^{-x})^{-1}\)</span>. By the chain rule with <span class="math inline">\(u=1+e^{-x}\)</span>: <span class="math display">\[
+\sigma'(x)=-u^{-2}\cdot(-e^{-x})=\frac{e^{-x}}{(1+e^{-x})^2}=\frac{1}{1+e^{-x}}\cdot\frac{e^{-x}}{1+e^{-x}}=\sigma(x)\bigl(1-\sigma(x)\bigr).\ \blacksquare
+\]</span> The maximum is <span class="math inline">\(\sigma'(0)=\frac14\)</span>.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="sec-partial" class="level2" data-number="16.4">
+<h2 data-number="16.4" class="anchored" data-anchor-id="sec-partial"><span class="header-section-number">16.4</span> Partial derivatives and sensitivity</h2>
+<p>A loss depends on many parameters, <span class="math inline">\(L(\theta_1,\dots,\theta_n)\)</span>. The <strong>partial derivative</strong> with respect to <span class="math inline">\(\theta_i\)</span> treats all other parameters as constants:</p>
+<p><span id="eq-partial"><span class="math display">\[
+\frac{\partial L}{\partial\theta_i}=\lim_{h\to0}\frac{L(\ldots,\theta_i+h,\ldots)-L(\ldots,\theta_i,\ldots)}{h}.
+\tag{16.3}\]</span></span></p>
+<p>It is the <strong>sensitivity</strong> of the loss to parameter <span class="math inline">\(\theta_i\)</span>: how fast <span class="math inline">\(L\)</span> changes if we nudge only <span class="math inline">\(\theta_i\)</span>. A large magnitude means the parameter matters at this point. The sign says which way <span class="math inline">\(L\)</span> increases.</p>
+<p>We compute the sensitivity of the Chapter 1 line-fit loss with respect to both parameters, at the starting point <span class="math inline">\((a,b)=(0,0)\)</span>.</p>
+<div id="code-sensitivity" class="cell" data-execution_count="4">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">0</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> rng.uniform(<span class="op">-</span><span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">30</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> <span class="fl">2.0</span> <span class="op">*</span> x <span class="op">+</span> <span class="fl">1.0</span> <span class="op">+</span> rng.normal(<span class="dv">0</span>, <span class="fl">0.5</span>, <span class="dv">30</span>)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> L(a, b):</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.mean((a <span class="op">*</span> x <span class="op">+</span> b <span class="op">-</span> y) <span class="op">**</span> <span class="dv">2</span>)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>a0, b0, h <span class="op">=</span> <span class="fl">0.0</span>, <span class="fl">0.0</span>, <span class="fl">1e-5</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>dL_da <span class="op">=</span> (L(a0 <span class="op">+</span> h, b0) <span class="op">-</span> L(a0 <span class="op">-</span> h, b0)) <span class="op">/</span> (<span class="dv">2</span> <span class="op">*</span> h)</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>dL_db <span class="op">=</span> (L(a0, b0 <span class="op">+</span> h) <span class="op">-</span> L(a0, b0 <span class="op">-</span> h)) <span class="op">/</span> (<span class="dv">2</span> <span class="op">*</span> h)</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"at (a, b) = (0, 0):  ∂L/∂a = </span><span class="sc">{</span>dL_da<span class="sc">:+.3f}</span><span class="ss">   ∂L/∂b = </span><span class="sc">{</span>dL_db<span class="sc">:+.3f}</span><span class="ss">"</span>)</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"analytic (Chapter 1):"</span>,</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>      <span class="ss">f"∂L/∂a = </span><span class="sc">{</span><span class="dv">2</span> <span class="op">*</span> np<span class="sc">.</span>mean((a0 <span class="op">*</span> x <span class="op">+</span> b0 <span class="op">-</span> y) <span class="op">*</span> x)<span class="sc">:+.3f}</span><span class="ss">,"</span>,</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>      <span class="ss">f"∂L/∂b = </span><span class="sc">{</span><span class="dv">2</span> <span class="op">*</span> np<span class="sc">.</span>mean(a0 <span class="op">*</span> x <span class="op">+</span> b0 <span class="op">-</span> y)<span class="sc">:+.3f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>at (a, b) = (0, 0):  ∂L/∂a = -6.803   ∂L/∂b = -2.826
+analytic (Chapter 1): ∂L/∂a = -6.803, ∂L/∂b = -2.826</code></pre>
+</div>
+</div>
+<p>Both partials are negative: increasing <span class="math inline">\(a\)</span> or <span class="math inline">\(b\)</span> <strong>lowers</strong> the loss here. The model should move in the positive direction in both. The partials contain what the learning rule of Chapter 1 needs.</p>
+</section>
+<section id="sec-taylor" class="level2" data-number="16.5">
+<h2 data-number="16.5" class="anchored" data-anchor-id="sec-taylor"><span class="header-section-number">16.5</span> Local linear approximation</h2>
+<p>How good is <a href="#eq-linear-approx" class="quarto-xref">Equation&nbsp;<span>16.2</span></a>? By Taylor’s theorem, the error is of second order in <span class="math inline">\(h\)</span>:</p>
+<p><span id="eq-taylor"><span class="math display">\[
+f(x+h)=f(x)+f'(x)h+\tfrac12f''(x)h^2+O(h^3).
+\tag{16.4}\]</span></span></p>
+<p>So the linear approximation has error <span class="math inline">\(\approx\frac12|f''|\,h^2\)</span>. Halving the step cuts the error by four. A large <span class="math inline">\(|f''|\)</span> means the function curves quickly and the line is only good for very small steps.</p>
+<div id="cell-fig-linear-error" class="cell" data-execution_count="5">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>hs <span class="op">=</span> np.logspace(<span class="op">-</span><span class="dv">4</span>, <span class="dv">0</span>, <span class="dv">30</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>err <span class="op">=</span> np.<span class="bu">abs</span>(np.exp(<span class="dv">1</span> <span class="op">+</span> hs) <span class="op">-</span> (np.exp(<span class="dv">1</span>) <span class="op">+</span> np.exp(<span class="dv">1</span>) <span class="op">*</span> hs))</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">5.6</span>, <span class="fl">3.4</span>))</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>ax.loglog(hs, err, <span class="st">"o-"</span>, color<span class="op">=</span>PALETTE[<span class="st">"loss"</span>], label<span class="op">=</span><span class="st">"|f(x+h) − linear approx|"</span>)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>ax.loglog(hs, <span class="fl">0.5</span> <span class="op">*</span> np.exp(<span class="dv">1</span>) <span class="op">*</span> hs <span class="op">**</span> <span class="dv">2</span>, <span class="st">"--"</span>, color<span class="op">=</span>PALETTE[<span class="st">"neutral"</span>], label<span class="op">=</span><span class="st">"½ f″ h²"</span>)</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"step size h"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"error"</span>)<span class="op">;</span> ax.legend()</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="fig-linear-error" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Log-log plot of absolute error versus step size h, a straight line with slope two, with a dashed reference line of slope two.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-linear-error-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="ch16_change_and_derivatives_files/figure-html/fig-linear-error-output-1.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-3" title="Figure&nbsp;16.3: Error of the linear approximation for f(x) = eˣ at x = 1. The error falls as h², a straight line of slope 2 on a log-log plot. Taking steps ten times smaller makes the approximation a hundred times better."><img src="ch16_change_and_derivatives_files/figure-html/fig-linear-error-output-1.svg" class="img-fluid figure-img" alt="Log-log plot of absolute error versus step size h, a straight line with slope two, with a dashed reference line of slope two."></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-linear-error-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;16.3: Error of the linear approximation for f(x) = eˣ at x = 1. The error falls as h², a straight line of slope 2 on a log-log plot. Taking steps ten times smaller makes the approximation a hundred times better.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>This is the reason that a learning rate must be small: the update <span class="math inline">\(\theta'=\theta-\eta\nabla L\)</span> trusts the linear approximation (Chapter 1). If <span class="math inline">\(\eta\)</span> is large, the approximation fails.</p>
+</section>
+<section id="sec-numerical" class="level2" data-number="16.6">
+<h2 data-number="16.6" class="anchored" data-anchor-id="sec-numerical"><span class="header-section-number">16.6</span> Numerical differentiation</h2>
+<p>We can estimate a derivative without any formula. Two common estimates are:</p>
+<p><span id="eq-fd"><span class="math display">\[
+D_h^{\text{fwd}}f=\frac{f(x+h)-f(x)}{h},\qquad
+D_h^{\text{ctr}}f=\frac{f(x+h)-f(x-h)}{2h}.
+\tag{16.5}\]</span></span></p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Derivation: errors of the two estimates">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Derivation: errors of the two estimates
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>From the Taylor series, <span class="math inline">\(f(x\pm h)=f\pm f'h+\tfrac12f''h^{2}\pm\tfrac16f'''h^3+\dots\)</span>.</p>
+<ul>
+<li><strong>Forward:</strong> <span class="math inline">\(D_h^{\text{fwd}}f=f'+\tfrac12f''h+\dots\)</span>. The truncation error is <span class="math inline">\(O(h)\)</span>.</li>
+<li><strong>Central:</strong> subtracting the two series cancels the even terms: <span class="math inline">\(D_h^{\text{ctr}}f=f'+\tfrac16f'''h^2+\dots\)</span>. The error is <span class="math inline">\(O(h^2)\)</span>.</li>
+</ul>
+<p>Computers add a second error. Numbers have about <span class="math inline">\(\varepsilon\approx10^{-16}\)</span> relative precision. The subtraction <span class="math inline">\(f(x+h)-f(x)\)</span> loses digits when <span class="math inline">\(h\)</span> is tiny, and dividing by <span class="math inline">\(h\)</span> then magnifies the loss. The <strong>rounding error</strong> is about <span class="math inline">\(\varepsilon\,|f|/h\)</span>.</p>
+</div>
+</div>
+<p>Truncation error falls with <span class="math inline">\(h\)</span>. Rounding error rises as <span class="math inline">\(h\)</span> falls. The total has a minimum.</p>
+<div id="cell-fig-fd-error" class="cell" data-execution_count="6">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>f <span class="op">=</span> df <span class="op">=</span> np.exp</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>points <span class="op">=</span> np.linspace(<span class="fl">0.5</span>, <span class="fl">2.0</span>, <span class="dv">40</span>)           <span class="co"># average over many x to smooth luck</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>hs <span class="op">=</span> np.logspace(<span class="op">-</span><span class="dv">14</span>, <span class="dv">0</span>, <span class="dv">200</span>)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>X0 <span class="op">=</span> points[:, <span class="va">None</span>]</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>fwd <span class="op">=</span> np.mean(np.<span class="bu">abs</span>((f(X0 <span class="op">+</span> hs) <span class="op">-</span> f(X0)) <span class="op">/</span> hs <span class="op">-</span> df(X0)) <span class="op">/</span> df(X0), axis<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>ctr <span class="op">=</span> np.mean(np.<span class="bu">abs</span>((f(X0 <span class="op">+</span> hs) <span class="op">-</span> f(X0 <span class="op">-</span> hs)) <span class="op">/</span> (<span class="dv">2</span> <span class="op">*</span> hs) <span class="op">-</span> df(X0)) <span class="op">/</span> df(X0), axis<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">6.2</span>, <span class="fl">3.6</span>))</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>ax.loglog(hs, fwd, color<span class="op">=</span>PALETTE[<span class="st">"loss"</span>], label<span class="op">=</span><span class="st">"forward difference"</span>)</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>ax.loglog(hs, ctr, color<span class="op">=</span>PALETTE[<span class="st">"grad"</span>], label<span class="op">=</span><span class="st">"central difference"</span>)</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"step size h"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"relative error"</span>)<span class="op">;</span> ax.legend()</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"forward: best h = </span><span class="sc">{</span>hs[np.argmin(fwd)]<span class="sc">:.1e}</span><span class="ss">, error </span><span class="sc">{</span>fwd<span class="sc">.</span><span class="bu">min</span>()<span class="sc">:.1e}</span><span class="ss">"</span>)</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"central: best h = </span><span class="sc">{</span>hs[np.argmin(ctr)]<span class="sc">:.1e}</span><span class="ss">, error </span><span class="sc">{</span>ctr<span class="sc">.</span><span class="bu">min</span>()<span class="sc">:.1e}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="fig-fd-error" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Log-log plot with two U-shaped curves for forward and central differences. The central curve is lower and its minimum is at a larger h.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-fd-error-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="ch16_change_and_derivatives_files/figure-html/fig-fd-error-output-1.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-4" title="Figure&nbsp;16.4: Relative error of finite-difference derivatives of eˣ, averaged over 40 points in [0.5, 2]. For large h, truncation dominates: the error falls with h (forward) or h² (central). For tiny h, rounding dominates and the error rises as 1/h. The central difference reaches a far smaller minimum, near h ≈ 10⁻⁵."><img src="ch16_change_and_derivatives_files/figure-html/fig-fd-error-output-1.svg" class="img-fluid figure-img" alt="Log-log plot with two U-shaped curves for forward and central differences. The central curve is lower and its minimum is at a larger h."></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-fd-error-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;16.4: Relative error of finite-difference derivatives of eˣ, averaged over 40 points in [0.5, 2]. For large h, truncation dominates: the error falls with h (forward) or h² (central). For tiny h, rounding dominates and the error rises as 1/h. The central difference reaches a far smaller minimum, near h ≈ 10⁻⁵.
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>forward: best h = 1.3e-08, error 4.9e-09
+central: best h = 4.5e-06, error 8.5e-12</code></pre>
+</div>
+</div>
+<p>Balancing the two errors gives <span class="math inline">\(h^*\approx\sqrt{\varepsilon}\approx10^{-8}\)</span> for the forward difference and <span class="math inline">\(h^*\approx\varepsilon^{1/3}\approx10^{-5}\)</span> for the central difference. This is why the gradient checks in Chapters 1 and 18 used <span class="math inline">\(h=10^{-5}\)</span> with central differences.</p>
+</section>
+<section id="sec-kinks" class="level2" data-number="16.7">
+<h2 data-number="16.7" class="anchored" data-anchor-id="sec-kinks"><span class="header-section-number">16.7</span> Where the derivative does not exist</h2>
+<p>Some functions used in AI have <strong>kinks</strong>. <span class="math inline">\(|x|\)</span> and <span class="math inline">\(\text{ReLU}\)</span> are not differentiable at 0. The left and right slopes differ.</p>
+<div id="code-kinks" class="cell" data-execution_count="7">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> one_sided(f, x0, h<span class="op">=</span><span class="fl">1e-6</span>):</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (f(x0) <span class="op">-</span> f(x0 <span class="op">-</span> h)) <span class="op">/</span> h, (f(x0 <span class="op">+</span> h) <span class="op">-</span> f(x0)) <span class="op">/</span> h</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>relu <span class="op">=</span> <span class="kw">lambda</span> x: np.maximum(<span class="dv">0</span>, x)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> name, fn <span class="kw">in</span> [(<span class="st">"|x|"</span>, np.<span class="bu">abs</span>), (<span class="st">"ReLU"</span>, relu)]:</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    left, right <span class="op">=</span> one_sided(fn, <span class="fl">0.0</span>)</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    ctr <span class="op">=</span> (fn(<span class="fl">1e-6</span>) <span class="op">-</span> fn(<span class="op">-</span><span class="fl">1e-6</span>)) <span class="op">/</span> <span class="fl">2e-6</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>name<span class="sc">:5s}</span><span class="ss"> left slope </span><span class="sc">{</span>left<span class="sc">:+.1f}</span><span class="ss">, right slope </span><span class="sc">{</span>right<span class="sc">:+.1f}</span><span class="ss">, "</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>          <span class="ss">f"central difference </span><span class="sc">{</span>ctr<span class="sc">:+.2f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>|x|   left slope -1.0, right slope +1.0, central difference +0.00
+ReLU  left slope +0.0, right slope +1.0, central difference +0.50</code></pre>
+</div>
+</div>
+<p>The central difference reports a plausible-looking number (<span class="math inline">\(0\)</span> or <span class="math inline">\(0.5\)</span>) that is not a derivative. Frameworks pick a convention for the point itself, usually 0 for ReLU. The point is hit with probability zero in practice, and any value in <span class="math inline">\([0,1]\)</span> is a valid <strong>subgradient</strong>.</p>
+</section>
+<section id="sec-production" class="level2" data-number="16.8">
+<h2 data-number="16.8" class="anchored" data-anchor-id="sec-production"><span class="header-section-number">16.8</span> Production: derivatives by machine</h2>
+<p>PyTorch computes derivatives exactly, not by finite differences. We compare for one function.</p>
+<div id="code-torch" class="cell" data-execution_count="8">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> g(x):</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> torch.sigmoid(<span class="dv">3</span> <span class="op">*</span> x) <span class="op">*</span> torch.exp(<span class="op">-</span>x <span class="op">**</span> <span class="dv">2</span>)</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>xt <span class="op">=</span> torch.tensor(<span class="fl">0.7</span>, dtype<span class="op">=</span>torch.float64, requires_grad<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>g(xt).backward()</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>auto <span class="op">=</span> xt.grad.item()</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>h <span class="op">=</span> <span class="fl">1e-5</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>x_val <span class="op">=</span> <span class="fl">0.7</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>num <span class="op">=</span> (g(torch.tensor(x_val <span class="op">+</span> h, dtype<span class="op">=</span>torch.float64)).item()</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>       <span class="op">-</span> g(torch.tensor(x_val <span class="op">-</span> h, dtype<span class="op">=</span>torch.float64)).item()) <span class="op">/</span> (<span class="dv">2</span> <span class="op">*</span> h)</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"autograd: </span><span class="sc">{</span>auto<span class="sc">:.10f}</span><span class="ss">   central difference: </span><span class="sc">{</span>num<span class="sc">:.10f}</span><span class="ss">"</span>)</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"difference: </span><span class="sc">{</span><span class="bu">abs</span>(auto <span class="op">-</span> num)<span class="sc">:.1e}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>autograd: -0.5854749982   central difference: -0.5854749981
+difference: 1.0e-10</code></pre>
+</div>
+</div>
+<p>Automatic differentiation applies the chain rule to the exact operations. It has no step size and no truncation error. The finite difference remains the right tool for <strong>testing</strong>.</p>
+</section>
+<section id="sec-failure" class="level2" data-number="16.9">
+<h2 data-number="16.9" class="anchored" data-anchor-id="sec-failure"><span class="header-section-number">16.9</span> Failure modes</h2>
+<p><strong>Cancellation.</strong> For tiny <span class="math inline">\(h\)</span>, <span class="math inline">\(f(x+h)-f(x)\)</span> subtracts two nearly equal numbers and keeps few correct digits. This is the rising branch in <a href="#fig-fd-error" class="quarto-xref">Figure&nbsp;<span>16.4</span></a>.</p>
+<p><strong>Wrong step.</strong> A step that is far above or below the optimum gives a poor estimate. For functions whose scale is not near 1, scale <span class="math inline">\(h\)</span> with <span class="math inline">\(|x|\)</span>.</p>
+<p><strong>Kinks and jumps.</strong> Derivatives are undefined at kinks and zero almost everywhere for step functions (<code>argmax</code>, <code>floor</code>). A model cannot learn through them (Chapter 8).</p>
+<p><strong>Large curvature.</strong> Where <span class="math inline">\(|f''|\)</span> is large, the linear approximation fails for modest steps. A learning rate that is fine in one region may diverge in another (Chapter 20).</p>
+<p><strong>Noisy functions.</strong> If <span class="math inline">\(f\)</span> is a noisy measurement (a stochastic loss), a small <span class="math inline">\(h\)</span> divides noise by <span class="math inline">\(h\)</span> and gives garbage. Use larger steps or average.</p>
+</section>
+<section id="sec-ai-connection" class="level2" data-number="16.10">
+<h2 data-number="16.10" class="anchored" data-anchor-id="sec-ai-connection"><span class="header-section-number">16.10</span> Where this appears in modern AI</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Place</th>
+<th>Derivative role</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Every training step</td>
+<td><span class="math inline">\(\partial L/\partial\theta_i\)</span> for all parameters</td>
+</tr>
+<tr class="even">
+<td>Activation functions</td>
+<td><span class="math inline">\(\sigma'\)</span> decides how much signal passes (Chapter 10)</td>
+</tr>
+<tr class="odd">
+<td>Gradient checking</td>
+<td>finite differences test backward code (Chapters 1, 18)</td>
+</tr>
+<tr class="even">
+<td>Learning-rate choice</td>
+<td>validity of the linear approximation</td>
+</tr>
+<tr class="odd">
+<td>Sensitivity analysis</td>
+<td>which input features change the output most</td>
+</tr>
+<tr class="even">
+<td>Saliency maps</td>
+<td>derivative of a class score with respect to input pixels</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="sec-system-connection" class="level2" data-number="16.11">
+<h2 data-number="16.11" class="anchored" data-anchor-id="sec-system-connection"><span class="header-section-number">16.11</span> System connection</h2>
+<div class="callout callout-style-default callout-note callout-titled" title="What the system gained in this chapter">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>What the system gained in this chapter
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The system knows how to ask: <em>if I change this one parameter, what happens to the loss?</em> It has the derivative, the linear approximation, and a way to test any derivative numerically.</p>
+<p>A model has millions of parameters. We need all the partial derivatives together, and a sense of direction in the space of all parameters. Chapter 17 provides it.</p>
+</div>
+</div>
+</section>
+<section id="chapter-summary" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="chapter-summary">Chapter summary</h2>
+<ul>
+<li>The derivative is the limit of the secant slope: <span class="math inline">\(f'(x)=\lim_{h\to0}\frac{f(x+h)-f(x)}{h}\)</span>.</li>
+<li>Locally, <span class="math inline">\(f(x+h)\approx f(x)+f'(x)h\)</span>. The error is <span class="math inline">\(O(h^2)\)</span>.</li>
+<li>Sum, product, quotient, and chain rules build derivatives of combinations.</li>
+<li>A partial derivative holds the other variables fixed. It is the sensitivity of the output to one input.</li>
+<li>Finite differences have truncation error and rounding error. Central differences with <span class="math inline">\(h\approx10^{-5}\)</span> are a good test.</li>
+<li>Kinks have no derivative. Frameworks choose a subgradient.</li>
+<li>Autodiff gives exact derivatives for the exact operations.</li>
+</ul>
+</section>
+<section id="exercises" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="exercises">Exercises</h2>
+<ol type="1">
+<li><strong>Compute.</strong> Differentiate: <span class="math inline">\(x^3-2x\)</span>, <span class="math inline">\(e^{2x}\)</span>, <span class="math inline">\(\ln(x^2+1)\)</span>, <span class="math inline">\(x\,e^{-x}\)</span>.</li>
+<li><strong>Compute.</strong> Find the tangent line of <span class="math inline">\(f(x)=\sqrt x\)</span> at <span class="math inline">\(x=4\)</span>. Use it to approximate <span class="math inline">\(\sqrt{4.2}\)</span>. What is the error?</li>
+<li><strong>Derive.</strong> Show that <span class="math inline">\(\tanh'(x)=1-\tanh^2x\)</span> using <span class="math inline">\(\tanh x=2\sigma(2x)-1\)</span>.</li>
+<li><strong>Derive.</strong> Derive the product rule from the limit definition.</li>
+<li><strong>Derive.</strong> Show that the central difference is exact for any quadratic <span class="math inline">\(f(x)=ax^2+bx+c\)</span>.</li>
+<li><strong>Code.</strong> Find the optimal <span class="math inline">\(h\)</span> for the forward and central differences of <span class="math inline">\(\sin x\)</span> at <span class="math inline">\(x=1\)</span>. Do they match the predicted <span class="math inline">\(\sqrt\varepsilon\)</span> and <span class="math inline">\(\varepsilon^{1/3}\)</span>?</li>
+<li><strong>Code.</strong> For <span class="math inline">\(f(x)=\sigma(10x)\)</span>, plot the linear approximation at <span class="math inline">\(x=0\)</span> and the true function over <span class="math inline">\([-1,1]\)</span>. Where does it fail? What does that say about learning rates?</li>
+<li><strong>Code.</strong> Compute the sensitivity <span class="math inline">\(\partial L/\partial w_{ij}\)</span> of the digit MLP loss (Chapter 11) for all first-layer weights. Show them as an <span class="math inline">\(8\times8\)</span> map for one hidden unit.</li>
+<li><strong>Diagnose.</strong> A finite-difference gradient check with <span class="math inline">\(h=10^{-12}\)</span> reports huge errors for a correct formula. Explain.</li>
+<li><strong>Explain.</strong> Why does a step function, such as the 0–1 loss, make learning by derivatives impossible?</li>
+</ol>
+
+
+</section>
+
+</main> <!-- /main -->
+<script>
+/* Keep the left navigation stable between pages: all parts expanded,
+   and the sidebar scroll position remembered across page loads. */
+(function () {
+  var KEY = "mathsystems-sidebar-scroll";
+  function side() { return document.getElementById("quarto-sidebar"); }
+  function scroller() {
+    var s = side(); if (!s) return null;
+    return s.querySelector(".sidebar-menu-container") || s;
+  }
+  function expandAll() {
+    var s = side(); if (!s) return;
+    s.querySelectorAll(".collapse").forEach(function (el) { el.classList.add("show"); });
+    s.querySelectorAll('[aria-expanded="false"]').forEach(function (el) { el.setAttribute("aria-expanded", "true"); });
+    s.querySelectorAll(".sidebar-item-toggle.collapsed, a.collapsed").forEach(function (el) { el.classList.remove("collapsed"); });
+  }
+  function restore() {
+    var sc = scroller(), v = null;
+    try { v = sessionStorage.getItem(KEY); } catch (e) {}
+    if (sc && v !== null) sc.scrollTop = parseInt(v, 10);
+  }
+  function save() {
+    var sc = scroller();
+    if (!sc) return;
+    try { sessionStorage.setItem(KEY, String(sc.scrollTop)); } catch (e) {}
+  }
+  document.addEventListener("DOMContentLoaded", function () {
+    expandAll(); restore();
+    var sc = scroller();
+    if (sc) sc.addEventListener("scroll", save, { passive: true });
+    document.addEventListener("click", save, true);
+    window.addEventListener("pagehide", save);
+  });
+  window.addEventListener("load", function () {
+    expandAll(); restore();
+    setTimeout(restore, 50); setTimeout(restore, 250);   /* after the theme's own scroll-into-view */
+  });
+})();
+</script>
+<style>
+/* no jump while the menu is being expanded */
+#quarto-sidebar .collapse { transition: none !important; }
+</style>
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/vsrveera\.github\.io\/books\/mathai\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../chapters/ch15_information_as_a_mathematical_quantity.html" class="pagination-link" aria-label="Information as a Mathematical Quantity">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Information as a Mathematical Quantity</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../chapters/ch17_gradients_and_multivariable_calculus.html" class="pagination-link" aria-label="Gradients and Multivariable Calculus">
+        <span class="nav-page-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Gradients and Multivariable Calculus</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<script>var lightboxQuarto = GLightbox({"closeEffect":"zoom","descPosition":"bottom","loop":false,"openEffect":"zoom","selector":".lightbox"});
+(function() {
+  let previousOnload = window.onload;
+  window.onload = () => {
+    if (previousOnload) {
+      previousOnload();
+    }
+    lightboxQuarto.on('slide_before_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      const href = trigger.getAttribute('href');
+      if (href !== null) {
+        const imgEl = window.document.querySelector(`a[href="${href}"] img`);
+        if (imgEl !== null) {
+          const srcAttr = imgEl.getAttribute("src");
+          if (srcAttr && srcAttr.startsWith("data:")) {
+            slideConfig.href = srcAttr;
+          }
+        }
+      } 
+    });
+  
+    lightboxQuarto.on('slide_after_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(slideNode);
+      }
+    });
+  
+  };
+  
+})();
+          </script>
+
+
+
+
+<script src="../site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

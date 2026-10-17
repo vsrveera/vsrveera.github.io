@@ -1,0 +1,1599 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.19">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>15&nbsp; Information as a Mathematical Quantity – Mathematics of Artificial Intelligence</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../chapters/ch16_change_and_derivatives.html" rel="next">
+<link href="../chapters/ch14_loss_functions.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-43d2fa13cb35dd2022b3c25d65fdd634.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-19432b6b5c85f3ab30851b7038f884b0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="../site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
+<link href="../site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
+<link href="../site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar docked quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/ch13_distance_similarity_and_geometry.html">Part IV — Measurement</a></li><li class="breadcrumb-item"><a href="../chapters/ch15_information_as_a_mathematical_quantity.html"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Information as a Mathematical Quantity</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">Mathematics of Artificial Intelligence</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part I — The Mathematical Machine</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch01_ai_as_a_mathematical_system.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">AI as a Mathematical System</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch02_language_of_mathematical_ai.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">The Language of Mathematical AI</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part II — Representation</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch03_vectors_representing_information.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Vectors: Representing Information</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch04_geometry_of_representations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Geometry of Representations</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch05_matrices_representing_transformations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Matrices: Representing Transformations</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch06_tensors_and_high_dimensional_data.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Tensors and High-Dimensional Data</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch07_structure_hidden_in_data.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Structure Hidden in Data</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part III — Transformation</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch08_functions_as_machines.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Functions as Machines</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch09_linear_transformations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Linear Transformations</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch10_nonlinearity_and_expressiveness.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Nonlinearity and Expressiveness</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch11_neural_networks_as_function_composition.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Neural Networks as Function Composition</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch12_convolution_and_structured_transformations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Convolution and Structured Transformations</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part IV — Measurement</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch13_distance_similarity_and_geometry.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Distance, Similarity and Geometry</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch14_loss_functions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Loss Functions</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch15_information_as_a_mathematical_quantity.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Information as a Mathematical Quantity</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part V — Learning</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch16_change_and_derivatives.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Change and Derivatives</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch17_gradients_and_multivariable_calculus.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Gradients and Multivariable Calculus</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch18_chain_rule_and_backpropagation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">The Chain Rule and Backpropagation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch19_optimization.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Optimization</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch20_the_geometry_and_dynamics_of_learning.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">The Geometry and Dynamics of Learning</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part VI — Uncertainty</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch21_probability_as_a_language_of_uncertainty.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Probability as a Language of Uncertainty</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch22_conditional_probability_and_bayes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Conditional Probability and Bayes</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch23_probability_distributions_used_in_ai.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Probability Distributions Used in AI</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch24_from_scores_to_probabilities.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">From Scores to Probabilities</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch25_statistical_estimation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Statistical Estimation</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part VII — Generalization</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch26_from_samples_to_populations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">From Samples to Populations</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch27_generalization.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Generalization</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch28_bias_variance_and_regularization.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Bias, Variance and Regularization</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch29_statistical_learning_theory.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Statistical Learning Theory</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part VIII — Putting the Mathematical Systems Together</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch30_the_mathematics_of_attention.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">30</span>&nbsp; <span class="chapter-title">The Mathematics of Attention</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch31_the_mathematics_of_the_transformer.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">31</span>&nbsp; <span class="chapter-title">The Mathematics of the Transformer</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch32_decoder_only_language_models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">32</span>&nbsp; <span class="chapter-title">Decoder-only Language Models</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch33_autoregressive_generation_and_sampling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">33</span>&nbsp; <span class="chapter-title">Autoregressive Generation and Sampling</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch34_mixture_of_experts_scale_and_numerical_precision.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">34</span>&nbsp; <span class="chapter-title">Mixture-of-Experts, Scale and Numerical Precision</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch35_convolutional_vision_in_depth.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">Convolutional Vision in Depth</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch36_vision_transformers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Vision Transformers</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch37_detection_and_structured_prediction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">Detection and Structured Prediction</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch38_representation_and_self_supervised_learning.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">38</span>&nbsp; <span class="chapter-title">Representation and Self-Supervised Learning</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch39_clip_and_multimodal_language_models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">39</span>&nbsp; <span class="chapter-title">CLIP and Multimodal Language Models</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch40_latent_variable_models_and_vaes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">40</span>&nbsp; <span class="chapter-title">Latent-Variable Models and VAEs</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch41_diffusion_models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">41</span>&nbsp; <span class="chapter-title">Diffusion Models</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch42_latent_diffusion_and_diffusion_transformers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">42</span>&nbsp; <span class="chapter-title">Latent Diffusion and Diffusion Transformers</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch43_flow_matching.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">43</span>&nbsp; <span class="chapter-title">Flow Matching</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch44_one_ai_system_all_the_mathematics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">44</span>&nbsp; <span class="chapter-title">One AI System, All the Mathematics</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part IX — Systems Thinking and Performance Characterisation</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch45_systems_thinking_components_and_interfaces.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">45</span>&nbsp; <span class="chapter-title">Systems Thinking: Components, Interfaces and Contracts</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch46_feedback_coupling_and_stability.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">46</span>&nbsp; <span class="chapter-title">Feedback, Coupling and Stability</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch47_performance_characterisation_the_paradigm.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">47</span>&nbsp; <span class="chapter-title">Performance Characterisation: The Paradigm</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch48_random_perturbation_and_error_propagation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">48</span>&nbsp; <span class="chapter-title">Random Perturbation and Error Propagation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch49_operating_curves_roc_and_confidence.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">49</span>&nbsp; <span class="chapter-title">Operating Curves, ROC and Confidence</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch50_characterisation_protocol_and_experimental_design.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">50</span>&nbsp; <span class="chapter-title">A Characterisation Protocol: Experimental Design and Reporting</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch51_characterising_large_models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">51</span>&nbsp; <span class="chapter-title">Characterising Large Models</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#sec-system-problem" id="toc-sec-system-problem" class="nav-link active" data-scroll-target="#sec-system-problem"><span class="header-section-number">15.1</span> The system problem</a></li>
+  <li><a href="#sec-primer" id="toc-sec-primer" class="nav-link" data-scroll-target="#sec-primer"><span class="header-section-number">15.2</span> A short probability primer</a></li>
+  <li><a href="#sec-surprise" id="toc-sec-surprise" class="nav-link" data-scroll-target="#sec-surprise"><span class="header-section-number">15.3</span> Surprise: information content</a></li>
+  <li><a href="#sec-entropy" id="toc-sec-entropy" class="nav-link" data-scroll-target="#sec-entropy"><span class="header-section-number">15.4</span> Entropy: average surprise</a></li>
+  <li><a href="#sec-kl" id="toc-sec-kl" class="nav-link" data-scroll-target="#sec-kl"><span class="header-section-number">15.5</span> Cross-entropy and KL divergence</a>
+  <ul class="collapse">
+  <li><a href="#cross-entropy-as-the-classification-loss" id="toc-cross-entropy-as-the-classification-loss" class="nav-link" data-scroll-target="#cross-entropy-as-the-classification-loss"><span class="header-section-number">15.5.1</span> Cross-entropy as the classification loss</a></li>
+  </ul></li>
+  <li><a href="#sec-mi" id="toc-sec-mi" class="nav-link" data-scroll-target="#sec-mi"><span class="header-section-number">15.6</span> Mutual information</a></li>
+  <li><a href="#sec-perplexity" id="toc-sec-perplexity" class="nav-link" data-scroll-target="#sec-perplexity"><span class="header-section-number">15.7</span> Perplexity: a language model’s score</a></li>
+  <li><a href="#sec-estimation" id="toc-sec-estimation" class="nav-link" data-scroll-target="#sec-estimation"><span class="header-section-number">15.8</span> Estimating entropy from data</a></li>
+  <li><a href="#sec-production" id="toc-sec-production" class="nav-link" data-scroll-target="#sec-production"><span class="header-section-number">15.9</span> Production</a></li>
+  <li><a href="#sec-failure" id="toc-sec-failure" class="nav-link" data-scroll-target="#sec-failure"><span class="header-section-number">15.10</span> Failure modes</a></li>
+  <li><a href="#sec-ai-connection" id="toc-sec-ai-connection" class="nav-link" data-scroll-target="#sec-ai-connection"><span class="header-section-number">15.11</span> Where this appears in modern AI</a></li>
+  <li><a href="#sec-system-connection" id="toc-sec-system-connection" class="nav-link" data-scroll-target="#sec-system-connection"><span class="header-section-number">15.12</span> System connection</a></li>
+  <li><a href="#chapter-summary" id="toc-chapter-summary" class="nav-link" data-scroll-target="#chapter-summary">Chapter summary</a></li>
+  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises">Exercises</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/ch13_distance_similarity_and_geometry.html">Part IV — Measurement</a></li><li class="breadcrumb-item"><a href="../chapters/ch15_information_as_a_mathematical_quantity.html"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Information as a Mathematical Quantity</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Information as a Mathematical Quantity</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="callout callout-style-default callout-note callout-titled" title="Key ideas">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Key ideas
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li>The <strong>information</strong> in an event of probability <span class="math inline">\(p\)</span> is <span class="math inline">\(-\log p\)</span>. Rare events carry more.</li>
+<li><strong>Entropy</strong> <span class="math inline">\(H(p)\)</span> is the average information: the uncertainty of a distribution.</li>
+<li><strong>Cross-entropy</strong> <span class="math inline">\(H(p,q)\)</span> is the average cost of describing data from <span class="math inline">\(p\)</span> with a code built for <span class="math inline">\(q\)</span>.</li>
+<li><strong>KL divergence</strong> <span class="math inline">\(D_{\text{KL}}(p\Vert q)=H(p,q)-H(p)\)</span> is the extra cost. It is never negative, and not symmetric.</li>
+<li><strong>Mutual information</strong> measures how much knowing one variable tells about another.</li>
+<li><strong>Perplexity</strong> is <span class="math inline">\(e^{\text{cross-entropy}}\)</span>: the effective number of equally likely choices.</li>
+</ul>
+</div>
+</div>
+<section id="sec-system-problem" class="level2" data-number="15.1">
+<h2 data-number="15.1" class="anchored" data-anchor-id="sec-system-problem"><span class="header-section-number">15.1</span> The system problem</h2>
+<p>Chapter 14 used cross-entropy as a loss without saying what it is. Chapter 13 compared points. We now need to compare <strong>distributions</strong>: the one the model predicts and the one the world follows.</p>
+<blockquote class="blockquote">
+<p><strong>How do we measure surprise, and how far one distribution is from another?</strong></p>
+</blockquote>
+<p>This chapter is also the bridge from <em>measurement</em> to <em>probability</em>. It contains a short primer on the probability that we need now. Part VI develops the full theory.</p>
+<div id="cell-fig-where" class="cell" data-execution_count="2">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>system_map(highlight<span class="op">=</span>[<span class="st">"Measurement"</span>, <span class="st">"Uncertainty"</span>],</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>           sublabels<span class="op">=</span>{<span class="st">"Measurement"</span>: <span class="st">"Ch. 13–15"</span>, <span class="st">"Uncertainty"</span>: <span class="st">"Part VI"</span>})<span class="op">;</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="fig-where" class="quarto-float quarto-figure quarto-figure-center anchored" alt="System map with Measurement and Uncertainty highlighted.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-where-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="ch15_information_as_a_mathematical_quantity_files/figure-html/fig-where-output-1.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-1" title="Figure&nbsp;15.1: Chapter 15 completes the Measurement stage and opens the door to Uncertainty."><img src="ch15_information_as_a_mathematical_quantity_files/figure-html/fig-where-output-1.svg" class="img-fluid figure-img" alt="System map with Measurement and Uncertainty highlighted."></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-where-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;15.1: Chapter 15 completes the Measurement stage and opens the door to Uncertainty.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="sec-primer" class="level2" data-number="15.2">
+<h2 data-number="15.2" class="anchored" data-anchor-id="sec-primer"><span class="header-section-number">15.2</span> A short probability primer</h2>
+<p>This section gives only what is needed here and in Chapters 19 and 20. Chapter 21 gives the full treatment.</p>
+<p>A <strong>distribution over a finite set</strong> assigns a probability <span class="math inline">\(p(x)\ge0\)</span> to each outcome <span class="math inline">\(x\)</span>, with <span class="math inline">\(\sum_xp(x)=1\)</span>.</p>
+<p>The <strong>expectation</strong> of a function <span class="math inline">\(f\)</span> of the outcome is the probability-weighted average:</p>
+<p><span id="eq-expectation"><span class="math display">\[
+\mathbb{E}[f(X)]=\sum_xp(x)\,f(x).
+\tag{15.1}\]</span></span></p>
+<p>Two facts will be used often.</p>
+<ol type="1">
+<li><strong>Linearity.</strong> <span class="math inline">\(\mathbb{E}[aX+bY]=a\,\mathbb{E}[X]+b\,\mathbb{E}[Y]\)</span>, always.</li>
+<li><strong>Variance.</strong> <span class="math inline">\(\text{Var}(X)=\mathbb{E}[(X-\mu)^2]=\mathbb{E}[X^2]-\mu^2\)</span>, where <span class="math inline">\(\mu=\mathbb{E}[X]\)</span>. For <strong>independent</strong> <span class="math inline">\(X,Y\)</span>: <span class="math inline">\(\text{Var}(X+Y)=\text{Var}(X)+\text{Var}(Y)\)</span>.</li>
+</ol>
+<div id="code-primer" class="cell" data-execution_count="3">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">0</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>vals <span class="op">=</span> np.arange(<span class="dv">1</span>, <span class="dv">7</span>)<span class="op">;</span> p <span class="op">=</span> np.ones(<span class="dv">6</span>) <span class="op">/</span> <span class="dv">6</span>                  <span class="co"># one fair die</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>mean <span class="op">=</span> np.<span class="bu">sum</span>(p <span class="op">*</span> vals)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>var <span class="op">=</span> np.<span class="bu">sum</span>(p <span class="op">*</span> vals <span class="op">**</span> <span class="dv">2</span>) <span class="op">-</span> mean <span class="op">**</span> <span class="dv">2</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"one die: E = </span><span class="sc">{</span>mean<span class="sc">:.3f}</span><span class="ss">, Var = </span><span class="sc">{</span>var<span class="sc">:.3f}</span><span class="ss">"</span>)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>rolls <span class="op">=</span> rng.integers(<span class="dv">1</span>, <span class="dv">7</span>, size<span class="op">=</span>(<span class="dv">200_000</span>, <span class="dv">2</span>))               <span class="co"># two independent dice</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>total <span class="op">=</span> rolls.<span class="bu">sum</span>(axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"sum of two (simulated): E = </span><span class="sc">{</span>total<span class="sc">.</span>mean()<span class="sc">:.3f}</span><span class="ss"> (expect </span><span class="sc">{</span><span class="dv">2</span> <span class="op">*</span> mean<span class="sc">:.3f}</span><span class="ss">), "</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>      <span class="ss">f"Var = </span><span class="sc">{</span>total<span class="sc">.</span>var()<span class="sc">:.3f}</span><span class="ss"> (expect </span><span class="sc">{</span><span class="dv">2</span> <span class="op">*</span> var<span class="sc">:.3f}</span><span class="ss">)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>one die: E = 3.500, Var = 2.917
+sum of two (simulated): E = 6.999 (expect 7.000), Var = 5.805 (expect 5.833)</code></pre>
+</div>
+</div>
+</section>
+<section id="sec-surprise" class="level2" data-number="15.3">
+<h2 data-number="15.3" class="anchored" data-anchor-id="sec-surprise"><span class="header-section-number">15.3</span> Surprise: information content</h2>
+<p>How surprised are we by an event of probability <span class="math inline">\(p\)</span>? A certain event (<span class="math inline">\(p=1\)</span>) carries no surprise. A rare event carries a lot. Independent events should add: the surprise of “A and B” is the surprise of A plus the surprise of B. Since probabilities of independent events <strong>multiply</strong>, we need a function <span class="math inline">\(I\)</span> with</p>
+<p><span id="eq-additive"><span class="math display">\[
+I(p\,q)=I(p)+I(q).
+\tag{15.2}\]</span></span></p>
+<p>The logarithm has this property. Requiring also that <span class="math inline">\(I\)</span> is continuous and decreasing in <span class="math inline">\(p\)</span> leaves one family:</p>
+<p><span id="eq-info"><span class="math display">\[
+I(p)=-\log p.
+\tag{15.3}\]</span></span></p>
+<p>The base of the logarithm fixes the unit. Base 2 gives <strong>bits</strong>. Base <span class="math inline">\(e\)</span> gives <strong>nats</strong>. One fair coin flip carries <span class="math inline">\(-\log_{2}\frac12=1\)</span> bit. One roll of a fair die carries <span class="math inline">\(\log_26\approx2.58\)</span> bits.</p>
+</section>
+<section id="sec-entropy" class="level2" data-number="15.4">
+<h2 data-number="15.4" class="anchored" data-anchor-id="sec-entropy"><span class="header-section-number">15.4</span> Entropy: average surprise</h2>
+<p>The <strong>entropy</strong> of a distribution is its expected information:</p>
+<p><span id="eq-entropy"><span class="math display">\[
+H(p)=-\sum_xp(x)\log p(x).
+\tag{15.4}\]</span></span></p>
+<p>It is the uncertainty of the distribution. It is also the <strong>average number of bits</strong> an ideal code needs per outcome. We use <span class="math inline">\(0\log0=0\)</span>.</p>
+<div id="cell-fig-entropy" class="cell" data-execution_count="4">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> entropy(p, base<span class="op">=</span><span class="dv">2</span>):</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    p <span class="op">=</span> np.asarray(p, dtype<span class="op">=</span><span class="bu">float</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    nz <span class="op">=</span> p <span class="op">&gt;</span> <span class="dv">0</span>                                         <span class="co"># convention 0 log 0 = 0</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">float</span>(<span class="op">-</span>np.<span class="bu">sum</span>(p[nz] <span class="op">*</span> np.log(p[nz])) <span class="op">/</span> np.log(base)) <span class="op">+</span> <span class="fl">0.0</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>ps <span class="op">=</span> np.linspace(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">201</span>)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>H <span class="op">=</span> [entropy([q, <span class="dv">1</span> <span class="op">-</span> q]) <span class="cf">for</span> q <span class="kw">in</span> ps]</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">5.5</span>, <span class="fl">3.2</span>))</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>ax.plot(ps, H, color<span class="op">=</span>PALETTE[<span class="st">"model"</span>], lw<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"probability of heads p"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"entropy (bits)"</span>)</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> dist <span class="kw">in</span> ([<span class="fl">0.5</span>, <span class="fl">0.5</span>], [<span class="fl">0.9</span>, <span class="fl">0.1</span>], [<span class="dv">1</span><span class="op">/</span><span class="dv">6</span>] <span class="op">*</span> <span class="dv">6</span>, [<span class="fl">1.0</span>, <span class="dv">0</span>, <span class="dv">0</span>]):</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"H(</span><span class="sc">{</span>np<span class="sc">.</span><span class="bu">round</span>(dist, <span class="dv">2</span>)<span class="sc">}</span><span class="ss">) = </span><span class="sc">{</span>entropy(dist)<span class="sc">:.3f}</span><span class="ss"> bits"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="fig-entropy" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A symmetric hump-shaped curve rising from 0 at p equals 0 to 1 at p equals 0.5 and falling back to 0 at p equals 1.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-entropy-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="ch15_information_as_a_mathematical_quantity_files/figure-html/fig-entropy-output-1.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-2" title="Figure&nbsp;15.2: Entropy of a coin as a function of its probability of heads. It is 0 when the outcome is certain and 1 bit at p = 0.5, where uncertainty is greatest."><img src="ch15_information_as_a_mathematical_quantity_files/figure-html/fig-entropy-output-1.svg" class="img-fluid figure-img" alt="A symmetric hump-shaped curve rising from 0 at p equals 0 to 1 at p equals 0.5 and falling back to 0 at p equals 1."></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-entropy-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;15.2: Entropy of a coin as a function of its probability of heads. It is 0 when the outcome is certain and 1 bit at p = 0.5, where uncertainty is greatest.
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>H([0.5 0.5]) = 1.000 bits
+H([0.9 0.1]) = 0.469 bits
+H([0.17 0.17 0.17 0.17 0.17 0.17]) = 2.585 bits
+H([1. 0. 0.]) = 0.000 bits</code></pre>
+</div>
+</div>
+<p>Among distributions on <span class="math inline">\(K\)</span> outcomes, the uniform one has the largest entropy, <span class="math inline">\(\log K\)</span>. We prove this below.</p>
+</section>
+<section id="sec-kl" class="level2" data-number="15.5">
+<h2 data-number="15.5" class="anchored" data-anchor-id="sec-kl"><span class="header-section-number">15.5</span> Cross-entropy and KL divergence</h2>
+<p>Suppose the data follow <span class="math inline">\(p\)</span>, but our model says <span class="math inline">\(q\)</span>. We build a code from <span class="math inline">\(q\)</span>: it gives outcome <span class="math inline">\(x\)</span> a codeword of length <span class="math inline">\(-\log q(x)\)</span>. The average length for data from <span class="math inline">\(p\)</span> is the <strong>cross-entropy</strong>:</p>
+<p><span id="eq-cross-entropy"><span class="math display">\[
+H(p,q)=-\sum_xp(x)\log q(x).
+\tag{15.5}\]</span></span></p>
+<p>The <strong>KL divergence</strong> (relative entropy) is the <em>extra</em> cost over the best possible code:</p>
+<p><span id="eq-kl"><span class="math display">\[
+D_{\text{KL}}(p\Vert q)=\sum_xp(x)\log\frac{p(x)}{q(x)}=H(p,q)-H(p).
+\tag{15.6}\]</span></span></p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Derivation: KL divergence is never negative (Gibbs' inequality)">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Derivation: KL divergence is never negative (Gibbs’ inequality)
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>We use <strong>Jensen’s inequality</strong> for the concave function <span class="math inline">\(\log\)</span>: <span class="math inline">\(\mathbb{E}[\log X]\le\log\mathbb{E}[X]\)</span>. Take <span class="math inline">\(X=q(x)/p(x)\)</span> with <span class="math inline">\(x\sim p\)</span>:</p>
+<p><span class="math display">\[
+-D_{\text{KL}}(p\Vert q)=\sum_xp(x)\log\frac{q(x)}{p(x)}\le\log\sum_xp(x)\frac{q(x)}{p(x)}=\log\sum_xq(x)\le\log1=0.
+\]</span></p>
+<p>So <span class="math inline">\(D_{\text{KL}}(p\Vert q)\ge0\)</span>, with equality only if <span class="math inline">\(p=q\)</span>. <span class="math inline">\(\blacksquare\)</span></p>
+<p><strong>Consequence.</strong> Take <span class="math inline">\(q\)</span> uniform: <span class="math inline">\(D_{\text{KL}}(p\Vert u)=\log K-H(p)\ge0\)</span>, so <span class="math inline">\(H(p)\le\log K\)</span>.</p>
+</div>
+</div>
+<p>Three properties to remember:</p>
+<ul>
+<li><strong>Not symmetric.</strong> <span class="math inline">\(D_{\text{KL}}(p\Vert q)\ne D_{\text{KL}}(q\Vert p)\)</span> in general. It is not a distance.</li>
+<li><strong>Infinite</strong> if <span class="math inline">\(q(x)=0\)</span> where <span class="math inline">\(p(x)&gt;0\)</span>. A model that rules out something that happens is infinitely wrong.</li>
+<li><strong>Minimising cross-entropy over <span class="math inline">\(q\)</span></strong> is the same as minimising KL, because <span class="math inline">\(H(p)\)</span> does not depend on <span class="math inline">\(q\)</span>.</li>
+</ul>
+<div id="code-kl" class="cell" data-execution_count="5">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> kl(p, q, base<span class="op">=</span><span class="dv">2</span>):</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    p, q <span class="op">=</span> np.asarray(p, <span class="bu">float</span>), np.asarray(q, <span class="bu">float</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    nz <span class="op">=</span> p <span class="op">&gt;</span> <span class="dv">0</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> np.<span class="bu">any</span>(q[nz] <span class="op">==</span> <span class="dv">0</span>):</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> np.inf</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.<span class="bu">sum</span>(p[nz] <span class="op">*</span> np.log(p[nz] <span class="op">/</span> q[nz])) <span class="op">/</span> np.log(base)</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>p <span class="op">=</span> np.array([<span class="fl">0.9</span>, <span class="fl">0.1</span>])<span class="op">;</span> q <span class="op">=</span> np.array([<span class="fl">0.5</span>, <span class="fl">0.5</span>])</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"KL(p||q) = </span><span class="sc">{</span>kl(p, q)<span class="sc">:.3f}</span><span class="ss"> bits     KL(q||p) = </span><span class="sc">{</span>kl(q, p)<span class="sc">:.3f}</span><span class="ss"> bits   (asymmetric)"</span>)</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"H(p) + KL(p||q) = </span><span class="sc">{</span>entropy(p) <span class="op">+</span> kl(p, q)<span class="sc">:.3f}</span><span class="ss">   cross-entropy H(p,q) = "</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>      <span class="ss">f"</span><span class="sc">{</span><span class="op">-</span>np<span class="sc">.</span><span class="bu">sum</span>(p <span class="op">*</span> np.log2(q))<span class="sc">:.3f}</span><span class="ss">"</span>)</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"support mismatch:"</span>, kl([<span class="fl">0.5</span>, <span class="fl">0.5</span>], [<span class="fl">1.0</span>, <span class="fl">0.0</span>]))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>KL(p||q) = 0.531 bits     KL(q||p) = 0.737 bits   (asymmetric)
+H(p) + KL(p||q) = 1.000   cross-entropy H(p,q) = 1.000
+support mismatch: inf</code></pre>
+</div>
+</div>
+<section id="cross-entropy-as-the-classification-loss" class="level3" data-number="15.5.1">
+<h3 data-number="15.5.1" class="anchored" data-anchor-id="cross-entropy-as-the-classification-loss"><span class="header-section-number">15.5.1</span> Cross-entropy as the classification loss</h3>
+<p>For a labelled example the “true distribution” is a one-hot vector <span class="math inline">\(\mathbf{y}\)</span> with <span class="math inline">\(1\)</span> at the true class <span class="math inline">\(c\)</span>. Then <span class="math inline">\(H(\mathbf{y},\mathbf{q})=-\sum_ky_{k}\ln q_k=-\ln q_c\)</span>. This is exactly the <strong>cross-entropy loss</strong> of Chapter 14. The entropy of a one-hot distribution is <span class="math inline">\(0\)</span>, so the loss equals the KL divergence from the truth to the prediction.</p>
+<p>We check it with a classifier on the digits.</p>
+<div id="code-ce-classifier" class="cell" data-execution_count="6">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.datasets <span class="im">import</span> load_digits</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.linear_model <span class="im">import</span> LogisticRegression</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.metrics <span class="im">import</span> log_loss</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.model_selection <span class="im">import</span> train_test_split</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>D <span class="op">=</span> load_digits()</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>Xtr, Xte, ytr, yte <span class="op">=</span> train_test_split(D.data <span class="op">/</span> <span class="fl">16.0</span>, D.target, test_size<span class="op">=</span><span class="fl">0.25</span>,</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>                                      random_state<span class="op">=</span><span class="dv">0</span>, stratify<span class="op">=</span>D.target)</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>clf <span class="op">=</span> LogisticRegression(max_iter<span class="op">=</span><span class="dv">2000</span>).fit(Xtr, ytr)</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>P <span class="op">=</span> clf.predict_proba(Xte)                                   <span class="co"># (N, 10) predicted q</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>ce <span class="op">=</span> <span class="op">-</span>np.mean(np.log(P[np.arange(<span class="bu">len</span>(yte)), yte]))           <span class="co"># mean of -ln q_c</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"cross-entropy (nats): </span><span class="sc">{</span>ce<span class="sc">:.4f}</span><span class="ss">   sklearn log_loss: </span><span class="sc">{</span>log_loss(yte, P)<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"perplexity e^CE = </span><span class="sc">{</span>np<span class="sc">.</span>exp(ce)<span class="sc">:.3f}</span><span class="ss">  (about this many classes 'in doubt')"</span>)</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>counts <span class="op">=</span> np.bincount(ytr, minlength<span class="op">=</span><span class="dv">10</span>) <span class="op">/</span> <span class="bu">len</span>(ytr)</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"entropy of the label distribution: </span><span class="sc">{</span>entropy(counts)<span class="sc">:.3f}</span><span class="ss"> bits "</span></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>      <span class="ss">f"(maximum log2 10 = </span><span class="sc">{</span>np<span class="sc">.</span>log2(<span class="dv">10</span>)<span class="sc">:.3f}</span><span class="ss">)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>cross-entropy (nats): 0.1565   sklearn log_loss: 0.1565
+perplexity e^CE = 1.169  (about this many classes 'in doubt')
+entropy of the label distribution: 3.322 bits (maximum log2 10 = 3.322)</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="sec-mi" class="level2" data-number="15.6">
+<h2 data-number="15.6" class="anchored" data-anchor-id="sec-mi"><span class="header-section-number">15.6</span> Mutual information</h2>
+<p>Two variables <span class="math inline">\(X,Y\)</span> are independent if <span class="math inline">\(p(x,y)=p(x)p(y)\)</span>. <strong>Mutual information</strong> measures how far they are from independence:</p>
+<p><span id="eq-mi"><span class="math display">\[
+I(X;Y)=D_{\text{KL}}\bigl(p(x,y)\,\Vert\,p(x)p(y)\bigr)=H(X)+H(Y)-H(X,Y).
+\tag{15.7}\]</span></span></p>
+<p>It is <span class="math inline">\(0\)</span> for independent variables. It is at most <span class="math inline">\(\min(H(X),H(Y))\)</span>. It is symmetric.</p>
+<p>We estimate how much each pixel of a digit tells about its class. Each pixel is binarised (on if brightness <span class="math inline">\(&gt;8\)</span>).</p>
+<div id="cell-fig-mi-map" class="cell" data-execution_count="7">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.metrics <span class="im">import</span> mutual_info_score</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>Xbin <span class="op">=</span> (D.data <span class="op">&gt;</span> <span class="dv">8</span>).astype(<span class="bu">int</span>)                              <span class="co"># (1797, 64)</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>mi <span class="op">=</span> np.array([mutual_info_score(D.target, Xbin[:, j]) <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">64</span>)]) <span class="op">/</span> np.log(<span class="dv">2</span>)</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">4.4</span>, <span class="fl">3.8</span>))</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>im <span class="op">=</span> ax.imshow(mi.reshape(<span class="dv">8</span>, <span class="dv">8</span>), cmap<span class="op">=</span><span class="st">"viridis"</span>)</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>plt.colorbar(im, ax<span class="op">=</span>ax, label<span class="op">=</span><span class="st">"bits"</span>)<span class="op">;</span> ax.set_xticks([])<span class="op">;</span> ax.set_yticks([])<span class="op">;</span> ax.grid(<span class="va">False</span>)</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"max pixel MI: </span><span class="sc">{</span>mi<span class="sc">.</span><span class="bu">max</span>()<span class="sc">:.3f}</span><span class="ss"> bits;  H(class) = </span><span class="sc">{</span>np<span class="sc">.</span>log2(<span class="dv">10</span>)<span class="sc">:.2f}</span><span class="ss"> bits"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="fig-mi-map" class="quarto-float quarto-figure quarto-figure-center anchored" alt="An 8 by 8 heat map. Bright cells in the interior; dark cells in the corners and edges.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-mi-map-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="ch15_information_as_a_mathematical_quantity_files/figure-html/fig-mi-map-output-1.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-3" title="Figure&nbsp;15.3: Mutual information between each pixel (on/off) and the digit class, in bits. Pixels near the centre and along the main strokes are informative. Pixels at the corners are almost always off and say nothing about the class."><img src="ch15_information_as_a_mathematical_quantity_files/figure-html/fig-mi-map-output-1.svg" class="img-fluid figure-img" alt="An 8 by 8 heat map. Bright cells in the interior; dark cells in the corners and edges."></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-mi-map-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;15.3: Mutual information between each pixel (on/off) and the digit class, in bits. Pixels near the centre and along the main strokes are informative. Pixels at the corners are almost always off and say nothing about the class.
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>max pixel MI: 0.449 bits;  H(class) = 3.32 bits</code></pre>
+</div>
+</div>
+<p>One pixel gives well under one bit about a class that needs <span class="math inline">\(3.3\)</span> bits. A classifier must <strong>combine</strong> many pixels.</p>
+</section>
+<section id="sec-perplexity" class="level2" data-number="15.7">
+<h2 data-number="15.7" class="anchored" data-anchor-id="sec-perplexity"><span class="header-section-number">15.7</span> Perplexity: a language model’s score</h2>
+<p>For a model that predicts a sequence of symbols, the average cross-entropy per symbol is the standard score. Its exponential is the <strong>perplexity</strong>:</p>
+<p><span id="eq-ppl"><span class="math display">\[
+\text{PPL}=\exp\!\Bigl(-\frac1N\sum_{t=1}^{N}\ln q(x_{t}\mid\text{context})\Bigr).
+\tag{15.8}\]</span></span></p>
+<p>Read it as the <em>effective branching factor</em>: a model with perplexity 8 is as uncertain as a fair 8-sided die at every step.</p>
+<p>We build the smallest language models: character models for a short English text (the Zen of Python). We compare a uniform model, a unigram model, and bigram models with add-<span class="math inline">\(\alpha\)</span> smoothing. Models are fitted on 70% of the text and scored on the remaining 30%.</p>
+<div id="code-perplexity" class="cell" data-execution_count="8">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> io, codecs, contextlib</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> contextlib.redirect_stdout(io.StringIO()):          <span class="co"># silence the import</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    <span class="im">import</span> this</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>text <span class="op">=</span> codecs.decode(this.s, <span class="st">"rot13"</span>).lower()</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>text <span class="op">=</span> <span class="st">""</span>.join(ch <span class="cf">if</span> ch.isalpha() <span class="cf">else</span> <span class="st">" "</span> <span class="cf">for</span> ch <span class="kw">in</span> text)</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>text <span class="op">=</span> <span class="st">" "</span>.join(text.split())                             <span class="co"># letters and single spaces</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>alphabet <span class="op">=</span> <span class="bu">sorted</span>(<span class="bu">set</span>(text))<span class="op">;</span> V <span class="op">=</span> <span class="bu">len</span>(alphabet)</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>idx <span class="op">=</span> {c: i <span class="cf">for</span> i, c <span class="kw">in</span> <span class="bu">enumerate</span>(alphabet)}</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>ids <span class="op">=</span> np.array([idx[c] <span class="cf">for</span> c <span class="kw">in</span> text])</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>cut <span class="op">=</span> <span class="bu">int</span>(<span class="fl">0.7</span> <span class="op">*</span> <span class="bu">len</span>(ids))<span class="op">;</span> train, test <span class="op">=</span> ids[:cut], ids[cut:]</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span><span class="bu">len</span>(ids)<span class="sc">}</span><span class="ss"> characters, alphabet size </span><span class="sc">{</span>V<span class="sc">}</span><span class="ss">; train </span><span class="sc">{</span><span class="bu">len</span>(train)<span class="sc">}</span><span class="ss">, test </span><span class="sc">{</span><span class="bu">len</span>(test)<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> unigram_ppl(alpha):</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>    c <span class="op">=</span> np.bincount(train, minlength<span class="op">=</span>V) <span class="op">+</span> alpha</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>    q <span class="op">=</span> c <span class="op">/</span> c.<span class="bu">sum</span>()</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.exp(<span class="op">-</span>np.mean(np.log(q[test])))</span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> bigram_ppl(alpha):</span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>    C <span class="op">=</span> np.full((V, V), alpha)</span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>    np.add.at(C, (train[:<span class="op">-</span><span class="dv">1</span>], train[<span class="dv">1</span>:]), <span class="dv">1</span>)             <span class="co"># count transitions</span></span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>    Q <span class="op">=</span> C <span class="op">/</span> C.<span class="bu">sum</span>(axis<span class="op">=</span><span class="dv">1</span>, keepdims<span class="op">=</span><span class="va">True</span>)                 <span class="co"># P(next | previous)</span></span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.exp(<span class="op">-</span>np.mean(np.log(Q[test[:<span class="op">-</span><span class="dv">1</span>], test[<span class="dv">1</span>:]])))</span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span><span class="st">'model'</span><span class="sc">:28s}</span><span class="ss"> </span><span class="sc">{</span><span class="st">'test perplexity'</span><span class="sc">:&gt;16s}</span><span class="ss">"</span>)</span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span><span class="st">'uniform'</span><span class="sc">:28s}</span><span class="ss"> </span><span class="sc">{</span>V<span class="sc">:16.2f}</span><span class="ss">"</span>)</span>
+<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span><span class="st">'unigram (alpha = 1)'</span><span class="sc">:28s}</span><span class="ss"> </span><span class="sc">{</span>unigram_ppl(<span class="dv">1</span>)<span class="sc">:16.2f}</span><span class="ss">"</span>)</span>
+<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> a <span class="kw">in</span> [<span class="fl">0.05</span>, <span class="fl">0.3</span>, <span class="fl">1.0</span>]:</span>
+<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span><span class="ss">f'bigram (alpha = </span><span class="sc">{</span>a<span class="sc">}</span><span class="ss">)'</span><span class="sc">:28s}</span><span class="ss"> </span><span class="sc">{</span>bigram_ppl(a)<span class="sc">:16.2f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>823 characters, alphabet size 25; train 576, test 247
+model                         test perplexity
+uniform                                 25.00
+unigram (alpha = 1)                     16.47
+bigram (alpha = 0.05)                   13.30
+bigram (alpha = 0.3)                    12.10
+bigram (alpha = 1.0)                    13.02</code></pre>
+</div>
+</div>
+<p>Two lessons stand out. Using context lowers the perplexity. And the smoothing constant <span class="math inline">\(\alpha\)</span> matters: a bigram never seen in training gets probability <span class="math inline">\(0\)</span> without smoothing, and the cross-entropy would be infinite.</p>
+</section>
+<section id="sec-estimation" class="level2" data-number="15.8">
+<h2 data-number="15.8" class="anchored" data-anchor-id="sec-estimation"><span class="header-section-number">15.8</span> Estimating entropy from data</h2>
+<p>We rarely know <span class="math inline">\(p\)</span>. We estimate it from counts, and then apply <a href="#eq-entropy" class="quarto-xref">Equation&nbsp;<span>15.4</span></a>. This <strong>plug-in</strong> estimate is biased: with few samples it <strong>underestimates</strong> the entropy, because rare outcomes are missed.</p>
+<div id="cell-fig-entropy-bias" class="cell" data-execution_count="9">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">0</span>)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>ns <span class="op">=</span> [<span class="dv">8</span>, <span class="dv">16</span>, <span class="dv">32</span>, <span class="dv">64</span>, <span class="dv">128</span>, <span class="dv">512</span>, <span class="dv">2000</span>]</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>est <span class="op">=</span> []</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> n <span class="kw">in</span> ns:</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>    vals <span class="op">=</span> []</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">300</span>):</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>        c <span class="op">=</span> np.bincount(rng.integers(<span class="dv">0</span>, <span class="dv">8</span>, n), minlength<span class="op">=</span><span class="dv">8</span>) <span class="op">/</span> n</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>        vals.append(entropy(c))</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>    est.append(np.mean(vals))</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">5.8</span>, <span class="fl">3.3</span>))</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>ax.semilogx(ns, est, <span class="st">"o-"</span>, color<span class="op">=</span>PALETTE[<span class="st">"loss"</span>])</span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>ax.axhline(<span class="dv">3</span>, ls<span class="op">=</span><span class="st">"--"</span>, color<span class="op">=</span>PALETTE[<span class="st">"neutral"</span>])</span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"number of samples"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"estimated entropy (bits)"</span>)</span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"estimates:"</span>, [<span class="ss">f"</span><span class="sc">{</span>v<span class="sc">:.2f}</span><span class="ss">"</span> <span class="cf">for</span> v <span class="kw">in</span> est])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="fig-entropy-bias" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A curve rising towards a horizontal dashed line at 3 bits as the number of samples grows from 8 to 2000.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-entropy-bias-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="ch15_information_as_a_mathematical_quantity_files/figure-html/fig-entropy-bias-output-1.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-4" title="Figure&nbsp;15.4: Plug-in entropy estimate for a uniform distribution over 8 symbols (true value 3 bits). With few samples the estimate is too low. It approaches the truth only as the sample size grows well beyond the number of symbols."><img src="ch15_information_as_a_mathematical_quantity_files/figure-html/fig-entropy-bias-output-1.svg" class="img-fluid figure-img" alt="A curve rising towards a horizontal dashed line at 3 bits as the number of samples grows from 8 to 2000."></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-entropy-bias-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;15.4: Plug-in entropy estimate for a uniform distribution over 8 symbols (true value 3 bits). With few samples the estimate is too low. It approaches the truth only as the sample size grows well beyond the number of symbols.
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>estimates: ['2.25', '2.65', '2.84', '2.92', '2.96', '2.99', '3.00']</code></pre>
+</div>
+</div>
+</section>
+<section id="sec-production" class="level2" data-number="15.9">
+<h2 data-number="15.9" class="anchored" data-anchor-id="sec-production"><span class="header-section-number">15.9</span> Production</h2>
+<p>Libraries provide these quantities. We check that they match our code.</p>
+<div id="code-torch" class="cell" data-execution_count="10">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch.nn.functional <span class="im">as</span> F</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.stats <span class="im">import</span> entropy <span class="im">as</span> sp_entropy</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>p <span class="op">=</span> np.array([<span class="fl">0.7</span>, <span class="fl">0.2</span>, <span class="fl">0.1</span>])<span class="op">;</span> q <span class="op">=</span> np.array([<span class="fl">0.5</span>, <span class="fl">0.3</span>, <span class="fl">0.2</span>])</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"scipy entropy (nats):"</span>, np.isclose(sp_entropy(p), entropy(p, base<span class="op">=</span>np.e)))</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"scipy KL (nats)     :"</span>, np.isclose(sp_entropy(p, q), kl(p, q, base<span class="op">=</span>np.e)))</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a><span class="co"># PyTorch kl_div expects log-probabilities of the model first, probabilities of the target second</span></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>kl_t <span class="op">=</span> F.kl_div(torch.log(torch.tensor(q)), torch.tensor(p), reduction<span class="op">=</span><span class="st">"sum"</span>)</span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"torch kl_div        :"</span>, np.isclose(kl_t.item(), kl(p, q, base<span class="op">=</span>np.e)))</span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>logits <span class="op">=</span> torch.randn(<span class="dv">4</span>, <span class="dv">5</span>, dtype<span class="op">=</span>torch.float64)<span class="op">;</span> target <span class="op">=</span> torch.tensor([<span class="dv">0</span>, <span class="dv">2</span>, <span class="dv">1</span>, <span class="dv">4</span>])</span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>manual <span class="op">=</span> <span class="op">-</span>torch.log_softmax(logits, dim<span class="op">=</span><span class="dv">1</span>)[torch.arange(<span class="dv">4</span>), target].mean()</span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"cross_entropy       :"</span>, np.isclose(F.cross_entropy(logits, target).item(), manual.item()))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>scipy entropy (nats): True
+scipy KL (nats)     : True
+torch kl_div        : True
+cross_entropy       : True</code></pre>
+</div>
+</div>
+<p>The argument order of KL functions differs between libraries. Always check which distribution is the target.</p>
+</section>
+<section id="sec-failure" class="level2" data-number="15.10">
+<h2 data-number="15.10" class="anchored" data-anchor-id="sec-failure"><span class="header-section-number">15.10</span> Failure modes</h2>
+<p><strong><span class="math inline">\(\log0\)</span>.</strong> A model that assigns zero probability to something that happens has infinite loss. Use smoothing, or compute with <code>log_softmax</code> (Chapter 24).</p>
+<p><strong>Few samples.</strong> The plug-in entropy and mutual information are biased (above). With many categories and little data, mutual information appears positive even for independent variables.</p>
+<p><strong>KL is not a distance.</strong> It is asymmetric and violates the triangle inequality. <span class="math inline">\(D_{\text{KL}}(p\Vert q)\)</span> punishes a model <span class="math inline">\(q\)</span> that misses mass where <span class="math inline">\(p\)</span> has some. <span class="math inline">\(D_{\text{KL}}(q\Vert p)\)</span> punishes a model that puts mass where <span class="math inline">\(p\)</span> has none. The two give different fits (Chapters 38, 40).</p>
+<p><strong>Units.</strong> Bits (base 2) and nats (base <span class="math inline">\(e\)</span>) differ by <span class="math inline">\(\ln2\)</span>. Reported perplexity and loss values must say which is used.</p>
+<p><strong>Perplexity is not comparable across vocabularies.</strong> A word-level model and a character-level model have different alphabets. Their perplexities cannot be compared directly.</p>
+</section>
+<section id="sec-ai-connection" class="level2" data-number="15.11">
+<h2 data-number="15.11" class="anchored" data-anchor-id="sec-ai-connection"><span class="header-section-number">15.11</span> Where this appears in modern AI</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Idea</th>
+<th>Where</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Cross-entropy</td>
+<td>classification loss; language-model training loss (Chapters 14, 33)</td>
+</tr>
+<tr class="even">
+<td>Perplexity</td>
+<td>language-model evaluation</td>
+</tr>
+<tr class="odd">
+<td>KL divergence</td>
+<td>VAE regulariser (Chapter 40); distillation; policy constraints in RLHF</td>
+</tr>
+<tr class="even">
+<td>Mutual information</td>
+<td>contrastive learning bound (Chapter 38)</td>
+</tr>
+<tr class="odd">
+<td>Entropy</td>
+<td>sampling temperature and diversity (Chapter 33); exploration bonus</td>
+</tr>
+<tr class="even">
+<td>Information bottleneck</td>
+<td>compression view of representations</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="sec-system-connection" class="level2" data-number="15.12">
+<h2 data-number="15.12" class="anchored" data-anchor-id="sec-system-connection"><span class="header-section-number">15.12</span> System connection</h2>
+<div class="callout callout-style-default callout-note callout-titled" title="What the system gained in this chapter">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>What the system gained in this chapter
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The system can now measure <strong>how far a predicted distribution is from the truth</strong>, in units of bits or nats. It knows what cross-entropy is: the cost of coding the world with the model’s beliefs. The loss of Chapter 14 now has a meaning.</p>
+<p>This closes Part IV. The system can <strong>measure</strong> similarity (Chapter 13), error (Chapter 14), and information (Chapter 15). It is time to use these measurements to <strong>change</strong> the model. Part V asks how: through derivatives.</p>
+</div>
+</div>
+</section>
+<section id="chapter-summary" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="chapter-summary">Chapter summary</h2>
+<ul>
+<li>Information content is <span class="math inline">\(-\log p\)</span>. It is additive for independent events.</li>
+<li>Entropy is average information. The uniform distribution has the highest entropy.</li>
+<li>Cross-entropy is <span class="math inline">\(H(p,q)=H(p)+D_{\text{KL}}(p\Vert q)\)</span>.</li>
+<li><span class="math inline">\(D_{\text{KL}}\ge0\)</span> by Jensen’s inequality. It is asymmetric and may be infinite.</li>
+<li>The classification loss <span class="math inline">\(-\ln q_c\)</span> is the cross-entropy to a one-hot target.</li>
+<li>Mutual information is the KL divergence from independence.</li>
+<li>Perplexity is the exponential of the cross-entropy.</li>
+<li>Plug-in estimates are biased for small samples.</li>
+</ul>
+</section>
+<section id="exercises" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="exercises">Exercises</h2>
+<ol type="1">
+<li><strong>Compute.</strong> Find the entropy in bits of <span class="math inline">\((\frac12,\frac14,\frac18,\frac18)\)</span>. Design a prefix code with those average lengths.</li>
+<li><strong>Compute.</strong> For <span class="math inline">\(p=(0.8,0.2)\)</span> and <span class="math inline">\(q=(0.6,0.4)\)</span>, find <span class="math inline">\(H(p)\)</span>, <span class="math inline">\(H(p,q)\)</span>, and <span class="math inline">\(D_{\text{KL}}(p\Vert q)\)</span>. Verify <a href="#eq-kl" class="quarto-xref">Equation&nbsp;<span>15.6</span></a>.</li>
+<li><strong>Derive.</strong> Show that for independent <span class="math inline">\(X\)</span> and <span class="math inline">\(Y\)</span>, <span class="math inline">\(H(X,Y)=H(X)+H(Y)\)</span>. Conclude <span class="math inline">\(I(X;Y)=0\)</span>.</li>
+<li><strong>Derive.</strong> Show that <span class="math inline">\(D_{\text{KL}}(p\Vert q)=0\)</span> implies <span class="math inline">\(p=q\)</span>. (Use the equality case of Jensen.)</li>
+<li><strong>Derive.</strong> A classifier outputs the probability <span class="math inline">\(0.25\)</span> for the true class on every example. Give its cross-entropy and its perplexity. What do they mean?</li>
+<li><strong>Code.</strong> Compute the perplexity of the bigram character model for <span class="math inline">\(\alpha=0.01,0.1,1,10\)</span>. Plot it. Which <span class="math inline">\(\alpha\)</span> is best on the test set?</li>
+<li><strong>Code.</strong> Add a trigram model. Does the test perplexity fall? Explain.</li>
+<li><strong>Code.</strong> Estimate the mutual information between the digit class and the <em>sum of pixel values</em>. Compare with the best single-pixel value.</li>
+<li><strong>Diagnose.</strong> A model reports a validation perplexity of 1.0 on a text. What is probably wrong?</li>
+<li><strong>Explain.</strong> Why is minimising the cross-entropy with respect to <span class="math inline">\(q\)</span> the same as minimising the KL divergence?</li>
+</ol>
+
+
+</section>
+
+</main> <!-- /main -->
+<script>
+/* Keep the left navigation stable between pages: all parts expanded,
+   and the sidebar scroll position remembered across page loads. */
+(function () {
+  var KEY = "mathsystems-sidebar-scroll";
+  function side() { return document.getElementById("quarto-sidebar"); }
+  function scroller() {
+    var s = side(); if (!s) return null;
+    return s.querySelector(".sidebar-menu-container") || s;
+  }
+  function expandAll() {
+    var s = side(); if (!s) return;
+    s.querySelectorAll(".collapse").forEach(function (el) { el.classList.add("show"); });
+    s.querySelectorAll('[aria-expanded="false"]').forEach(function (el) { el.setAttribute("aria-expanded", "true"); });
+    s.querySelectorAll(".sidebar-item-toggle.collapsed, a.collapsed").forEach(function (el) { el.classList.remove("collapsed"); });
+  }
+  function restore() {
+    var sc = scroller(), v = null;
+    try { v = sessionStorage.getItem(KEY); } catch (e) {}
+    if (sc && v !== null) sc.scrollTop = parseInt(v, 10);
+  }
+  function save() {
+    var sc = scroller();
+    if (!sc) return;
+    try { sessionStorage.setItem(KEY, String(sc.scrollTop)); } catch (e) {}
+  }
+  document.addEventListener("DOMContentLoaded", function () {
+    expandAll(); restore();
+    var sc = scroller();
+    if (sc) sc.addEventListener("scroll", save, { passive: true });
+    document.addEventListener("click", save, true);
+    window.addEventListener("pagehide", save);
+  });
+  window.addEventListener("load", function () {
+    expandAll(); restore();
+    setTimeout(restore, 50); setTimeout(restore, 250);   /* after the theme's own scroll-into-view */
+  });
+})();
+</script>
+<style>
+/* no jump while the menu is being expanded */
+#quarto-sidebar .collapse { transition: none !important; }
+</style>
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/vsrveera\.github\.io\/books\/mathai\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../chapters/ch14_loss_functions.html" class="pagination-link" aria-label="Loss Functions">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Loss Functions</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../chapters/ch16_change_and_derivatives.html" class="pagination-link" aria-label="Change and Derivatives">
+        <span class="nav-page-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Change and Derivatives</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<script>var lightboxQuarto = GLightbox({"closeEffect":"zoom","descPosition":"bottom","loop":false,"openEffect":"zoom","selector":".lightbox"});
+(function() {
+  let previousOnload = window.onload;
+  window.onload = () => {
+    if (previousOnload) {
+      previousOnload();
+    }
+    lightboxQuarto.on('slide_before_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      const href = trigger.getAttribute('href');
+      if (href !== null) {
+        const imgEl = window.document.querySelector(`a[href="${href}"] img`);
+        if (imgEl !== null) {
+          const srcAttr = imgEl.getAttribute("src");
+          if (srcAttr && srcAttr.startsWith("data:")) {
+            slideConfig.href = srcAttr;
+          }
+        }
+      } 
+    });
+  
+    lightboxQuarto.on('slide_after_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(slideNode);
+      }
+    });
+  
+  };
+  
+})();
+          </script>
+
+
+
+
+<script src="../site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

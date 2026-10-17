@@ -1,0 +1,1721 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.19">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>34&nbsp; Mixture-of-Experts, Scale and Numerical Precision – Mathematics of Artificial Intelligence</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../chapters/ch35_convolutional_vision_in_depth.html" rel="next">
+<link href="../chapters/ch33_autoregressive_generation_and_sampling.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-43d2fa13cb35dd2022b3c25d65fdd634.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-19432b6b5c85f3ab30851b7038f884b0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="../site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
+<link href="../site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
+<link href="../site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar docked quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/ch30_the_mathematics_of_attention.html">Part VIII — Putting the Mathematical Systems Together</a></li><li class="breadcrumb-item"><a href="../chapters/ch34_mixture_of_experts_scale_and_numerical_precision.html"><span class="chapter-number">34</span>&nbsp; <span class="chapter-title">Mixture-of-Experts, Scale and Numerical Precision</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">Mathematics of Artificial Intelligence</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part I — The Mathematical Machine</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch01_ai_as_a_mathematical_system.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">AI as a Mathematical System</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch02_language_of_mathematical_ai.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">The Language of Mathematical AI</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part II — Representation</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch03_vectors_representing_information.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Vectors: Representing Information</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch04_geometry_of_representations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Geometry of Representations</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch05_matrices_representing_transformations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Matrices: Representing Transformations</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch06_tensors_and_high_dimensional_data.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Tensors and High-Dimensional Data</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch07_structure_hidden_in_data.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Structure Hidden in Data</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part III — Transformation</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch08_functions_as_machines.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Functions as Machines</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch09_linear_transformations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Linear Transformations</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch10_nonlinearity_and_expressiveness.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Nonlinearity and Expressiveness</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch11_neural_networks_as_function_composition.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Neural Networks as Function Composition</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch12_convolution_and_structured_transformations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Convolution and Structured Transformations</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part IV — Measurement</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch13_distance_similarity_and_geometry.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Distance, Similarity and Geometry</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch14_loss_functions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Loss Functions</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch15_information_as_a_mathematical_quantity.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Information as a Mathematical Quantity</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part V — Learning</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch16_change_and_derivatives.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Change and Derivatives</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch17_gradients_and_multivariable_calculus.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Gradients and Multivariable Calculus</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch18_chain_rule_and_backpropagation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">The Chain Rule and Backpropagation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch19_optimization.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Optimization</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch20_the_geometry_and_dynamics_of_learning.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">The Geometry and Dynamics of Learning</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part VI — Uncertainty</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch21_probability_as_a_language_of_uncertainty.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Probability as a Language of Uncertainty</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch22_conditional_probability_and_bayes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Conditional Probability and Bayes</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch23_probability_distributions_used_in_ai.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Probability Distributions Used in AI</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch24_from_scores_to_probabilities.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">From Scores to Probabilities</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch25_statistical_estimation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Statistical Estimation</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part VII — Generalization</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch26_from_samples_to_populations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">From Samples to Populations</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch27_generalization.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Generalization</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch28_bias_variance_and_regularization.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Bias, Variance and Regularization</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch29_statistical_learning_theory.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Statistical Learning Theory</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part VIII — Putting the Mathematical Systems Together</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch30_the_mathematics_of_attention.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">30</span>&nbsp; <span class="chapter-title">The Mathematics of Attention</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch31_the_mathematics_of_the_transformer.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">31</span>&nbsp; <span class="chapter-title">The Mathematics of the Transformer</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch32_decoder_only_language_models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">32</span>&nbsp; <span class="chapter-title">Decoder-only Language Models</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch33_autoregressive_generation_and_sampling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">33</span>&nbsp; <span class="chapter-title">Autoregressive Generation and Sampling</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch34_mixture_of_experts_scale_and_numerical_precision.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">34</span>&nbsp; <span class="chapter-title">Mixture-of-Experts, Scale and Numerical Precision</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch35_convolutional_vision_in_depth.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">Convolutional Vision in Depth</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch36_vision_transformers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Vision Transformers</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch37_detection_and_structured_prediction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">Detection and Structured Prediction</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch38_representation_and_self_supervised_learning.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">38</span>&nbsp; <span class="chapter-title">Representation and Self-Supervised Learning</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch39_clip_and_multimodal_language_models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">39</span>&nbsp; <span class="chapter-title">CLIP and Multimodal Language Models</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch40_latent_variable_models_and_vaes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">40</span>&nbsp; <span class="chapter-title">Latent-Variable Models and VAEs</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch41_diffusion_models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">41</span>&nbsp; <span class="chapter-title">Diffusion Models</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch42_latent_diffusion_and_diffusion_transformers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">42</span>&nbsp; <span class="chapter-title">Latent Diffusion and Diffusion Transformers</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch43_flow_matching.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">43</span>&nbsp; <span class="chapter-title">Flow Matching</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch44_one_ai_system_all_the_mathematics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">44</span>&nbsp; <span class="chapter-title">One AI System, All the Mathematics</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part IX — Systems Thinking and Performance Characterisation</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch45_systems_thinking_components_and_interfaces.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">45</span>&nbsp; <span class="chapter-title">Systems Thinking: Components, Interfaces and Contracts</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch46_feedback_coupling_and_stability.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">46</span>&nbsp; <span class="chapter-title">Feedback, Coupling and Stability</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch47_performance_characterisation_the_paradigm.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">47</span>&nbsp; <span class="chapter-title">Performance Characterisation: The Paradigm</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch48_random_perturbation_and_error_propagation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">48</span>&nbsp; <span class="chapter-title">Random Perturbation and Error Propagation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch49_operating_curves_roc_and_confidence.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">49</span>&nbsp; <span class="chapter-title">Operating Curves, ROC and Confidence</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch50_characterisation_protocol_and_experimental_design.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">50</span>&nbsp; <span class="chapter-title">A Characterisation Protocol: Experimental Design and Reporting</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch51_characterising_large_models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">51</span>&nbsp; <span class="chapter-title">Characterising Large Models</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#sec-system-problem" id="toc-sec-system-problem" class="nav-link active" data-scroll-target="#sec-system-problem"><span class="header-section-number">34.1</span> The system problem</a></li>
+  <li><a href="#sec-moe" id="toc-sec-moe" class="nav-link" data-scroll-target="#sec-moe"><span class="header-section-number">34.2</span> Mixture of experts</a>
+  <ul class="collapse">
+  <li><a href="#active-versus-total-parameters" id="toc-active-versus-total-parameters" class="nav-link" data-scroll-target="#active-versus-total-parameters"><span class="header-section-number">34.2.1</span> Active versus total parameters</a></li>
+  <li><a href="#load-balancing" id="toc-load-balancing" class="nav-link" data-scroll-target="#load-balancing"><span class="header-section-number">34.2.2</span> Load balancing</a></li>
+  <li><a href="#an-experiment-does-the-balance-loss-work" id="toc-an-experiment-does-the-balance-loss-work" class="nav-link" data-scroll-target="#an-experiment-does-the-balance-loss-work"><span class="header-section-number">34.2.3</span> An experiment: does the balance loss work?</a></li>
+  </ul></li>
+  <li><a href="#sec-flops" id="toc-sec-flops" class="nav-link" data-scroll-target="#sec-flops"><span class="header-section-number">34.3</span> The cost of training: <span class="math inline">\(C\approx6ND\)</span></a>
+  <ul class="collapse">
+  <li><a href="#where-the-flops-go-context-length" id="toc-where-the-flops-go-context-length" class="nav-link" data-scroll-target="#where-the-flops-go-context-length"><span class="header-section-number">34.3.1</span> Where the FLOPs go: context length</a></li>
+  </ul></li>
+  <li><a href="#sec-scaling" id="toc-sec-scaling" class="nav-link" data-scroll-target="#sec-scaling"><span class="header-section-number">34.4</span> Scaling laws</a></li>
+  <li><a href="#sec-precision" id="toc-sec-precision" class="nav-link" data-scroll-target="#sec-precision"><span class="header-section-number">34.5</span> Numerical precision</a>
+  <ul class="collapse">
+  <li><a href="#accumulation-error" id="toc-accumulation-error" class="nav-link" data-scroll-target="#accumulation-error"><span class="header-section-number">34.5.1</span> Accumulation error</a></li>
+  <li><a href="#gradient-underflow-and-loss-scaling" id="toc-gradient-underflow-and-loss-scaling" class="nav-link" data-scroll-target="#gradient-underflow-and-loss-scaling"><span class="header-section-number">34.5.2</span> Gradient underflow and loss scaling</a></li>
+  <li><a href="#mixed-precision-in-practice" id="toc-mixed-precision-in-practice" class="nav-link" data-scroll-target="#mixed-precision-in-practice"><span class="header-section-number">34.5.3</span> Mixed precision in practice</a></li>
+  </ul></li>
+  <li><a href="#sec-production" id="toc-sec-production" class="nav-link" data-scroll-target="#sec-production"><span class="header-section-number">34.6</span> Production</a></li>
+  <li><a href="#sec-failure" id="toc-sec-failure" class="nav-link" data-scroll-target="#sec-failure"><span class="header-section-number">34.7</span> Failure modes</a></li>
+  <li><a href="#sec-ai-connection" id="toc-sec-ai-connection" class="nav-link" data-scroll-target="#sec-ai-connection"><span class="header-section-number">34.8</span> Where this appears in modern AI</a></li>
+  <li><a href="#sec-system-connection" id="toc-sec-system-connection" class="nav-link" data-scroll-target="#sec-system-connection"><span class="header-section-number">34.9</span> System connection</a></li>
+  <li><a href="#chapter-summary" id="toc-chapter-summary" class="nav-link" data-scroll-target="#chapter-summary">Chapter summary</a></li>
+  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises">Exercises</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/ch30_the_mathematics_of_attention.html">Part VIII — Putting the Mathematical Systems Together</a></li><li class="breadcrumb-item"><a href="../chapters/ch34_mixture_of_experts_scale_and_numerical_precision.html"><span class="chapter-number">34</span>&nbsp; <span class="chapter-title">Mixture-of-Experts, Scale and Numerical Precision</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">34</span>&nbsp; <span class="chapter-title">Mixture-of-Experts, Scale and Numerical Precision</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="callout callout-style-default callout-note callout-titled" title="Key ideas">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Key ideas
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li>A <strong>mixture-of-experts (MoE)</strong> layer has many MLPs but sends each token through only <span class="math inline">\(k\)</span> of them. <strong>Total</strong> parameters grow, <strong>active</strong> parameters (and FLOPs) do not.</li>
+<li>A <strong>router</strong> (softmax over experts) picks the experts. A <strong>load-balancing loss</strong> keeps all experts used.</li>
+<li>Training a dense model costs about <span class="math inline">\(C\approx6ND\)</span> FLOPs for <span class="math inline">\(N\)</span> parameters and <span class="math inline">\(D\)</span> tokens.</li>
+<li>Test loss falls as a <strong>power law</strong> in model size and data, with diminishing returns.</li>
+<li><strong>Numerical precision</strong> is a design variable: the formats float32, float16, and bfloat16 trade range against resolution.</li>
+</ul>
+</div>
+</div>
+<section id="sec-system-problem" class="level2" data-number="34.1">
+<h2 data-number="34.1" class="anchored" data-anchor-id="sec-system-problem"><span class="header-section-number">34.1</span> The system problem</h2>
+<p>A larger model is a better model, up to a point. But every parameter in a dense model is used for every token, so compute grows with size. And large models are trained in 16-bit arithmetic, which has its own failure modes.</p>
+<blockquote class="blockquote">
+<p><strong>How can parameters grow without compute growing as fast, and what limits training at scale?</strong></p>
+</blockquote>
+<div id="cell-fig-where" class="cell" data-execution_count="2">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>system_map(highlight<span class="op">=</span>[<span class="st">"Learning"</span>, <span class="st">"Generalization"</span>, <span class="st">"AI system"</span>],</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>           sublabels<span class="op">=</span>{<span class="st">"AI system"</span>: <span class="st">"Part VIII"</span>})<span class="op">;</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="fig-where" class="quarto-float quarto-figure quarto-figure-center anchored" alt="System map with Learning, Generalization and AI system highlighted.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-where-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="ch34_mixture_of_experts_scale_and_numerical_precision_files/figure-html/fig-where-output-1.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-1" title="Figure&nbsp;34.1: Chapter 34 studies the resources (parameters, data, compute, precision) behind the AI system stage."><img src="ch34_mixture_of_experts_scale_and_numerical_precision_files/figure-html/fig-where-output-1.svg" class="img-fluid figure-img" alt="System map with Learning, Generalization and AI system highlighted."></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-where-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;34.1: Chapter 34 studies the resources (parameters, data, compute, precision) behind the AI system stage.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="sec-moe" class="level2" data-number="34.2">
+<h2 data-number="34.2" class="anchored" data-anchor-id="sec-moe"><span class="header-section-number">34.2</span> Mixture of experts</h2>
+<p>In a dense Transformer block, one MLP processes every token. An <strong>MoE layer</strong> replaces it with <span class="math inline">\(E\)</span> expert MLPs and a small <strong>router</strong>. For each token <span class="math inline">\(\mathbf{x}\)</span>:</p>
+<ol type="1">
+<li>The router computes probabilities <span class="math inline">\(\mathbf{p}=\text{softmax}(\mathbf{W}_{r}\mathbf{x})\in\mathbb{R}^E\)</span> (Chapter 24).</li>
+<li>The top-<span class="math inline">\(k\)</span> experts are chosen. Their weights are renormalised: <span class="math inline">\(g_i=p_i/\sum_{j\in\text{top-}k}p_j\)</span>.</li>
+<li>The output is the weighted sum of the chosen experts:</li>
+</ol>
+<p><span id="eq-moe"><span class="math display">\[
+\mathbf{y}=\sum_{i\in\text{top-}k(\mathbf{x})}g_i(\mathbf{x})\,\text{Expert}_i(\mathbf{x}).
+\tag{34.1}\]</span></span></p>
+<p>Each token touches <span class="math inline">\(k\)</span> of the <span class="math inline">\(E\)</span> experts. The model has <span class="math inline">\(E\)</span> times the MLP parameters of a dense block, but each token pays for only <span class="math inline">\(k\)</span> of them.</p>
+<div id="code-moe" class="cell" data-execution_count="3">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch, torch.nn <span class="im">as</span> nn, torch.nn.functional <span class="im">as</span> F</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> MoE(nn.Module):</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, d, n_experts<span class="op">=</span><span class="dv">4</span>, k<span class="op">=</span><span class="dv">1</span>, hidden<span class="op">=</span><span class="dv">32</span>):</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>()</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.E, <span class="va">self</span>.k <span class="op">=</span> n_experts, k</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.router <span class="op">=</span> nn.Linear(d, n_experts, bias<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.experts <span class="op">=</span> nn.ModuleList([nn.Sequential(nn.Linear(d, hidden), nn.GELU(),</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>                                                    nn.Linear(hidden, d)) <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(n_experts)])</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, x):                                    <span class="co"># x: (tokens, d)</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>        p <span class="op">=</span> F.softmax(<span class="va">self</span>.router(x), dim<span class="op">=-</span><span class="dv">1</span>)                <span class="co"># (tokens, E)</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>        topv, topi <span class="op">=</span> p.topk(<span class="va">self</span>.k, dim<span class="op">=-</span><span class="dv">1</span>)</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>        g <span class="op">=</span> topv <span class="op">/</span> topv.<span class="bu">sum</span>(<span class="op">-</span><span class="dv">1</span>, keepdim<span class="op">=</span><span class="va">True</span>)                <span class="co"># renormalised gate weights</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>        out <span class="op">=</span> torch.zeros_like(x)</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> e <span class="kw">in</span> <span class="bu">range</span>(<span class="va">self</span>.E):</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>            sel <span class="op">=</span> (topi <span class="op">==</span> e)                                <span class="co"># (tokens, k) bool</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>            rows <span class="op">=</span> sel.<span class="bu">any</span>(<span class="op">-</span><span class="dv">1</span>)</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> rows.<span class="bu">any</span>():</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>                w <span class="op">=</span> (g <span class="op">*</span> sel).<span class="bu">sum</span>(<span class="op">-</span><span class="dv">1</span>)[rows].unsqueeze(<span class="op">-</span><span class="dv">1</span>)</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>                out[rows] <span class="op">+=</span> w <span class="op">*</span> <span class="va">self</span>.experts[e](x[rows])    <span class="co"># only routed tokens are computed</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>        f <span class="op">=</span> F.one_hot(topi[:, <span class="dv">0</span>], <span class="va">self</span>.E).<span class="bu">float</span>().mean(<span class="dv">0</span>)   <span class="co"># fraction of tokens whose top choice is e</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>        aux <span class="op">=</span> <span class="va">self</span>.E <span class="op">*</span> (f <span class="op">*</span> p.mean(<span class="dv">0</span>)).<span class="bu">sum</span>()                 <span class="co"># load-balancing loss</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> out, aux, f</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> MoE(d<span class="op">=</span><span class="dv">8</span>, n_experts<span class="op">=</span><span class="dv">8</span>, k<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> torch.randn(<span class="dv">1000</span>, <span class="dv">8</span>)</span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>y, aux, f <span class="op">=</span> m(x)</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"output shape:"</span>, <span class="bu">tuple</span>(y.shape))</span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>dense_params <span class="op">=</span> <span class="bu">sum</span>(p.numel() <span class="cf">for</span> p <span class="kw">in</span> nn.Sequential(nn.Linear(<span class="dv">8</span>, <span class="dv">32</span>), nn.GELU(), nn.Linear(<span class="dv">32</span>, <span class="dv">8</span>)).parameters())</span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>moe_params <span class="op">=</span> <span class="bu">sum</span>(p.numel() <span class="cf">for</span> p <span class="kw">in</span> m.parameters())</span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"one expert: </span><span class="sc">{</span>dense_params<span class="sc">}</span><span class="ss"> params; MoE total: </span><span class="sc">{</span>moe_params<span class="sc">}</span><span class="ss"> params "</span></span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>      <span class="ss">f"(×</span><span class="sc">{</span>moe_params <span class="op">/</span> dense_params<span class="sc">:.1f}</span><span class="ss">);  active per token: </span><span class="sc">{</span>m<span class="sc">.</span>k<span class="sc">}</span><span class="ss"> experts + router"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>output shape: (1000, 8)
+one expert: 552 params; MoE total: 4480 params (×8.1);  active per token: 2 experts + router</code></pre>
+</div>
+</div>
+<section id="active-versus-total-parameters" class="level3" data-number="34.2.1">
+<h3 data-number="34.2.1" class="anchored" data-anchor-id="active-versus-total-parameters"><span class="header-section-number">34.2.1</span> Active versus total parameters</h3>
+<p>For a realistic block, the accounting is simple. We compare dense and MoE versions of a Mixtral-style configuration.</p>
+<div id="code-moe-count" class="cell" data-execution_count="4">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> moe_model_params(V, d, L, h, n_kv, f, E<span class="op">=</span><span class="dv">1</span>, k<span class="op">=</span><span class="dv">1</span>):</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    dh <span class="op">=</span> d <span class="op">//</span> h</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    attn <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> d <span class="op">*</span> d <span class="op">+</span> <span class="dv">2</span> <span class="op">*</span> d <span class="op">*</span> n_kv <span class="op">*</span> dh</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    expert <span class="op">=</span> <span class="dv">3</span> <span class="op">*</span> d <span class="op">*</span> f                                       <span class="co"># SwiGLU</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    router <span class="op">=</span> d <span class="op">*</span> E <span class="cf">if</span> E <span class="op">&gt;</span> <span class="dv">1</span> <span class="cf">else</span> <span class="dv">0</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    total <span class="op">=</span> V <span class="op">*</span> d <span class="op">+</span> L <span class="op">*</span> (attn <span class="op">+</span> E <span class="op">*</span> expert <span class="op">+</span> router <span class="op">+</span> <span class="dv">2</span> <span class="op">*</span> d) <span class="op">+</span> d</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    active <span class="op">=</span> V <span class="op">*</span> d <span class="op">+</span> L <span class="op">*</span> (attn <span class="op">+</span> k <span class="op">*</span> expert <span class="op">+</span> router <span class="op">+</span> <span class="dv">2</span> <span class="op">*</span> d) <span class="op">+</span> d</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> total, active</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>dense <span class="op">=</span> moe_model_params(<span class="dv">32000</span>, <span class="dv">4096</span>, <span class="dv">32</span>, <span class="dv">32</span>, <span class="dv">8</span>, <span class="dv">14336</span>)</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>moe <span class="op">=</span> moe_model_params(<span class="dv">32000</span>, <span class="dv">4096</span>, <span class="dv">32</span>, <span class="dv">32</span>, <span class="dv">8</span>, <span class="dv">14336</span>, E<span class="op">=</span><span class="dv">8</span>, k<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"dense : total </span><span class="sc">{</span>dense[<span class="dv">0</span>] <span class="op">/</span> <span class="fl">1e9</span><span class="sc">:5.1f}</span><span class="ss"> B   active </span><span class="sc">{</span>dense[<span class="dv">1</span>] <span class="op">/</span> <span class="fl">1e9</span><span class="sc">:5.1f}</span><span class="ss"> B"</span>)</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"MoE   : total </span><span class="sc">{</span>moe[<span class="dv">0</span>] <span class="op">/</span> <span class="fl">1e9</span><span class="sc">:5.1f}</span><span class="ss"> B   active </span><span class="sc">{</span>moe[<span class="dv">1</span>] <span class="op">/</span> <span class="fl">1e9</span><span class="sc">:5.1f}</span><span class="ss"> B   (8 experts, top-2)"</span>)</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"MoE has </span><span class="sc">{</span>moe[<span class="dv">0</span>] <span class="op">/</span> dense[<span class="dv">0</span>]<span class="sc">:.1f}</span><span class="ss">x the parameters for </span><span class="sc">{</span>moe[<span class="dv">1</span>] <span class="op">/</span> dense[<span class="dv">1</span>]<span class="sc">:.1f}</span><span class="ss">x the per-token compute"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>dense : total   7.1 B   active   7.1 B
+MoE   : total  46.6 B   active  12.7 B   (8 experts, top-2)
+MoE has 6.5x the parameters for 1.8x the per-token compute</code></pre>
+</div>
+</div>
+<p>The memory to hold the model follows the total. The compute per token follows the active parameters. MoE trades memory for compute.</p>
+</section>
+<section id="load-balancing" class="level3" data-number="34.2.2">
+<h3 data-number="34.2.2" class="anchored" data-anchor-id="load-balancing"><span class="header-section-number">34.2.2</span> Load balancing</h3>
+<p>If a router prefers one expert, that expert gets most tokens and the others learn little. In a distributed system with experts on different devices, it also leaves devices idle. A standard remedy is an auxiliary loss. Let <span class="math inline">\(f_i\)</span> be the fraction of tokens whose top choice is expert <span class="math inline">\(i\)</span>, and <span class="math inline">\(P_i\)</span> the mean router probability for expert <span class="math inline">\(i\)</span>:</p>
+<p><span id="eq-aux"><span class="math display">\[
+\mathcal{L}_{\text{aux}}=E\sum_{i=1}^{E}f_i\,P_i.
+\tag{34.2}\]</span></span></p>
+<p>When routing is uniform (<span class="math inline">\(f_i=P_i=1/E\)</span>), <span class="math inline">\(\mathcal{L}_{\text{aux}}=1\)</span>. When all tokens go to one expert (<span class="math inline">\(f=P=\text{one-hot}\)</span>), it is <span class="math inline">\(E\)</span>. By Cauchy–Schwarz, for <span class="math inline">\(f=P\)</span> the sum <span class="math inline">\(\sum f_i^2\)</span> is smallest at the uniform distribution, so the loss pushes towards balance. It is added to the training loss with a small coefficient.</p>
+<div id="code-aux" class="cell" data-execution_count="5">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>E <span class="op">=</span> <span class="dv">8</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>uniform <span class="op">=</span> np.full(E, <span class="dv">1</span> <span class="op">/</span> E)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"uniform routing        : aux ="</span>, <span class="bu">round</span>(E <span class="op">*</span> np.<span class="bu">sum</span>(uniform <span class="op">*</span> uniform), <span class="dv">3</span>))</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>one_hot <span class="op">=</span> np.eye(E)[<span class="dv">0</span>]</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"all tokens to expert 0 : aux ="</span>, <span class="bu">round</span>(E <span class="op">*</span> np.<span class="bu">sum</span>(one_hot <span class="op">*</span> one_hot), <span class="dv">3</span>))</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">0</span>)</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>vals <span class="op">=</span> [E <span class="op">*</span> np.<span class="bu">sum</span>(q <span class="op">*</span> q) <span class="cf">for</span> q <span class="kw">in</span> rng.dirichlet(np.ones(E), size<span class="op">=</span><span class="dv">1000</span>)]</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"random routing (f = P) : min over 1000 draws ="</span>, <span class="bu">round</span>(<span class="bu">min</span>(vals), <span class="dv">3</span>), <span class="st">"(never below 1)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>uniform routing        : aux = 1.0
+all tokens to expert 0 : aux = 8.0
+random routing (f = P) : min over 1000 draws = 1.098 (never below 1)</code></pre>
+</div>
+</div>
+</section>
+<section id="an-experiment-does-the-balance-loss-work" class="level3" data-number="34.2.3">
+<h3 data-number="34.2.3" class="anchored" data-anchor-id="an-experiment-does-the-balance-loss-work"><span class="header-section-number">34.2.3</span> An experiment: does the balance loss work?</h3>
+<p>We build a task with four clusters of tokens, each with its own linear target map, and train an MoE with four experts and top-1 routing, with and without the balance loss.</p>
+<div id="cell-fig-moe-balance" class="cell" data-execution_count="6">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> run_moe(aux_coef, seed):</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    torch.manual_seed(seed)<span class="op">;</span> d <span class="op">=</span> <span class="dv">8</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    cent <span class="op">=</span> torch.randn(<span class="dv">4</span>, d) <span class="op">*</span> <span class="dv">3</span><span class="op">;</span> maps <span class="op">=</span> torch.randn(<span class="dv">4</span>, d, d) <span class="op">/</span> math.sqrt(d)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    moe <span class="op">=</span> MoE(d, n_experts<span class="op">=</span><span class="dv">4</span>, k<span class="op">=</span><span class="dv">1</span>, hidden<span class="op">=</span><span class="dv">32</span>)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    opt <span class="op">=</span> torch.optim.Adam(moe.parameters(), lr<span class="op">=</span><span class="fl">3e-3</span>)</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> data(n):</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>        c <span class="op">=</span> torch.randint(<span class="dv">0</span>, <span class="dv">4</span>, (n,))<span class="op">;</span> x <span class="op">=</span> cent[c] <span class="op">+</span> torch.randn(n, d)</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> x, torch.einsum(<span class="st">"bij,bj-&gt;bi"</span>, maps[c], x)</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">600</span>):</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>        x, y <span class="op">=</span> data(<span class="dv">256</span>)</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>        out, aux, _ <span class="op">=</span> moe(x)</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>        loss <span class="op">=</span> F.mse_loss(out, y) <span class="op">+</span> aux_coef <span class="op">*</span> aux</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>        opt.zero_grad()<span class="op">;</span> loss.backward()<span class="op">;</span> opt.step()</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> torch.no_grad():</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>        x, y <span class="op">=</span> data(<span class="dv">4000</span>)<span class="op">;</span> out, _, f <span class="op">=</span> moe(x)</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> F.mse_loss(out, y).item(), f.numpy()</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>coefs <span class="op">=</span> [<span class="fl">0.0</span>, <span class="fl">0.01</span>, <span class="fl">0.1</span>]</span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>results <span class="op">=</span> {c: [run_moe(c, s) <span class="cf">for</span> s <span class="kw">in</span> (<span class="dv">0</span>, <span class="dv">1</span>)] <span class="cf">for</span> c <span class="kw">in</span> coefs}</span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">3</span>, figsize<span class="op">=</span>(<span class="fl">10.5</span>, <span class="fl">3.2</span>), sharey<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax, c <span class="kw">in</span> <span class="bu">zip</span>(axes, coefs):</span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> s, (err, f) <span class="kw">in</span> <span class="bu">enumerate</span>(results[c]):</span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>        ax.bar(np.arange(<span class="dv">4</span>) <span class="op">+</span> <span class="fl">0.4</span> <span class="op">*</span> s <span class="op">-</span> <span class="fl">0.2</span>, f, <span class="fl">0.38</span>, color<span class="op">=</span>[PALETTE[<span class="st">"data"</span>], PALETTE[<span class="st">"model"</span>]][s],</span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>               label<span class="op">=</span><span class="ss">f"seed </span><span class="sc">{</span>s<span class="sc">}</span><span class="ss">: MSE </span><span class="sc">{</span>err<span class="sc">:.2f}</span><span class="ss">"</span>)</span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>    ax.axhline(<span class="fl">0.25</span>, ls<span class="op">=</span><span class="st">"--"</span>, color<span class="op">=</span><span class="st">"black"</span>, lw<span class="op">=</span><span class="fl">0.8</span>)</span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>    ax.set_title(<span class="ss">f"balance coefficient </span><span class="sc">{</span>c<span class="sc">}</span><span class="ss">"</span>)<span class="op">;</span> ax.set_xlabel(<span class="st">"expert"</span>)<span class="op">;</span> ax.legend(fontsize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_ylabel(<span class="st">"fraction of tokens"</span>)</span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> c <span class="kw">in</span> coefs:</span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"coefficient </span><span class="sc">{</span>c<span class="sc">:5.2f}</span><span class="ss">: usage seed0 </span><span class="sc">{</span>np<span class="sc">.</span><span class="bu">round</span>(results[c][<span class="dv">0</span>][<span class="dv">1</span>], <span class="dv">2</span>)<span class="sc">}</span><span class="ss">, seed1 </span><span class="sc">{</span>np<span class="sc">.</span><span class="bu">round</span>(results[c][<span class="dv">1</span>][<span class="dv">1</span>], <span class="dv">2</span>)<span class="sc">}</span><span class="ss">;"</span></span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>          <span class="ss">f"  MSE </span><span class="sc">{</span>results[c][<span class="dv">0</span>][<span class="dv">0</span>]<span class="sc">:.3f}</span><span class="ss">, </span><span class="sc">{</span>results[c][<span class="dv">1</span>][<span class="dv">0</span>]<span class="sc">:.3f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="fig-moe-balance" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Grouped bar chart of the fraction of tokens routed to each of four experts for three coefficients; the bars are uneven for zero and nearly equal for 0.1. Test error values are printed above.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-moe-balance-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="ch34_mixture_of_experts_scale_and_numerical_precision_files/figure-html/fig-moe-balance-output-1.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-2" title="Figure&nbsp;34.2: Expert usage after training an MoE (4 experts, top-1) on a four-cluster task, for balance-loss coefficients 0, 0.01, and 0.1 (two seeds each). Without the loss, the load is uneven (one expert is almost unused). With even a small coefficient it is nearly uniform. The test error (legend) is higher with the balance loss: forcing balance cost accuracy in this small task."><img src="ch34_mixture_of_experts_scale_and_numerical_precision_files/figure-html/fig-moe-balance-output-1.svg" class="img-fluid figure-img" alt="Grouped bar chart of the fraction of tokens routed to each of four experts for three coefficients; the bars are uneven for zero and nearly equal for 0.1. Test error values are printed above."></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-moe-balance-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;34.2: Expert usage after training an MoE (4 experts, top-1) on a four-cluster task, for balance-loss coefficients 0, 0.01, and 0.1 (two seeds each). Without the loss, the load is uneven (one expert is almost unused). With even a small coefficient it is nearly uniform. The test error (legend) is higher with the balance loss: forcing balance cost accuracy in this small task.
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>coefficient  0.00: usage seed0 [0.39 0.02 0.3  0.28], seed1 [0.02 0.42 0.2  0.36];  MSE 0.064, 0.044
+coefficient  0.01: usage seed0 [0.26 0.26 0.24 0.24], seed1 [0.23 0.29 0.24 0.24];  MSE 0.125, 0.175
+coefficient  0.10: usage seed0 [0.26 0.25 0.25 0.24], seed1 [0.24 0.28 0.24 0.24];  MSE 0.122, 0.171</code></pre>
+</div>
+</div>
+<p>Without the balance loss, some experts are used far less than others (in both seeds, one expert receives about 2% of the tokens). Even a small coefficient (<span class="math inline">\(0.01\)</span>) makes the load almost uniform, and a tenfold larger one changes little. In this small task, forcing uniform routing also made the model less accurate (MSE about 0.12–0.18 against 0.04–0.06): the router can no longer assign each token freely to its best expert. Real systems accept this cost because balanced load is needed for hardware efficiency, and they use a small coefficient.</p>
+</section>
+</section>
+<section id="sec-flops" class="level2" data-number="34.3">
+<h2 data-number="34.3" class="anchored" data-anchor-id="sec-flops"><span class="header-section-number">34.3</span> The cost of training: <span class="math inline">\(C\approx6ND\)</span></h2>
+<p>For a dense model with <span class="math inline">\(N\)</span> parameters trained on <span class="math inline">\(D\)</span> tokens, the compute is about <span class="math inline">\(6ND\)</span> floating-point operations.</p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Derivation">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Derivation
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Consider one linear layer with weight matrix of <span class="math inline">\(N_\ell\)</span> entries, applied to <span class="math inline">\(B\)</span> tokens. A matrix product of <span class="math inline">\((B,n_{\text{in}})\)</span> with <span class="math inline">\((n_{\text{in}},n_{\text{out}})\)</span> costs <span class="math inline">\(2Bn_{\text{in}}n_{\text{out}}=2BN_\ell\)</span> FLOPs (Chapter 5).</p>
+<ul>
+<li><strong>Forward:</strong> <span class="math inline">\(2BN_\ell\)</span>.</li>
+<li><strong>Backward</strong> (Chapter 18): the input gradient <span class="math inline">\(\mathbf{G}\mathbf{W}^{\intercal}\)</span> costs <span class="math inline">\(2BN_\ell\)</span>, and the weight gradient <span class="math inline">\(\mathbf{X}^{\intercal}\mathbf{G}\)</span> costs another <span class="math inline">\(2BN_\ell\)</span>. Total <span class="math inline">\(4BN_\ell\)</span>.</li>
+</ul>
+<p>Per token and per parameter: <span class="math inline">\(2+4=6\)</span> FLOPs. Summing over all weights and all <span class="math inline">\(D\)</span> tokens gives <span class="math inline">\(C\approx6ND\)</span>. (Attention score computation adds a smaller <span class="math inline">\(T\)</span>-dependent term.) <span class="math inline">\(\blacksquare\)</span></p>
+</div>
+</div>
+<div id="code-compute" class="cell" data-execution_count="7">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> train_flops(N, D):</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">6</span> <span class="op">*</span> N <span class="op">*</span> D</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span><span class="st">'model'</span><span class="sc">:&gt;10s}</span><span class="ss"> </span><span class="sc">{</span><span class="st">'tokens'</span><span class="sc">:&gt;10s}</span><span class="ss"> </span><span class="sc">{</span><span class="st">'FLOPs'</span><span class="sc">:&gt;10s}</span><span class="ss"> </span><span class="sc">{</span><span class="st">'A100-class GPU-days at 40</span><span class="sc">% u</span><span class="st">til.'</span><span class="sc">:&gt;34s}</span><span class="ss">"</span>)</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>peak <span class="op">=</span> <span class="fl">312e12</span>                                  <span class="co"># bf16 peak FLOP/s of one A100-class accelerator</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> N, D <span class="kw">in</span> [(<span class="fl">125e6</span>, <span class="fl">2.5e9</span>), (<span class="fl">7e9</span>, <span class="fl">1e12</span>), (<span class="fl">70e9</span>, <span class="fl">2e12</span>)]:</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    C <span class="op">=</span> train_flops(N, D)</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    days <span class="op">=</span> C <span class="op">/</span> (<span class="fl">0.4</span> <span class="op">*</span> peak) <span class="op">/</span> <span class="dv">86400</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>N<span class="sc">:10.1e}</span><span class="ss"> </span><span class="sc">{</span>D<span class="sc">:10.1e}</span><span class="ss"> </span><span class="sc">{</span>C<span class="sc">:10.1e}</span><span class="ss"> </span><span class="sc">{</span>days<span class="sc">:34,.0f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     model     tokens      FLOPs   A100-class GPU-days at 40% util.
+   1.2e+08    2.5e+09    1.9e+18                                  0
+   7.0e+09    1.0e+12    4.2e+22                              3,895
+   7.0e+10    2.0e+12    8.4e+23                             77,902</code></pre>
+</div>
+</div>
+<p>Training a 7B-parameter model on a trillion tokens needs about <span class="math inline">\(4\times10^{22}\)</span> FLOPs, which is thousands of GPU-days. Inference costs about <span class="math inline">\(2N\)</span> FLOPs per token, a third of one training token’s forward and backward.</p>
+<section id="where-the-flops-go-context-length" class="level3" data-number="34.3.1">
+<h3 data-number="34.3.1" class="anchored" data-anchor-id="where-the-flops-go-context-length"><span class="header-section-number">34.3.1</span> Where the FLOPs go: context length</h3>
+<p>Per token, the dense layers cost about <span class="math inline">\(2\cdot12d^2=24d^2\)</span> FLOPs per block. Attention over a context of length <span class="math inline">\(T\)</span> adds <span class="math inline">\(4Td\)</span> (scores and weighted values). They are equal at <span class="math inline">\(T\approx6d\)</span>.</p>
+<div id="cell-fig-context-flops" class="cell" data-execution_count="8">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> <span class="dv">4096</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>Ts <span class="op">=</span> np.logspace(<span class="dv">2</span>, <span class="dv">6</span>, <span class="dv">100</span>)</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>share <span class="op">=</span> <span class="dv">4</span> <span class="op">*</span> Ts <span class="op">*</span> d <span class="op">/</span> (<span class="dv">4</span> <span class="op">*</span> Ts <span class="op">*</span> d <span class="op">+</span> <span class="dv">24</span> <span class="op">*</span> d <span class="op">*</span> d)</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">6</span>, <span class="fl">3.4</span>))</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>ax.semilogx(Ts, share, color<span class="op">=</span>PALETTE[<span class="st">"model"</span>], lw<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>ax.axvline(<span class="dv">6</span> <span class="op">*</span> d, ls<span class="op">=</span><span class="st">"--"</span>, color<span class="op">=</span>PALETTE[<span class="st">"neutral"</span>])<span class="op">;</span> ax.axhline(<span class="fl">0.5</span>, ls<span class="op">=</span><span class="st">":"</span>, color<span class="op">=</span>PALETTE[<span class="st">"neutral"</span>])</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"context length T"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"attention share of FLOPs"</span>)</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> T <span class="kw">in</span> (<span class="dv">2048</span>, <span class="dv">8192</span>, <span class="dv">32768</span>, <span class="dv">131072</span>):</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"T = </span><span class="sc">{</span>T<span class="sc">:7d}</span><span class="ss">: attention share </span><span class="sc">{</span><span class="dv">4</span> <span class="op">*</span> T <span class="op">*</span> d <span class="op">/</span> (<span class="dv">4</span> <span class="op">*</span> T <span class="op">*</span> d <span class="op">+</span> <span class="dv">24</span> <span class="op">*</span> d <span class="op">*</span> d)<span class="sc">:.2f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="fig-context-flops" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A rising S-shaped curve of attention share versus context length on a log axis, crossing 0.5 near twenty-five thousand tokens.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-context-flops-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="ch34_mixture_of_experts_scale_and_numerical_precision_files/figure-html/fig-context-flops-output-1.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-3" title="Figure&nbsp;34.3: Share of the forward FLOPs per token spent on attention scores and values, as the context length T grows, for width d = 4096. Below about 8k tokens, the dense layers dominate. At T = 6d ≈ 24,576 the two are equal. Beyond that, attention dominates."><img src="ch34_mixture_of_experts_scale_and_numerical_precision_files/figure-html/fig-context-flops-output-1.svg" class="img-fluid figure-img" alt="A rising S-shaped curve of attention share versus context length on a log axis, crossing 0.5 near twenty-five thousand tokens."></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-context-flops-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;34.3: Share of the forward FLOPs per token spent on attention scores and values, as the context length T grows, for width d = 4096. Below about 8k tokens, the dense layers dominate. At T = 6d ≈ 24,576 the two are equal. Beyond that, attention dominates.
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>T =    2048: attention share 0.08
+T =    8192: attention share 0.25
+T =   32768: attention share 0.57
+T =  131072: attention share 0.84</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="sec-scaling" class="level2" data-number="34.4">
+<h2 data-number="34.4" class="anchored" data-anchor-id="sec-scaling"><span class="header-section-number">34.4</span> Scaling laws</h2>
+<p>Empirically, the test loss of language models falls as a <strong>power law</strong> in parameters, data, and compute, when the other factors are not the bottleneck:</p>
+<p><span id="eq-scaling"><span class="math display">\[
+L(N)\approx\Bigl(\frac{N_c}{N}\Bigr)^{\alpha}+L_\infty.
+\tag{34.3}\]</span></span></p>
+<p>On a log–log plot, loss minus the floor is a straight line with slope <span class="math inline">\(-\alpha\)</span>. Published large-scale studies find exponents of the order <span class="math inline">\(0.05\)</span>–<span class="math inline">\(0.1\)</span>: a tenfold increase in size reduces the reducible loss by only a modest factor. Such laws let one predict, from small runs, how a larger run will behave.</p>
+<p>We run a miniature version with the character model of Chapter 33, at six widths. Every run has 2 blocks and 1,000 steps at the same learning rate. This is a <strong>demonstration of the method</strong>, not a measurement of a law.</p>
+<div id="code-scaling" class="cell" data-execution_count="9">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pydoc_data <span class="im">import</span> topics</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>raw <span class="op">=</span> <span class="st">" "</span>.join(topics.topics[k] <span class="cf">for</span> k <span class="kw">in</span> <span class="bu">sorted</span>(topics.topics)).lower()</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>keep <span class="op">=</span> <span class="bu">set</span>(<span class="st">"abcdefghijklmnopqrstuvwxyz .,</span><span class="ch">\n</span><span class="st">"</span>)</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>text <span class="op">=</span> <span class="st">" "</span>.join(<span class="st">""</span>.join(c <span class="cf">if</span> c <span class="kw">in</span> keep <span class="cf">else</span> <span class="st">" "</span> <span class="cf">for</span> c <span class="kw">in</span> raw).split())[:<span class="dv">300_000</span>]</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>chars <span class="op">=</span> <span class="bu">sorted</span>(<span class="bu">set</span>(text))<span class="op">;</span> Vc <span class="op">=</span> <span class="bu">len</span>(chars)<span class="op">;</span> ixc <span class="op">=</span> {c: i <span class="cf">for</span> i, c <span class="kw">in</span> <span class="bu">enumerate</span>(chars)}</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> torch.tensor([ixc[c] <span class="cf">for</span> c <span class="kw">in</span> text])<span class="op">;</span> ntr <span class="op">=</span> <span class="bu">int</span>(<span class="fl">0.9</span> <span class="op">*</span> <span class="bu">len</span>(data))</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>tr, va <span class="op">=</span> data[:ntr], data[ntr:]</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>Tc <span class="op">=</span> <span class="dv">64</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> SBlock(nn.Module):</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, d, H<span class="op">=</span><span class="dv">4</span>):</span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>()</span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.H <span class="op">=</span> H</span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.l1, <span class="va">self</span>.l2 <span class="op">=</span> nn.LayerNorm(d), nn.LayerNorm(d)</span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.qkv, <span class="va">self</span>.o <span class="op">=</span> nn.Linear(d, <span class="dv">3</span> <span class="op">*</span> d), nn.Linear(d, d)</span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.m <span class="op">=</span> nn.Sequential(nn.Linear(d, <span class="dv">4</span> <span class="op">*</span> d), nn.GELU(), nn.Linear(<span class="dv">4</span> <span class="op">*</span> d, d))</span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, x):</span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>        B, T, d <span class="op">=</span> x.shape</span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a>        q, k, v <span class="op">=</span> <span class="va">self</span>.qkv(<span class="va">self</span>.l1(x)).chunk(<span class="dv">3</span>, <span class="op">-</span><span class="dv">1</span>)</span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a>        sp <span class="op">=</span> <span class="kw">lambda</span> t: t.view(B, T, <span class="va">self</span>.H, d <span class="op">//</span> <span class="va">self</span>.H).transpose(<span class="dv">1</span>, <span class="dv">2</span>)</span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a>        a <span class="op">=</span> F.scaled_dot_product_attention(sp(q), sp(k), sp(v), is_causal<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a>        x <span class="op">=</span> x <span class="op">+</span> <span class="va">self</span>.o(a.transpose(<span class="dv">1</span>, <span class="dv">2</span>).reshape(B, T, d))</span>
+<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> x <span class="op">+</span> <span class="va">self</span>.m(<span class="va">self</span>.l2(x))</span>
+<span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-25"><a href="#cb14-25" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> SLM(nn.Module):</span>
+<span id="cb14-26"><a href="#cb14-26" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, d, L<span class="op">=</span><span class="dv">2</span>):</span>
+<span id="cb14-27"><a href="#cb14-27" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>()</span>
+<span id="cb14-28"><a href="#cb14-28" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.E, <span class="va">self</span>.P <span class="op">=</span> nn.Embedding(Vc, d), nn.Embedding(Tc, d)</span>
+<span id="cb14-29"><a href="#cb14-29" aria-hidden="true" tabindex="-1"></a>        nn.init.normal_(<span class="va">self</span>.E.weight, std<span class="op">=</span><span class="fl">0.02</span>)<span class="op">;</span> nn.init.normal_(<span class="va">self</span>.P.weight, std<span class="op">=</span><span class="fl">0.02</span>)</span>
+<span id="cb14-30"><a href="#cb14-30" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.b <span class="op">=</span> nn.ModuleList([SBlock(d) <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(L)])<span class="op">;</span> <span class="va">self</span>.ln <span class="op">=</span> nn.LayerNorm(d)</span>
+<span id="cb14-31"><a href="#cb14-31" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, i):</span>
+<span id="cb14-32"><a href="#cb14-32" aria-hidden="true" tabindex="-1"></a>        x <span class="op">=</span> <span class="va">self</span>.E(i) <span class="op">+</span> <span class="va">self</span>.P(torch.arange(i.shape[<span class="dv">1</span>]))</span>
+<span id="cb14-33"><a href="#cb14-33" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> b <span class="kw">in</span> <span class="va">self</span>.b:</span>
+<span id="cb14-34"><a href="#cb14-34" aria-hidden="true" tabindex="-1"></a>            x <span class="op">=</span> b(x)</span>
+<span id="cb14-35"><a href="#cb14-35" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>.ln(x) <span class="op">@</span> <span class="va">self</span>.E.weight.T</span>
+<span id="cb14-36"><a href="#cb14-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-37"><a href="#cb14-37" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> batch(src, B<span class="op">=</span><span class="dv">64</span>):</span>
+<span id="cb14-38"><a href="#cb14-38" aria-hidden="true" tabindex="-1"></a>    st <span class="op">=</span> torch.randint(<span class="dv">0</span>, <span class="bu">len</span>(src) <span class="op">-</span> Tc <span class="op">-</span> <span class="dv">1</span>, (B,))</span>
+<span id="cb14-39"><a href="#cb14-39" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> torch.stack([src[s:s <span class="op">+</span> Tc <span class="op">+</span> <span class="dv">1</span>] <span class="cf">for</span> s <span class="kw">in</span> st])</span>
+<span id="cb14-40"><a href="#cb14-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-41"><a href="#cb14-41" aria-hidden="true" tabindex="-1"></a>widths <span class="op">=</span> [<span class="dv">16</span>, <span class="dv">32</span>, <span class="dv">48</span>, <span class="dv">64</span>, <span class="dv">96</span>, <span class="dv">128</span>]</span>
+<span id="cb14-42"><a href="#cb14-42" aria-hidden="true" tabindex="-1"></a>Ns, losses <span class="op">=</span> [], []</span>
+<span id="cb14-43"><a href="#cb14-43" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> d <span class="kw">in</span> widths:</span>
+<span id="cb14-44"><a href="#cb14-44" aria-hidden="true" tabindex="-1"></a>    torch.manual_seed(<span class="dv">0</span>)</span>
+<span id="cb14-45"><a href="#cb14-45" aria-hidden="true" tabindex="-1"></a>    lm <span class="op">=</span> SLM(d)<span class="op">;</span> Ns.append(<span class="bu">sum</span>(p.numel() <span class="cf">for</span> p <span class="kw">in</span> lm.parameters()))</span>
+<span id="cb14-46"><a href="#cb14-46" aria-hidden="true" tabindex="-1"></a>    opt <span class="op">=</span> torch.optim.AdamW(lm.parameters(), lr<span class="op">=</span><span class="fl">3e-3</span>)</span>
+<span id="cb14-47"><a href="#cb14-47" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1000</span>):</span>
+<span id="cb14-48"><a href="#cb14-48" aria-hidden="true" tabindex="-1"></a>        b <span class="op">=</span> batch(tr)</span>
+<span id="cb14-49"><a href="#cb14-49" aria-hidden="true" tabindex="-1"></a>        loss <span class="op">=</span> F.cross_entropy(lm(b[:, :<span class="op">-</span><span class="dv">1</span>]).reshape(<span class="op">-</span><span class="dv">1</span>, Vc), b[:, <span class="dv">1</span>:].reshape(<span class="op">-</span><span class="dv">1</span>))</span>
+<span id="cb14-50"><a href="#cb14-50" aria-hidden="true" tabindex="-1"></a>        opt.zero_grad()<span class="op">;</span> loss.backward()<span class="op">;</span> opt.step()</span>
+<span id="cb14-51"><a href="#cb14-51" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> torch.no_grad():</span>
+<span id="cb14-52"><a href="#cb14-52" aria-hidden="true" tabindex="-1"></a>        torch.manual_seed(<span class="dv">1</span>)<span class="op">;</span> b <span class="op">=</span> batch(va, <span class="dv">512</span>)</span>
+<span id="cb14-53"><a href="#cb14-53" aria-hidden="true" tabindex="-1"></a>        losses.append(F.cross_entropy(lm(b[:, :<span class="op">-</span><span class="dv">1</span>]).reshape(<span class="op">-</span><span class="dv">1</span>, Vc), b[:, <span class="dv">1</span>:].reshape(<span class="op">-</span><span class="dv">1</span>)).item())</span>
+<span id="cb14-54"><a href="#cb14-54" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"width </span><span class="sc">{</span>d<span class="sc">:4d}</span><span class="ss">: </span><span class="sc">{</span>Ns[<span class="op">-</span><span class="dv">1</span>]<span class="sc">:8,d}</span><span class="ss"> parameters, validation loss </span><span class="sc">{</span>losses[<span class="op">-</span><span class="dv">1</span>]<span class="sc">:.3f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>width   16:    8,080 parameters, validation loss 1.776
+width   32:   28,448 parameters, validation loss 1.410
+width   48:   61,104 parameters, validation loss 1.287
+width   64:  106,048 parameters, validation loss 1.245
+width   96:  232,800 parameters, validation loss 1.183
+width  128:  408,704 parameters, validation loss 1.243</code></pre>
+</div>
+</div>
+<div id="cell-fig-scaling" class="cell" data-execution_count="10">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.optimize <span class="im">import</span> curve_fit</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>Ns_a, L_a <span class="op">=</span> np.array(Ns, <span class="bu">float</span>), np.array(losses)</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>pl <span class="op">=</span> <span class="kw">lambda</span> N, A, a, c: A <span class="op">*</span> N <span class="op">**</span> (<span class="op">-</span>a) <span class="op">+</span> c</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>popt, _ <span class="op">=</span> curve_fit(pl, Ns_a[:<span class="dv">5</span>], L_a[:<span class="dv">5</span>], p0<span class="op">=</span>[<span class="fl">5.0</span>, <span class="fl">0.3</span>, <span class="fl">1.0</span>], maxfev<span class="op">=</span><span class="dv">20000</span>)</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>grid <span class="op">=</span> np.logspace(np.log10(Ns_a.<span class="bu">min</span>()), np.log10(Ns_a.<span class="bu">max</span>()), <span class="dv">100</span>)</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">6.2</span>, <span class="fl">3.6</span>))</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>ax.semilogx(Ns_a, L_a, <span class="st">"o"</span>, color<span class="op">=</span>PALETTE[<span class="st">"loss"</span>], ms<span class="op">=</span><span class="dv">7</span>, label<span class="op">=</span><span class="st">"measured"</span>)</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>ax.semilogx(grid, pl(grid, <span class="op">*</span>popt), <span class="st">"--"</span>, color<span class="op">=</span><span class="st">"black"</span>, label<span class="op">=</span><span class="ss">f"power-law fit (α = </span><span class="sc">{</span>popt[<span class="dv">1</span>]<span class="sc">:.2f}</span><span class="ss">)"</span>)</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"parameters N"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"validation loss (nats/char)"</span>)<span class="op">;</span> ax.legend()</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"fitted: A = </span><span class="sc">{</span>popt[<span class="dv">0</span>]<span class="sc">:.2f}</span><span class="ss">, alpha = </span><span class="sc">{</span>popt[<span class="dv">1</span>]<span class="sc">:.2f}</span><span class="ss">, floor L_inf = </span><span class="sc">{</span>popt[<span class="dv">2</span>]<span class="sc">:.2f}</span><span class="ss">  (five points: not reliable)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="fig-scaling" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Points on a log x-axis showing loss falling from 1.8 to 1.18 and rising slightly at the largest size, with a dashed fitted curve through the first five points.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-scaling-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="ch34_mixture_of_experts_scale_and_numerical_precision_files/figure-html/fig-scaling-output-1.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-4" title="Figure&nbsp;34.4: Validation loss against parameter count for six widths of the character model (1,000 steps each). Loss falls as the model grows, with diminishing returns. The largest model does not follow the trend: with the same step count and learning rate it is under-trained. The dashed curve is a power-law fit to the first five points; with so few points it only illustrates the method."><img src="ch34_mixture_of_experts_scale_and_numerical_precision_files/figure-html/fig-scaling-output-1.svg" class="img-fluid figure-img" alt="Points on a log x-axis showing loss falling from 1.8 to 1.18 and rising slightly at the largest size, with a dashed fitted curve through the first five points."></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-scaling-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;34.4: Validation loss against parameter count for six widths of the character model (1,000 steps each). Loss falls as the model grows, with diminishing returns. The largest model does not follow the trend: with the same step count and learning rate it is under-trained. The dashed curve is a power-law fit to the first five points; with so few points it only illustrates the method.
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>fitted: A = 186.11, alpha = 0.62, floor L_inf = 1.10  (five points: not reliable)</code></pre>
+</div>
+</div>
+<p>Two lessons. Bigger is better with diminishing returns. And scaling laws need the <em>other</em> resources (data, steps, learning rate) to grow with the model. Compute-optimal scaling studies tune all of them together.</p>
+</section>
+<section id="sec-precision" class="level2" data-number="34.5">
+<h2 data-number="34.5" class="anchored" data-anchor-id="sec-precision"><span class="header-section-number">34.5</span> Numerical precision</h2>
+<p>A floating-point number has a sign, an <strong>exponent</strong> (range), and a <strong>mantissa</strong> (resolution). The three common training formats split 16 or 32 bits differently.</p>
+<div id="code-finfo" class="cell" data-execution_count="11">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span><span class="st">'format'</span><span class="sc">:10s}</span><span class="ss"> </span><span class="sc">{</span><span class="st">'bits'</span><span class="sc">:&gt;5s}</span><span class="ss"> </span><span class="sc">{</span><span class="st">'exp'</span><span class="sc">:&gt;4s}</span><span class="ss"> </span><span class="sc">{</span><span class="st">'mant'</span><span class="sc">:&gt;5s}</span><span class="ss"> </span><span class="sc">{</span><span class="st">'machine eps'</span><span class="sc">:&gt;12s}</span><span class="ss"> </span><span class="sc">{</span><span class="st">'max'</span><span class="sc">:&gt;10s}</span><span class="ss"> </span><span class="sc">{</span><span class="st">'min normal'</span><span class="sc">:&gt;12s}</span><span class="ss">"</span>)</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> name, dt, e, m <span class="kw">in</span> [(<span class="st">"float32"</span>, torch.float32, <span class="dv">8</span>, <span class="dv">23</span>), (<span class="st">"float16"</span>, torch.float16, <span class="dv">5</span>, <span class="dv">10</span>),</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>                       (<span class="st">"bfloat16"</span>, torch.bfloat16, <span class="dv">8</span>, <span class="dv">7</span>)]:</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    fi <span class="op">=</span> torch.finfo(dt)</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>name<span class="sc">:10s}</span><span class="ss"> </span><span class="sc">{</span>fi<span class="sc">.</span>bits<span class="sc">:5d}</span><span class="ss"> </span><span class="sc">{</span>e<span class="sc">:4d}</span><span class="ss"> </span><span class="sc">{</span>m<span class="sc">:5d}</span><span class="ss"> </span><span class="sc">{</span>fi<span class="sc">.</span>eps<span class="sc">:12.2e}</span><span class="ss"> </span><span class="sc">{</span>fi<span class="sc">.</span><span class="bu">max</span><span class="sc">:10.2e}</span><span class="ss"> </span><span class="sc">{</span>fi<span class="sc">.</span>tiny<span class="sc">:12.2e}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>format      bits  exp  mant  machine eps        max   min normal
+float32       32    8    23     1.19e-07   3.40e+38     1.18e-38
+float16       16    5    10     9.77e-04   6.55e+04     6.10e-05
+bfloat16      16    8     7     7.81e-03   3.39e+38     1.18e-38</code></pre>
+</div>
+</div>
+<ul>
+<li><strong>float16</strong> has more mantissa bits than bfloat16 (finer resolution) but a small range: it overflows above 65,504 and underflows below <span class="math inline">\(6\times10^{-5}\)</span> (normal) or <span class="math inline">\(6\times10^{-8}\)</span> (subnormal).</li>
+<li><strong>bfloat16</strong> has the <em>same range as float32</em> but coarse resolution (about 2–3 decimal digits). It rarely overflows. It rounds aggressively.</li>
+</ul>
+<section id="accumulation-error" class="level3" data-number="34.5.1">
+<h3 data-number="34.5.1" class="anchored" data-anchor-id="accumulation-error"><span class="header-section-number">34.5.1</span> Accumulation error</h3>
+<p>Adding many small numbers to a large running sum loses them. Once the sum is large, each small term is below half the spacing between representable numbers and is rounded away.</p>
+<div id="code-accum" class="cell" data-execution_count="12">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>total16 <span class="op">=</span> np.float16(<span class="fl">0.0</span>)<span class="op">;</span> total32 <span class="op">=</span> np.float32(<span class="fl">0.0</span>)</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">100_000</span>):</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    total16 <span class="op">=</span> np.float16(total16 <span class="op">+</span> np.float16(<span class="fl">1e-4</span>))</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>    total32 <span class="op">=</span> np.float32(total32 <span class="op">+</span> np.float32(<span class="fl">1e-4</span>))</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"sum of 100,000 × 1e-4 (true value 10.0):  float16 </span><span class="sc">{</span><span class="bu">float</span>(total16)<span class="sc">:.4f}</span><span class="ss">,  float32 </span><span class="sc">{</span><span class="bu">float</span>(total32)<span class="sc">:.4f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>sum of 100,000 × 1e-4 (true value 10.0):  float16 0.2500,  float32 10.0063</code></pre>
+</div>
+</div>
+<p>The float16 sum stalls near 0.25, where <span class="math inline">\(10^{-4}\)</span> is smaller than half the spacing of float16 numbers. This is why matrix-multiply hardware <strong>accumulates in float32</strong> even when inputs are 16-bit, and why softmax, normalisation, and loss sums are done in float32.</p>
+</section>
+<section id="gradient-underflow-and-loss-scaling" class="level3" data-number="34.5.2">
+<h3 data-number="34.5.2" class="anchored" data-anchor-id="gradient-underflow-and-loss-scaling"><span class="header-section-number">34.5.2</span> Gradient underflow and loss scaling</h3>
+<p>Gradients can be tiny. In float16, values below about <span class="math inline">\(6\times10^{-8}\)</span> become exactly zero. <strong>Loss scaling</strong> multiplies the loss by a large factor (e.g.&nbsp;<span class="math inline">\(2^{16}\)</span>) before the backward pass, which scales all gradients by the same factor, and divides afterwards in float32.</p>
+<div id="code-lossscale" class="cell" data-execution_count="13">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>g_true <span class="op">=</span> np.array([<span class="fl">1e-9</span>, <span class="fl">1e-8</span>, <span class="fl">1e-7</span>, <span class="fl">1e-6</span>, <span class="fl">1e-4</span>], dtype<span class="op">=</span>np.float64)</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>plain <span class="op">=</span> g_true.astype(np.float16)</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>S <span class="op">=</span> <span class="fl">2.0</span> <span class="op">**</span> <span class="dv">16</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>scaled <span class="op">=</span> (g_true <span class="op">*</span> S).astype(np.float16).astype(np.float32) <span class="op">/</span> S</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"true gradients     :"</span>, g_true)</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"float16            :"</span>, plain.astype(np.float64))</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"with loss scaling  :"</span>, scaled.astype(np.float64))</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"exp(12) in float16 :"</span>, np.exp(np.float16(<span class="fl">12.0</span>)), <span class="st">" (overflow: max is 65504)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>true gradients     : [1.e-09 1.e-08 1.e-07 1.e-06 1.e-04]
+float16            : [0.00000000e+00 0.00000000e+00 1.19209290e-07 1.01327896e-06
+ 1.00016594e-04]
+with loss scaling  : [1.00044417e-09 9.99716576e-09 1.00000761e-07 1.00024045e-06
+ 1.00016594e-04]
+exp(12) in float16 : inf  (overflow: max is 65504)</code></pre>
+</div>
+</div>
+<p>bfloat16 does not need loss scaling, because its range equals float32’s. That is a main reason it became the default for large-model training.</p>
+</section>
+<section id="mixed-precision-in-practice" class="level3" data-number="34.5.3">
+<h3 data-number="34.5.3" class="anchored" data-anchor-id="mixed-precision-in-practice"><span class="header-section-number">34.5.3</span> Mixed precision in practice</h3>
+<p>A standard recipe keeps a <strong>float32 master copy</strong> of the weights and optimiser state, runs the forward and backward passes in bfloat16, and accumulates in float32. Memory per parameter with Adam: 2 bytes (bf16 weight) + 4 (fp32 master) + 4 + 4 (Adam moments) + 2 (gradient) = 16 bytes.</p>
+<div id="code-memory" class="cell" data-execution_count="14">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> N <span class="kw">in</span> (<span class="fl">7e9</span>, <span class="fl">70e9</span>):</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>    bytes_per_param <span class="op">=</span> <span class="dv">2</span> <span class="op">+</span> <span class="dv">4</span> <span class="op">+</span> <span class="dv">4</span> <span class="op">+</span> <span class="dv">4</span> <span class="op">+</span> <span class="dv">2</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>N <span class="op">/</span> <span class="fl">1e9</span><span class="sc">:4.0f}</span><span class="ss"> B parameters: weights+optimiser state ≈ </span><span class="sc">{</span>N <span class="op">*</span> bytes_per_param <span class="op">/</span> <span class="dv">2</span><span class="op">**</span><span class="dv">30</span><span class="sc">:,.0f}</span><span class="ss"> GiB "</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>          <span class="ss">f"(excluding activations)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   7 B parameters: weights+optimiser state ≈ 104 GiB (excluding activations)
+  70 B parameters: weights+optimiser state ≈ 1,043 GiB (excluding activations)</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="sec-production" class="level2" data-number="34.6">
+<h2 data-number="34.6" class="anchored" data-anchor-id="sec-production"><span class="header-section-number">34.6</span> Production</h2>
+<p>PyTorch’s autocast runs selected operations in lower precision while keeping others (softmax, normalisation, reductions) in float32. We check the effect on one layer.</p>
+<div id="code-autocast" class="cell" data-execution_count="15">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>torch.manual_seed(<span class="dv">0</span>)</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>lin <span class="op">=</span> nn.Linear(<span class="dv">512</span>, <span class="dv">512</span>)</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> torch.randn(<span class="dv">64</span>, <span class="dv">512</span>)</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>ref <span class="op">=</span> lin(x)</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> torch.autocast(<span class="st">"cpu"</span>, dtype<span class="op">=</span>torch.bfloat16):</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>    y <span class="op">=</span> lin(x)</span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>rel <span class="op">=</span> ((y.<span class="bu">float</span>() <span class="op">-</span> ref).norm() <span class="op">/</span> ref.norm()).item()</span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"output dtype under autocast: </span><span class="sc">{</span>y<span class="sc">.</span>dtype<span class="sc">}</span><span class="ss">;  relative error vs float32: </span><span class="sc">{</span>rel<span class="sc">:.1e}</span><span class="ss">"</span>)</span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"bf16 resolution near 1.0:"</span>, torch.tensor(<span class="fl">1.0</span>, dtype<span class="op">=</span>torch.bfloat16).item(),</span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>      <span class="st">"→ 1 + 2^-8 rounds to"</span>, <span class="bu">float</span>(torch.tensor(<span class="fl">1.0</span> <span class="op">+</span> <span class="dv">2</span> <span class="op">**</span> <span class="op">-</span><span class="dv">8</span>, dtype<span class="op">=</span>torch.bfloat16)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>output dtype under autocast: torch.bfloat16;  relative error vs float32: 2.9e-03
+bf16 resolution near 1.0: 1.0 → 1 + 2^-8 rounds to 1.0</code></pre>
+</div>
+</div>
+</section>
+<section id="sec-failure" class="level2" data-number="34.7">
+<h2 data-number="34.7" class="anchored" data-anchor-id="sec-failure"><span class="header-section-number">34.7</span> Failure modes</h2>
+<p><strong>Expert collapse.</strong> The router sends most tokens to a few experts. The others never train. Remedies: a balance loss, noise in the router, expert capacity limits.</p>
+<p><strong>Router instability.</strong> Router logits can grow large, making routing erratic and softmax saturate. A small penalty on the log-sum-exp of the router logits (a “z-loss”) keeps them bounded.</p>
+<p><strong>Token dropping.</strong> With a fixed expert capacity, tokens routed to a full expert may be dropped. This changes the output between training and inference.</p>
+<p><strong>Loss spikes.</strong> Large runs show sudden loss increases, often linked to rare large gradients, overflow in attention logits, or optimiser state in low precision. Gradient clipping and careful normalisation reduce them.</p>
+<p><strong>Overflow and underflow.</strong> Float16 needs loss scaling and float32 for softmax. Check for <code>inf</code> and <code>nan</code>.</p>
+<p><strong>Non-determinism.</strong> Summing in a different order gives different rounding. Two runs on the same data may differ in the last digits, then diverge.</p>
+<p><strong>Extrapolating scaling laws.</strong> A power law fitted on a narrow range may fail outside it. Laws depend on how data, learning rate, and architecture are scaled together.</p>
+</section>
+<section id="sec-ai-connection" class="level2" data-number="34.8">
+<h2 data-number="34.8" class="anchored" data-anchor-id="sec-ai-connection"><span class="header-section-number">34.8</span> Where this appears in modern AI</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Idea</th>
+<th>Where</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>MoE</td>
+<td>Mixtral, DeepSeek, Switch Transformer: large total parameters, small active parameters</td>
+</tr>
+<tr class="even">
+<td>Router + top-<span class="math inline">\(k\)</span></td>
+<td>softmax gate over experts</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(C\approx6ND\)</span></td>
+<td>planning training budgets; comparing models by compute</td>
+</tr>
+<tr class="even">
+<td>Scaling laws</td>
+<td>choosing model size and token count for a compute budget</td>
+</tr>
+<tr class="odd">
+<td>bfloat16 training</td>
+<td>the default on modern accelerators</td>
+</tr>
+<tr class="even">
+<td>FP8 and 4-bit formats</td>
+<td>further reduction of memory and bandwidth for inference and training</td>
+</tr>
+<tr class="odd">
+<td>Float32 accumulation</td>
+<td>inside every matrix-multiply unit</td>
+</tr>
+<tr class="even">
+<td>Long-context cost</td>
+<td>attention FLOPs and KV-cache memory (Chapter 32)</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="sec-system-connection" class="level2" data-number="34.9">
+<h2 data-number="34.9" class="anchored" data-anchor-id="sec-system-connection"><span class="header-section-number">34.9</span> System connection</h2>
+<div class="callout callout-style-default callout-note callout-titled" title="What the system gained in this chapter">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>What the system gained in this chapter
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The system now has an <strong>economics</strong>: how parameters, data, and compute trade against each other (<span class="math inline">\(6ND\)</span>, power laws), a way to add capacity without proportional compute (mixtures of experts with a balance loss), and an awareness that numerical formats are part of the model’s design.</p>
+<p>That completes the language-model track (Track A). Tracks C and B turn to images: how vision models represent space (Chapter 35), how Transformers read images (Chapter 36), and how images are generated (Chapters 40–43).</p>
+</div>
+</div>
+</section>
+<section id="chapter-summary" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="chapter-summary">Chapter summary</h2>
+<ul>
+<li>MoE: <span class="math inline">\(\mathbf{y}=\sum_{i\in\text{top-}k}g_{i}\text{Expert}_i(\mathbf{x})\)</span>. Total parameters scale with <span class="math inline">\(E\)</span>, active parameters with <span class="math inline">\(k\)</span>.</li>
+<li>The balance loss <span class="math inline">\(E\sum_if_iP_i\)</span> is 1 at uniform routing and larger otherwise.</li>
+<li>Training costs <span class="math inline">\(\approx6ND\)</span> FLOPs. Inference costs <span class="math inline">\(\approx2N\)</span> per token.</li>
+<li>Attention FLOPs equal the dense FLOPs at <span class="math inline">\(T\approx6d\)</span>.</li>
+<li>Loss follows a power law in size with diminishing returns, if data and training scale with it.</li>
+<li>float16 has resolution and little range. bfloat16 has range and little resolution. Accumulate in float32.</li>
+</ul>
+</section>
+<section id="exercises" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="exercises">Exercises</h2>
+<ol type="1">
+<li><strong>Compute.</strong> A dense model has 13B parameters and is trained on 2T tokens. Give the training FLOPs, and the number of days on 1,000 accelerators at <span class="math inline">\(3\times10^{14}\)</span> FLOP/s and 40% utilisation.</li>
+<li><strong>Compute.</strong> An MoE has 16 experts of 400M parameters each, top-2 routing, and 2B shared parameters. Give its total and active parameter counts.</li>
+<li><strong>Derive.</strong> Show that for a power law <span class="math inline">\(L=AN^{-\alpha}\)</span>, doubling <span class="math inline">\(N\)</span> multiplies the loss by <span class="math inline">\(2^{-\alpha}\)</span>. For <span class="math inline">\(\alpha=0.076\)</span>, what is the percent reduction?</li>
+<li><strong>Derive.</strong> Show that in float16 the spacing of representable numbers near 1 is <span class="math inline">\(2^{-10}\)</span>. Why does adding <span class="math inline">\(10^{-4}\)</span> to 1.0 have no effect?</li>
+<li><strong>Code.</strong> Add an expert-capacity limit (drop tokens beyond <span class="math inline">\(1.25\times\)</span> the average) to the MoE layer. How many tokens are dropped under uneven routing?</li>
+<li><strong>Code.</strong> Add a z-loss <span class="math inline">\(\lambda\,(\ln\sum_je^{z_j})^2\)</span> to the router. How does it change the router logits?</li>
+<li><strong>Code.</strong> Repeat the scaling experiment with learning rate scaled as <span class="math inline">\(1/\sqrt{d}\)</span>. Does the largest model now follow the trend?</li>
+<li><strong>Code.</strong> Compute the relative error of a matrix product in float16, bfloat16, and float32 for matrices of size 256 and 4096. How does it scale with the inner dimension?</li>
+<li><strong>Diagnose.</strong> A float16 training run produces <code>nan</code> after 800 steps. List three likely causes and a check for each.</li>
+<li><strong>Explain.</strong> Why can bfloat16 training run without loss scaling while float16 cannot?</li>
+</ol>
+
+
+</section>
+
+</main> <!-- /main -->
+<script>
+/* Keep the left navigation stable between pages: all parts expanded,
+   and the sidebar scroll position remembered across page loads. */
+(function () {
+  var KEY = "mathsystems-sidebar-scroll";
+  function side() { return document.getElementById("quarto-sidebar"); }
+  function scroller() {
+    var s = side(); if (!s) return null;
+    return s.querySelector(".sidebar-menu-container") || s;
+  }
+  function expandAll() {
+    var s = side(); if (!s) return;
+    s.querySelectorAll(".collapse").forEach(function (el) { el.classList.add("show"); });
+    s.querySelectorAll('[aria-expanded="false"]').forEach(function (el) { el.setAttribute("aria-expanded", "true"); });
+    s.querySelectorAll(".sidebar-item-toggle.collapsed, a.collapsed").forEach(function (el) { el.classList.remove("collapsed"); });
+  }
+  function restore() {
+    var sc = scroller(), v = null;
+    try { v = sessionStorage.getItem(KEY); } catch (e) {}
+    if (sc && v !== null) sc.scrollTop = parseInt(v, 10);
+  }
+  function save() {
+    var sc = scroller();
+    if (!sc) return;
+    try { sessionStorage.setItem(KEY, String(sc.scrollTop)); } catch (e) {}
+  }
+  document.addEventListener("DOMContentLoaded", function () {
+    expandAll(); restore();
+    var sc = scroller();
+    if (sc) sc.addEventListener("scroll", save, { passive: true });
+    document.addEventListener("click", save, true);
+    window.addEventListener("pagehide", save);
+  });
+  window.addEventListener("load", function () {
+    expandAll(); restore();
+    setTimeout(restore, 50); setTimeout(restore, 250);   /* after the theme's own scroll-into-view */
+  });
+})();
+</script>
+<style>
+/* no jump while the menu is being expanded */
+#quarto-sidebar .collapse { transition: none !important; }
+</style>
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/vsrveera\.github\.io\/books\/mathai\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../chapters/ch33_autoregressive_generation_and_sampling.html" class="pagination-link" aria-label="Autoregressive Generation and Sampling">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">33</span>&nbsp; <span class="chapter-title">Autoregressive Generation and Sampling</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../chapters/ch35_convolutional_vision_in_depth.html" class="pagination-link" aria-label="Convolutional Vision in Depth">
+        <span class="nav-page-text"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">Convolutional Vision in Depth</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<script>var lightboxQuarto = GLightbox({"closeEffect":"zoom","descPosition":"bottom","loop":false,"openEffect":"zoom","selector":".lightbox"});
+(function() {
+  let previousOnload = window.onload;
+  window.onload = () => {
+    if (previousOnload) {
+      previousOnload();
+    }
+    lightboxQuarto.on('slide_before_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      const href = trigger.getAttribute('href');
+      if (href !== null) {
+        const imgEl = window.document.querySelector(`a[href="${href}"] img`);
+        if (imgEl !== null) {
+          const srcAttr = imgEl.getAttribute("src");
+          if (srcAttr && srcAttr.startsWith("data:")) {
+            slideConfig.href = srcAttr;
+          }
+        }
+      } 
+    });
+  
+    lightboxQuarto.on('slide_after_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(slideNode);
+      }
+    });
+  
+  };
+  
+})();
+          </script>
+
+
+
+
+<script src="../site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

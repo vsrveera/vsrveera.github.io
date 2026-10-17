@@ -1,0 +1,1732 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.19">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>32&nbsp; Decoder-only Language Models – Mathematics of Artificial Intelligence</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../chapters/ch33_autoregressive_generation_and_sampling.html" rel="next">
+<link href="../chapters/ch31_the_mathematics_of_the_transformer.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-43d2fa13cb35dd2022b3c25d65fdd634.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-19432b6b5c85f3ab30851b7038f884b0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="../site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
+<link href="../site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
+<link href="../site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar docked quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/ch30_the_mathematics_of_attention.html">Part VIII — Putting the Mathematical Systems Together</a></li><li class="breadcrumb-item"><a href="../chapters/ch32_decoder_only_language_models.html"><span class="chapter-number">32</span>&nbsp; <span class="chapter-title">Decoder-only Language Models</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">Mathematics of Artificial Intelligence</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part I — The Mathematical Machine</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch01_ai_as_a_mathematical_system.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">AI as a Mathematical System</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch02_language_of_mathematical_ai.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">The Language of Mathematical AI</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part II — Representation</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch03_vectors_representing_information.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Vectors: Representing Information</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch04_geometry_of_representations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Geometry of Representations</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch05_matrices_representing_transformations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Matrices: Representing Transformations</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch06_tensors_and_high_dimensional_data.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Tensors and High-Dimensional Data</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch07_structure_hidden_in_data.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Structure Hidden in Data</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part III — Transformation</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch08_functions_as_machines.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Functions as Machines</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch09_linear_transformations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Linear Transformations</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch10_nonlinearity_and_expressiveness.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Nonlinearity and Expressiveness</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch11_neural_networks_as_function_composition.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Neural Networks as Function Composition</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch12_convolution_and_structured_transformations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Convolution and Structured Transformations</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part IV — Measurement</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch13_distance_similarity_and_geometry.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Distance, Similarity and Geometry</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch14_loss_functions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Loss Functions</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch15_information_as_a_mathematical_quantity.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Information as a Mathematical Quantity</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part V — Learning</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch16_change_and_derivatives.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Change and Derivatives</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch17_gradients_and_multivariable_calculus.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Gradients and Multivariable Calculus</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch18_chain_rule_and_backpropagation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">The Chain Rule and Backpropagation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch19_optimization.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Optimization</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch20_the_geometry_and_dynamics_of_learning.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">The Geometry and Dynamics of Learning</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part VI — Uncertainty</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch21_probability_as_a_language_of_uncertainty.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Probability as a Language of Uncertainty</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch22_conditional_probability_and_bayes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Conditional Probability and Bayes</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch23_probability_distributions_used_in_ai.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Probability Distributions Used in AI</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch24_from_scores_to_probabilities.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">From Scores to Probabilities</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch25_statistical_estimation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Statistical Estimation</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part VII — Generalization</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch26_from_samples_to_populations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">From Samples to Populations</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch27_generalization.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Generalization</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch28_bias_variance_and_regularization.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Bias, Variance and Regularization</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch29_statistical_learning_theory.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Statistical Learning Theory</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part VIII — Putting the Mathematical Systems Together</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch30_the_mathematics_of_attention.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">30</span>&nbsp; <span class="chapter-title">The Mathematics of Attention</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch31_the_mathematics_of_the_transformer.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">31</span>&nbsp; <span class="chapter-title">The Mathematics of the Transformer</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch32_decoder_only_language_models.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">32</span>&nbsp; <span class="chapter-title">Decoder-only Language Models</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch33_autoregressive_generation_and_sampling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">33</span>&nbsp; <span class="chapter-title">Autoregressive Generation and Sampling</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch34_mixture_of_experts_scale_and_numerical_precision.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">34</span>&nbsp; <span class="chapter-title">Mixture-of-Experts, Scale and Numerical Precision</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch35_convolutional_vision_in_depth.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">Convolutional Vision in Depth</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch36_vision_transformers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Vision Transformers</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch37_detection_and_structured_prediction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">Detection and Structured Prediction</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch38_representation_and_self_supervised_learning.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">38</span>&nbsp; <span class="chapter-title">Representation and Self-Supervised Learning</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch39_clip_and_multimodal_language_models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">39</span>&nbsp; <span class="chapter-title">CLIP and Multimodal Language Models</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch40_latent_variable_models_and_vaes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">40</span>&nbsp; <span class="chapter-title">Latent-Variable Models and VAEs</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch41_diffusion_models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">41</span>&nbsp; <span class="chapter-title">Diffusion Models</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch42_latent_diffusion_and_diffusion_transformers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">42</span>&nbsp; <span class="chapter-title">Latent Diffusion and Diffusion Transformers</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch43_flow_matching.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">43</span>&nbsp; <span class="chapter-title">Flow Matching</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch44_one_ai_system_all_the_mathematics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">44</span>&nbsp; <span class="chapter-title">One AI System, All the Mathematics</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part IX — Systems Thinking and Performance Characterisation</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch45_systems_thinking_components_and_interfaces.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">45</span>&nbsp; <span class="chapter-title">Systems Thinking: Components, Interfaces and Contracts</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch46_feedback_coupling_and_stability.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">46</span>&nbsp; <span class="chapter-title">Feedback, Coupling and Stability</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch47_performance_characterisation_the_paradigm.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">47</span>&nbsp; <span class="chapter-title">Performance Characterisation: The Paradigm</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch48_random_perturbation_and_error_propagation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">48</span>&nbsp; <span class="chapter-title">Random Perturbation and Error Propagation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch49_operating_curves_roc_and_confidence.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">49</span>&nbsp; <span class="chapter-title">Operating Curves, ROC and Confidence</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch50_characterisation_protocol_and_experimental_design.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">50</span>&nbsp; <span class="chapter-title">A Characterisation Protocol: Experimental Design and Reporting</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch51_characterising_large_models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">51</span>&nbsp; <span class="chapter-title">Characterising Large Models</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#sec-system-problem" id="toc-sec-system-problem" class="nav-link active" data-scroll-target="#sec-system-problem"><span class="header-section-number">32.1</span> The system problem</a></li>
+  <li><a href="#sec-architecture" id="toc-sec-architecture" class="nav-link" data-scroll-target="#sec-architecture"><span class="header-section-number">32.2</span> Architecture: information flow</a></li>
+  <li><a href="#sec-bpe" id="toc-sec-bpe" class="nav-link" data-scroll-target="#sec-bpe"><span class="header-section-number">32.3</span> Tokens: byte-pair encoding</a></li>
+  <li><a href="#sec-rope" id="toc-sec-rope" class="nav-link" data-scroll-target="#sec-rope"><span class="header-section-number">32.4</span> RoPE: positions as rotations</a></li>
+  <li><a href="#sec-rmsnorm" id="toc-sec-rmsnorm" class="nav-link" data-scroll-target="#sec-rmsnorm"><span class="header-section-number">32.5</span> RMSNorm</a></li>
+  <li><a href="#sec-swiglu" id="toc-sec-swiglu" class="nav-link" data-scroll-target="#sec-swiglu"><span class="header-section-number">32.6</span> SwiGLU</a></li>
+  <li><a href="#sec-gqa" id="toc-sec-gqa" class="nav-link" data-scroll-target="#sec-gqa"><span class="header-section-number">32.7</span> Grouped-query attention and the KV cache</a></li>
+  <li><a href="#sec-block" id="toc-sec-block" class="nav-link" data-scroll-target="#sec-block"><span class="header-section-number">32.8</span> A minimal Llama block</a>
+  <ul class="collapse">
+  <li><a href="#checks" id="toc-checks" class="nav-link" data-scroll-target="#checks"><span class="header-section-number">32.8.1</span> Checks</a></li>
+  </ul></li>
+  <li><a href="#sec-tying" id="toc-sec-tying" class="nav-link" data-scroll-target="#sec-tying"><span class="header-section-number">32.9</span> Weight tying and the output head</a></li>
+  <li><a href="#sec-count" id="toc-sec-count" class="nav-link" data-scroll-target="#sec-count"><span class="header-section-number">32.10</span> Counting a full model</a></li>
+  <li><a href="#sec-sources" id="toc-sec-sources" class="nav-link" data-scroll-target="#sec-sources"><span class="header-section-number">32.11</span> Where each equation comes from</a></li>
+  <li><a href="#sec-failure" id="toc-sec-failure" class="nav-link" data-scroll-target="#sec-failure"><span class="header-section-number">32.12</span> Failure modes</a></li>
+  <li><a href="#sec-ai-connection" id="toc-sec-ai-connection" class="nav-link" data-scroll-target="#sec-ai-connection"><span class="header-section-number">32.13</span> Where this appears in modern AI</a></li>
+  <li><a href="#sec-system-connection" id="toc-sec-system-connection" class="nav-link" data-scroll-target="#sec-system-connection"><span class="header-section-number">32.14</span> System connection</a></li>
+  <li><a href="#chapter-summary" id="toc-chapter-summary" class="nav-link" data-scroll-target="#chapter-summary">Chapter summary</a></li>
+  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises">Exercises</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/ch30_the_mathematics_of_attention.html">Part VIII — Putting the Mathematical Systems Together</a></li><li class="breadcrumb-item"><a href="../chapters/ch32_decoder_only_language_models.html"><span class="chapter-number">32</span>&nbsp; <span class="chapter-title">Decoder-only Language Models</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">32</span>&nbsp; <span class="chapter-title">Decoder-only Language Models</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="callout callout-style-default callout-note callout-titled" title="Key ideas">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Key ideas
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li>A modern decoder-only model (GPT, Llama) is the Chapter 31 block with four changes: <strong>RoPE</strong> for positions, <strong>RMSNorm</strong>, a gated <strong>SwiGLU</strong> MLP, and <strong>grouped-query attention</strong>.</li>
+<li><strong>RoPE</strong> rotates query and key vectors by an angle proportional to position, so the attention score depends only on the <strong>relative offset</strong>.</li>
+<li><strong>RMSNorm</strong> drops the mean subtraction of LayerNorm. <strong>SwiGLU</strong> multiplies a SiLU-gated branch with a linear branch.</li>
+<li>The <strong>KV cache</strong> stores past keys and values, so each new token costs <span class="math inline">\(O(T)\)</span> instead of <span class="math inline">\(O(T^2)\)</span>.</li>
+<li>The output head can reuse the embedding matrix (<strong>weight tying</strong>): <span class="math inline">\(\text{logits}=\mathbf{h}\mathbf{E}^{\intercal}\)</span>.</li>
+</ul>
+</div>
+</div>
+<section id="sec-system-problem" class="level2" data-number="32.1">
+<h2 data-number="32.1" class="anchored" data-anchor-id="sec-system-problem"><span class="header-section-number">32.1</span> The system problem</h2>
+<p>The Transformer of Chapter 31 works. Large language models change several of its details. Each change solves a concrete problem: positions that generalise, cheaper normalisation, better MLPs, smaller inference memory.</p>
+<blockquote class="blockquote">
+<p><strong>Which changes turn the original Transformer into a modern GPT/Llama-style model, and why does each one help?</strong></p>
+</blockquote>
+<div id="cell-fig-where" class="cell" data-execution_count="2">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>system_map(highlight<span class="op">=</span>[<span class="st">"Representation"</span>, <span class="st">"Transformation"</span>, <span class="st">"Uncertainty"</span>, <span class="st">"AI system"</span>],</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>           sublabels<span class="op">=</span>{<span class="st">"AI system"</span>: <span class="st">"Part VIII"</span>})<span class="op">;</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="fig-where" class="quarto-float quarto-figure quarto-figure-center anchored" alt="System map with Representation, Transformation and AI system highlighted.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-where-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="ch32_decoder_only_language_models_files/figure-html/fig-where-output-1.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-1" title="Figure&nbsp;32.1: Chapter 32 reconstructs the architecture of a modern large language model."><img src="ch32_decoder_only_language_models_files/figure-html/fig-where-output-1.svg" class="img-fluid figure-img" alt="System map with Representation, Transformation and AI system highlighted."></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-where-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;32.1: Chapter 32 reconstructs the architecture of a modern large language model.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="sec-architecture" class="level2" data-number="32.2">
+<h2 data-number="32.2" class="anchored" data-anchor-id="sec-architecture"><span class="header-section-number">32.2</span> Architecture: information flow</h2>
+<div id="cell-fig-llama" class="cell" data-execution_count="3">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">8.4</span>, <span class="fl">4.6</span>))<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>, <span class="fl">8.4</span>)<span class="op">;</span> ax.set_ylim(<span class="dv">0</span>, <span class="fl">4.6</span>)<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>items <span class="op">=</span> [(<span class="st">"RMSNorm"</span>, PALETTE[<span class="st">"neutral"</span>]), (<span class="st">"Attention</span><span class="ch">\n</span><span class="st">(RoPE on Q, K; GQA; causal)"</span>, PALETTE[<span class="st">"model"</span>]),</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>         (<span class="st">"+ add"</span>, PALETTE[<span class="st">"grad"</span>]), (<span class="st">"RMSNorm"</span>, PALETTE[<span class="st">"neutral"</span>]),</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>         (<span class="st">"SwiGLU MLP"</span>, PALETTE[<span class="st">"model"</span>]), (<span class="st">"+ add"</span>, PALETTE[<span class="st">"grad"</span>])]</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, (t, c) <span class="kw">in</span> <span class="bu">enumerate</span>(items):</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    y <span class="op">=</span> <span class="fl">0.2</span> <span class="op">+</span> i <span class="op">*</span> <span class="fl">0.7</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(FancyBboxPatch((<span class="fl">0.4</span>, y), <span class="fl">3.3</span>, <span class="fl">0.55</span>, boxstyle<span class="op">=</span><span class="st">"round,pad=0.03"</span>, fc<span class="op">=</span>c, ec<span class="op">=</span><span class="st">"none"</span>))</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    ax.text(<span class="fl">2.05</span>, y <span class="op">+</span> <span class="fl">0.27</span>, t, ha<span class="op">=</span><span class="st">"center"</span>, va<span class="op">=</span><span class="st">"center"</span>, color<span class="op">=</span><span class="st">"white"</span>, fontsize<span class="op">=</span><span class="dv">9</span>, fontweight<span class="op">=</span><span class="st">"bold"</span>)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">2.05</span>, <span class="fl">4.45</span>, <span class="st">"one block  ×  N"</span>, ha<span class="op">=</span><span class="st">"center"</span>, fontsize<span class="op">=</span><span class="dv">10</span>, fontweight<span class="op">=</span><span class="st">"bold"</span>)</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>chain <span class="op">=</span> [(<span class="st">"token ids"</span>, PALETTE[<span class="st">"data"</span>]), (<span class="st">"embedding E"</span>, PALETTE[<span class="st">"data"</span>]), (<span class="st">"N blocks"</span>, PALETTE[<span class="st">"model"</span>]),</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>         (<span class="st">"RMSNorm"</span>, PALETTE[<span class="st">"neutral"</span>]), (<span class="st">"logits = h Eᵀ"</span>, PALETTE[<span class="st">"prob"</span>]), (<span class="st">"softmax → next token"</span>, PALETTE[<span class="st">"loss"</span>])]</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, (t, c) <span class="kw">in</span> <span class="bu">enumerate</span>(chain):</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    y <span class="op">=</span> <span class="fl">0.2</span> <span class="op">+</span> i <span class="op">*</span> <span class="fl">0.7</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(FancyBboxPatch((<span class="fl">4.7</span>, y), <span class="fl">3.3</span>, <span class="fl">0.55</span>, boxstyle<span class="op">=</span><span class="st">"round,pad=0.03"</span>, fc<span class="op">=</span>c, ec<span class="op">=</span><span class="st">"none"</span>))</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    ax.text(<span class="fl">6.35</span>, y <span class="op">+</span> <span class="fl">0.27</span>, t, ha<span class="op">=</span><span class="st">"center"</span>, va<span class="op">=</span><span class="st">"center"</span>, color<span class="op">=</span><span class="st">"white"</span>, fontsize<span class="op">=</span><span class="dv">9</span>, fontweight<span class="op">=</span><span class="st">"bold"</span>)</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="fig-llama" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A vertical flow of the decoder block: RMSNorm, attention with RoPE and grouped queries, add, RMSNorm, SwiGLU, add. A small side diagram shows tokens, embedding, N blocks, RMSNorm and tied output head.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-llama-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="ch32_decoder_only_language_models_files/figure-html/fig-llama-output-1.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-2" title="Figure&nbsp;32.2: Level 1: a Llama-style decoder block and model. Compared with Chapter 31, norms are RMSNorm, positions enter inside attention (RoPE on queries and keys), the MLP is gated (SwiGLU), and there are fewer key/value heads than query heads (GQA)."><img src="ch32_decoder_only_language_models_files/figure-html/fig-llama-output-1.svg" class="img-fluid figure-img" alt="A vertical flow of the decoder block: RMSNorm, attention with RoPE and grouped queries, add, RMSNorm, SwiGLU, add. A small side diagram shows tokens, embedding, N blocks, RMSNorm and tied output head."></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-llama-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;32.2: Level 1: a Llama-style decoder block and model. Compared with Chapter 31, norms are RMSNorm, positions enter inside attention (RoPE on queries and keys), the MLP is gated (SwiGLU), and there are fewer key/value heads than query heads (GQA).
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="sec-bpe" class="level2" data-number="32.3">
+<h2 data-number="32.3" class="anchored" data-anchor-id="sec-bpe"><span class="header-section-number">32.3</span> Tokens: byte-pair encoding</h2>
+<p>A language model does not read characters or words, but <strong>tokens</strong>: frequent pieces of text. <strong>Byte-pair encoding (BPE)</strong> builds the vocabulary by repeatedly merging the most frequent adjacent pair of symbols in a training corpus.</p>
+<div id="code-bpe" class="cell" data-execution_count="4">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> collections <span class="im">import</span> Counter</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>corpus <span class="op">=</span> {<span class="st">"low"</span>: <span class="dv">5</span>, <span class="st">"lower"</span>: <span class="dv">2</span>, <span class="st">"newest"</span>: <span class="dv">6</span>, <span class="st">"widest"</span>: <span class="dv">3</span>}</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>words <span class="op">=</span> {<span class="bu">tuple</span>(w) <span class="op">+</span> (<span class="st">"&lt;/w&gt;"</span>,): f <span class="cf">for</span> w, f <span class="kw">in</span> corpus.items()}</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> pair_counts(words):</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    c <span class="op">=</span> Counter()</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> w, f <span class="kw">in</span> words.items():</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> a, b <span class="kw">in</span> <span class="bu">zip</span>(w[:<span class="op">-</span><span class="dv">1</span>], w[<span class="dv">1</span>:]):</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>            c[(a, b)] <span class="op">+=</span> f</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> c</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> merge(words, pair):</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    out <span class="op">=</span> {}</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> w, f <span class="kw">in</span> words.items():</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>        new, i <span class="op">=</span> [], <span class="dv">0</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>        <span class="cf">while</span> i <span class="op">&lt;</span> <span class="bu">len</span>(w):</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> i <span class="op">&lt;</span> <span class="bu">len</span>(w) <span class="op">-</span> <span class="dv">1</span> <span class="kw">and</span> (w[i], w[i <span class="op">+</span> <span class="dv">1</span>]) <span class="op">==</span> pair:</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>                new.append(w[i] <span class="op">+</span> w[i <span class="op">+</span> <span class="dv">1</span>])<span class="op">;</span> i <span class="op">+=</span> <span class="dv">2</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>            <span class="cf">else</span>:</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>                new.append(w[i])<span class="op">;</span> i <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>        out[<span class="bu">tuple</span>(new)] <span class="op">=</span> f</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> out</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>merges <span class="op">=</span> []</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">10</span>):</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>    pc <span class="op">=</span> pair_counts(words)</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>    best <span class="op">=</span> <span class="bu">max</span>(pc, key<span class="op">=</span>pc.get)</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>    words <span class="op">=</span> merge(words, best)<span class="op">;</span> merges.append(best)</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"merges learned:"</span>, [a <span class="op">+</span> b <span class="cf">for</span> a, b <span class="kw">in</span> merges])</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"vocabulary of pieces now used:"</span>, <span class="bu">sorted</span>({p <span class="cf">for</span> w <span class="kw">in</span> words <span class="cf">for</span> p <span class="kw">in</span> w}))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>merges learned: ['es', 'est', 'est&lt;/w&gt;', 'lo', 'low', 'ne', 'new', 'newest&lt;/w&gt;', 'low&lt;/w&gt;', 'wi']
+vocabulary of pieces now used: ['&lt;/w&gt;', 'd', 'e', 'est&lt;/w&gt;', 'low', 'low&lt;/w&gt;', 'newest&lt;/w&gt;', 'r', 'wi']</code></pre>
+</div>
+</div>
+<p>Frequent words become single tokens. Rare words split into pieces. The vocabulary <span class="math inline">\(V\)</span> is typically 32,000–256,000 tokens. Each token id indexes a row of the embedding matrix <span class="math inline">\(\mathbf{E}\in\mathbb{R}^{V\times d}\)</span> (Chapter 3).</p>
+</section>
+<section id="sec-rope" class="level2" data-number="32.4">
+<h2 data-number="32.4" class="anchored" data-anchor-id="sec-rope"><span class="header-section-number">32.4</span> RoPE: positions as rotations</h2>
+<p>Chapter 31 <em>added</em> a position vector to the input. <strong>Rotary position embedding (RoPE)</strong> instead <em>rotates</em> the query and key vectors <strong>inside</strong> each attention layer, by an angle that grows with position.</p>
+<p>Split a vector into pairs of coordinates. Treat each pair as a point in a plane. For position <span class="math inline">\(m\)</span>, rotate the <span class="math inline">\(i\)</span>-th pair by the angle <span class="math inline">\(m\theta_i\)</span>, with <span class="math inline">\(\theta_i=10000^{-2i/d_h}\)</span>:</p>
+<p><span id="eq-rope"><span class="math display">\[
+\mathbf{R}_{m}=\text{blockdiag}\Bigl(\begin{pmatrix}\cos m\theta_i&amp;-\sin m\theta_i\\\sin m\theta_i&amp;\cos m\theta_{i}\end{pmatrix}\Bigr)_{i=0}^{d_h/2-1}.
+\tag{32.1}\]</span></span></p>
+<p>Queries and keys at position <span class="math inline">\(m\)</span> and <span class="math inline">\(n\)</span> become <span class="math inline">\(\mathbf{R}_{m}\mathbf{q}\)</span> and <span class="math inline">\(\mathbf{R}_{n}\mathbf{k}\)</span>.</p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Derivation: the score depends only on the offset">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Derivation: the score depends only on the offset
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Rotation matrices satisfy <span class="math inline">\(\mathbf{R}_m^{\intercal}=\mathbf{R}_{-m}\)</span> and <span class="math inline">\(\mathbf{R}_{a}\mathbf{R}_b=\mathbf{R}_{a+b}\)</span> (Chapter 5: a rotation by <span class="math inline">\(a\)</span> then by <span class="math inline">\(b\)</span> is a rotation by <span class="math inline">\(a+b\)</span>). So <span class="math display">\[
+(\mathbf{R}_{m}\mathbf{q})\cdot(\mathbf{R}_{n}\mathbf{k})=\mathbf{q}^{\intercal}\mathbf{R}_m^{\intercal}\mathbf{R}_n\,\mathbf{k}=\mathbf{q}^{\intercal}\mathbf{R}_{n-m}\,\mathbf{k}.
+\]</span> The attention score depends on the <strong>content</strong> <span class="math inline">\(\mathbf{q},\mathbf{k}\)</span> and on the <strong>relative offset</strong> <span class="math inline">\(n-m\)</span>, and not on the absolute positions. <span class="math inline">\(\blacksquare\)</span></p>
+</div>
+</div>
+<p>Rotations preserve length (Chapter 4), so RoPE changes no norms. It carries only angle information.</p>
+<div id="code-rope" class="cell" data-execution_count="5">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> rope(x, positions, base<span class="op">=</span><span class="fl">10000.0</span>):</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""x: (T, d) with d even; positions: (T,) -&gt; rotated x."""</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    T, d <span class="op">=</span> x.shape</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    theta <span class="op">=</span> base <span class="op">**</span> (<span class="op">-</span>np.arange(<span class="dv">0</span>, d, <span class="dv">2</span>) <span class="op">/</span> d)                   <span class="co"># (d/2,)</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    ang <span class="op">=</span> positions[:, <span class="va">None</span>] <span class="op">*</span> theta[<span class="va">None</span>, :]                   <span class="co"># (T, d/2)</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    c, s <span class="op">=</span> np.cos(ang), np.sin(ang)</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    x1, x2 <span class="op">=</span> x[:, <span class="dv">0</span>::<span class="dv">2</span>], x[:, <span class="dv">1</span>::<span class="dv">2</span>]</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    out <span class="op">=</span> np.empty_like(x)</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    out[:, <span class="dv">0</span>::<span class="dv">2</span>] <span class="op">=</span> x1 <span class="op">*</span> c <span class="op">-</span> x2 <span class="op">*</span> s</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    out[:, <span class="dv">1</span>::<span class="dv">2</span>] <span class="op">=</span> x1 <span class="op">*</span> s <span class="op">+</span> x2 <span class="op">*</span> c</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> out</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">0</span>)</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> <span class="dv">16</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>q, k <span class="op">=</span> rng.normal(size<span class="op">=</span>d), rng.normal(size<span class="op">=</span>d)</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>score <span class="op">=</span> <span class="kw">lambda</span> m, n: rope(q[<span class="va">None</span>], np.array([m]))[<span class="dv">0</span>] <span class="op">@</span> rope(k[<span class="va">None</span>], np.array([n]))[<span class="dv">0</span>]</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"score(m=3,  n=8)      ="</span>, <span class="bu">round</span>(score(<span class="dv">3</span>, <span class="dv">8</span>), <span class="dv">6</span>))</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"score(m=40, n=45)     ="</span>, <span class="bu">round</span>(score(<span class="dv">40</span>, <span class="dv">45</span>), <span class="dv">6</span>), <span class="st">" (same offset 5)"</span>)</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"score(m=100, n=105)   ="</span>, <span class="bu">round</span>(score(<span class="dv">100</span>, <span class="dv">105</span>), <span class="dv">6</span>), <span class="st">" (same offset 5)"</span>)</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"score(m=3,  n=9)      ="</span>, <span class="bu">round</span>(score(<span class="dv">3</span>, <span class="dv">9</span>), <span class="dv">6</span>), <span class="st">" (offset 6: different)"</span>)</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"norm preserved:"</span>, np.isclose(np.linalg.norm(rope(q[<span class="va">None</span>], np.array([<span class="dv">37</span>]))[<span class="dv">0</span>]), np.linalg.norm(q)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>score(m=3,  n=8)      = 1.419499
+score(m=40, n=45)     = 1.419499  (same offset 5)
+score(m=100, n=105)   = 1.419499  (same offset 5)
+score(m=3,  n=9)      = 1.381043  (offset 6: different)
+norm preserved: True</code></pre>
+</div>
+</div>
+<div id="cell-fig-rope" class="cell" data-execution_count="6">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>fig, (ax1, ax2) <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="fl">9.5</span>, <span class="fl">3.6</span>))</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>v <span class="op">=</span> np.array([[<span class="fl">1.0</span>, <span class="fl">0.0</span>]])</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>pts <span class="op">=</span> np.array([rope(v, np.array([m]), base<span class="op">=</span><span class="fl">3.0</span>)[<span class="dv">0</span>] <span class="cf">for</span> m <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">7</span>)])   <span class="co"># fast frequency for display</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> np.linspace(<span class="dv">0</span>, <span class="dv">2</span> <span class="op">*</span> np.pi, <span class="dv">100</span>)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>ax1.plot(np.cos(t), np.sin(t), color<span class="op">=</span><span class="st">"#D1D5DB"</span>)</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>ax1.scatter(<span class="op">*</span>pts.T, color<span class="op">=</span>PALETTE[<span class="st">"model"</span>], s<span class="op">=</span><span class="dv">50</span>, zorder<span class="op">=</span><span class="dv">3</span>)</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> m, p <span class="kw">in</span> <span class="bu">enumerate</span>(pts): ax1.annotate(<span class="bu">str</span>(m), p <span class="op">*</span> <span class="fl">1.12</span>, ha<span class="op">=</span><span class="st">"center"</span>, fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>ax1.set_aspect(<span class="st">"equal"</span>)<span class="op">;</span> ax1.set_title(<span class="st">"one pair rotated by m·θ"</span>)</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>x_ <span class="op">=</span> rng.normal(size<span class="op">=</span><span class="dv">64</span>)</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>offs <span class="op">=</span> np.arange(<span class="dv">0</span>, <span class="dv">200</span>)</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>sc <span class="op">=</span> [rope(x_[<span class="va">None</span>], np.array([<span class="dv">0</span>]))[<span class="dv">0</span>] <span class="op">@</span> rope(x_[<span class="va">None</span>], np.array([o]))[<span class="dv">0</span>] <span class="cf">for</span> o <span class="kw">in</span> offs]</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>ax2.plot(offs, sc, color<span class="op">=</span>PALETTE[<span class="st">"loss"</span>])<span class="op">;</span> ax2.axhline(<span class="dv">0</span>, c<span class="op">=</span><span class="st">"#9CA3AF"</span>, lw<span class="op">=</span><span class="fl">0.6</span>)</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>ax2.set_xlabel(<span class="st">"offset n − m"</span>)<span class="op">;</span> ax2.set_ylabel(<span class="st">"score q·k (same vector)"</span>)</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="fig-rope" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Left: seven points on a circle at increasing angles. Right: an oscillating decaying curve of attention score versus offset.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-rope-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="ch32_decoder_only_language_models_files/figure-html/fig-rope-output-1.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-3" title="Figure&nbsp;32.3: Left: RoPE rotates one coordinate pair of a vector by an angle proportional to position (points at positions 0 to 6, fast frequency). Right: the score between a fixed query and key as a function of their offset (identical vector at both positions, 64 dimensions). It oscillates and decays with distance: nearby tokens interact more strongly."><img src="ch32_decoder_only_language_models_files/figure-html/fig-rope-output-1.svg" class="img-fluid figure-img" alt="Left: seven points on a circle at increasing angles. Right: an oscillating decaying curve of attention score versus offset."></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-rope-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;32.3: Left: RoPE rotates one coordinate pair of a vector by an angle proportional to position (points at positions 0 to 6, fast frequency). Right: the score between a fixed query and key as a function of their offset (identical vector at both positions, 64 dimensions). It oscillates and decays with distance: nearby tokens interact more strongly.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="sec-rmsnorm" class="level2" data-number="32.5">
+<h2 data-number="32.5" class="anchored" data-anchor-id="sec-rmsnorm"><span class="header-section-number">32.5</span> RMSNorm</h2>
+<p>LayerNorm (Chapter 20) subtracts the mean and divides by the standard deviation. <strong>RMSNorm</strong> divides only by the root mean square:</p>
+<p><span id="eq-rmsnorm"><span class="math display">\[
+\text{RMSNorm}(\mathbf{x})=\frac{\mathbf{x}}{\sqrt{\tfrac1d\sum_ix_i^2+\epsilon}}\odot\mathbf{g}.
+\tag{32.2}\]</span></span></p>
+<p>It has no mean statistic and no bias, so it is cheaper, and it is as effective in practice. For a vector with zero mean it equals LayerNorm without its shift.</p>
+<div id="code-rmsnorm" class="cell" data-execution_count="7">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> layernorm(x, eps<span class="op">=</span><span class="fl">1e-6</span>):</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    mu <span class="op">=</span> x.mean(<span class="op">-</span><span class="dv">1</span>, keepdims<span class="op">=</span><span class="va">True</span>)<span class="op">;</span> v <span class="op">=</span> x.var(<span class="op">-</span><span class="dv">1</span>, keepdims<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (x <span class="op">-</span> mu) <span class="op">/</span> np.sqrt(v <span class="op">+</span> eps)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> rmsnorm(x, eps<span class="op">=</span><span class="fl">1e-6</span>):</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> x <span class="op">/</span> np.sqrt((x <span class="op">**</span> <span class="dv">2</span>).mean(<span class="op">-</span><span class="dv">1</span>, keepdims<span class="op">=</span><span class="va">True</span>) <span class="op">+</span> eps)</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> rng.normal(size<span class="op">=</span>(<span class="dv">4</span>, <span class="dv">64</span>))</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>x0 <span class="op">=</span> x <span class="op">-</span> x.mean(<span class="op">-</span><span class="dv">1</span>, keepdims<span class="op">=</span><span class="va">True</span>)                         <span class="co"># zero-mean rows</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"equal when the mean is zero  :"</span>, np.allclose(layernorm(x0), rmsnorm(x0), atol<span class="op">=</span><span class="fl">1e-4</span>))</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>xs <span class="op">=</span> x <span class="op">+</span> <span class="fl">5.0</span>                                                <span class="co"># large common offset</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"differ when there is an offset:"</span>, <span class="kw">not</span> np.allclose(layernorm(xs), rmsnorm(xs), atol<span class="op">=</span><span class="fl">1e-2</span>))</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"RMS of the output is 1       :"</span>, np.<span class="bu">round</span>(np.sqrt((rmsnorm(xs) <span class="op">**</span> <span class="dv">2</span>).mean(<span class="op">-</span><span class="dv">1</span>)), <span class="dv">3</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>equal when the mean is zero  : True
+differ when there is an offset: True
+RMS of the output is 1       : [1. 1. 1. 1.]</code></pre>
+</div>
+</div>
+</section>
+<section id="sec-swiglu" class="level2" data-number="32.6">
+<h2 data-number="32.6" class="anchored" data-anchor-id="sec-swiglu"><span class="header-section-number">32.6</span> SwiGLU</h2>
+<p>A <strong>gated linear unit</strong> multiplies two projections of the input element-wise: one passes through an activation and acts as a gate for the other. With the SiLU activation (Chapter 10), the MLP becomes</p>
+<p><span id="eq-swiglu"><span class="math display">\[
+\text{SwiGLU}(\mathbf{x})=\mathbf{W}_{2}\Bigl(\text{SiLU}(\mathbf{W}_{1}\mathbf{x})\odot(\mathbf{W}_{3}\mathbf{x})\Bigr),\qquad\text{SiLU}(z)=z\,\sigma(z).
+\tag{32.3}\]</span></span></p>
+<p>It has <strong>three</strong> matrices instead of two. To keep the parameter count of the standard MLP (<span class="math inline">\(2\cdot d\cdot4d=8d^2\)</span>), the hidden size is reduced to <span class="math inline">\(\frac83d\)</span>:</p>
+<p><span class="math display">\[
+3\cdot d\cdot\tfrac83d=8d^2.
+\]</span></p>
+<p>The gate lets the network switch features on and off per token, a multiplicative interaction that a plain MLP only approximates. Empirically it gives a better loss at equal parameters.</p>
+<div id="code-swiglu" class="cell" data-execution_count="8">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> <span class="dv">4096</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>hid_std <span class="op">=</span> <span class="dv">4</span> <span class="op">*</span> d</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>hid_glu <span class="op">=</span> <span class="bu">int</span>(<span class="dv">8</span> <span class="op">*</span> d <span class="op">/</span> <span class="dv">3</span>)</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"standard MLP: 2 · d · 4d = </span><span class="sc">{</span><span class="dv">2</span> <span class="op">*</span> d <span class="op">*</span> hid_std<span class="sc">:,}</span><span class="ss">"</span>)</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"SwiGLU (hidden </span><span class="sc">{</span>hid_glu<span class="sc">}</span><span class="ss">): 3 · d · h = </span><span class="sc">{</span><span class="dv">3</span> <span class="op">*</span> d <span class="op">*</span> hid_glu<span class="sc">:,}</span><span class="ss">"</span>)</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"difference: </span><span class="sc">{:.2%}</span><span class="st">"</span>.<span class="bu">format</span>(<span class="bu">abs</span>(<span class="dv">3</span> <span class="op">*</span> d <span class="op">*</span> hid_glu <span class="op">-</span> <span class="dv">2</span> <span class="op">*</span> d <span class="op">*</span> hid_std) <span class="op">/</span> (<span class="dv">2</span> <span class="op">*</span> d <span class="op">*</span> hid_std)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>standard MLP: 2 · d · 4d = 134,217,728
+SwiGLU (hidden 10922): 3 · d · h = 134,209,536
+difference: 0.01%</code></pre>
+</div>
+</div>
+</section>
+<section id="sec-gqa" class="level2" data-number="32.7">
+<h2 data-number="32.7" class="anchored" data-anchor-id="sec-gqa"><span class="header-section-number">32.7</span> Grouped-query attention and the KV cache</h2>
+<p>During generation, the keys and values of all past tokens are needed at every step. Recomputing them is wasteful. The <strong>KV cache</strong> stores them. Each new token only computes its own <span class="math inline">\(\mathbf{q},\mathbf{k},\mathbf{v}\)</span>, appends <span class="math inline">\(\mathbf{k},\mathbf{v}\)</span> to the cache, and attends over the cache.</p>
+<p>The cache holds <span class="math inline">\(2\cdot L\cdot T\cdot n_{\text{kv}}\cdot d_h\)</span> numbers. It grows with the context length and can dominate memory. <strong>Grouped-query attention (GQA)</strong> uses fewer key/value heads <span class="math inline">\(n_{\text{kv}}\)</span> than query heads <span class="math inline">\(h\)</span>. Several query heads share one key/value head. It shrinks the cache by <span class="math inline">\(h/n_{\text{kv}}\)</span> with a small loss in quality.</p>
+<div id="code-kvcache-size" class="cell" data-execution_count="9">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> kv_bytes(L, T, n_kv, dh, bytes_per<span class="op">=</span><span class="dv">2</span>):</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">2</span> <span class="op">*</span> L <span class="op">*</span> T <span class="op">*</span> n_kv <span class="op">*</span> dh <span class="op">*</span> bytes_per</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>L_, h_, dh_, T_ <span class="op">=</span> <span class="dv">32</span>, <span class="dv">32</span>, <span class="dv">128</span>, <span class="dv">8192</span>                       <span class="co"># a 7B-class shape, 8k context, fp16</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> name, n_kv <span class="kw">in</span> [(<span class="st">"multi-head (32 KV heads)"</span>, <span class="dv">32</span>), (<span class="st">"GQA (8 KV heads)"</span>, <span class="dv">8</span>), (<span class="st">"multi-query (1 KV head)"</span>, <span class="dv">1</span>)]:</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>name<span class="sc">:26s}</span><span class="ss"> KV cache per sequence: </span><span class="sc">{</span>kv_bytes(L_, T_, n_kv, dh_) <span class="op">/</span> <span class="dv">2</span><span class="op">**</span><span class="dv">30</span><span class="sc">:6.2f}</span><span class="ss"> GiB"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>multi-head (32 KV heads)   KV cache per sequence:   4.00 GiB
+GQA (8 KV heads)           KV cache per sequence:   1.00 GiB
+multi-query (1 KV head)    KV cache per sequence:   0.12 GiB</code></pre>
+</div>
+</div>
+</section>
+<section id="sec-block" class="level2" data-number="32.8">
+<h2 data-number="32.8" class="anchored" data-anchor-id="sec-block"><span class="header-section-number">32.8</span> A minimal Llama block</h2>
+<p>We assemble everything in PyTorch: RMSNorm, RoPE, grouped-query causal attention, SwiGLU, residual connections. It follows the structure of <a href="#fig-llama" class="quarto-xref">Figure&nbsp;<span>32.2</span></a>.</p>
+<div id="code-block" class="cell" data-execution_count="10">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch, torch.nn <span class="im">as</span> nn, torch.nn.functional <span class="im">as</span> F</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> RMSNorm(nn.Module):</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, d, eps<span class="op">=</span><span class="fl">1e-6</span>):</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>()<span class="op">;</span> <span class="va">self</span>.g <span class="op">=</span> nn.Parameter(torch.ones(d))<span class="op">;</span> <span class="va">self</span>.eps <span class="op">=</span> eps</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, x):</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> x <span class="op">*</span> torch.rsqrt(x.<span class="bu">pow</span>(<span class="dv">2</span>).mean(<span class="op">-</span><span class="dv">1</span>, keepdim<span class="op">=</span><span class="va">True</span>) <span class="op">+</span> <span class="va">self</span>.eps) <span class="op">*</span> <span class="va">self</span>.g</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> rope_cache(dh, T, base<span class="op">=</span><span class="fl">10000.0</span>):</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>    theta <span class="op">=</span> base <span class="op">**</span> (<span class="op">-</span>torch.arange(<span class="dv">0</span>, dh, <span class="dv">2</span>).<span class="bu">float</span>() <span class="op">/</span> dh)</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>    ang <span class="op">=</span> torch.arange(T).<span class="bu">float</span>()[:, <span class="va">None</span>] <span class="op">*</span> theta[<span class="va">None</span>, :]          <span class="co"># (T, dh/2)</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ang.cos(), ang.sin()</span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> apply_rope(x, cos, sin):                                         <span class="co"># x: (B, heads, T, dh)</span></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>    x1, x2 <span class="op">=</span> x[..., <span class="dv">0</span>::<span class="dv">2</span>], x[..., <span class="dv">1</span>::<span class="dv">2</span>]</span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> torch.stack([x1 <span class="op">*</span> cos <span class="op">-</span> x2 <span class="op">*</span> sin, x1 <span class="op">*</span> sin <span class="op">+</span> x2 <span class="op">*</span> cos], dim<span class="op">=-</span><span class="dv">1</span>).flatten(<span class="op">-</span><span class="dv">2</span>)</span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> LlamaBlock(nn.Module):</span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, d, n_heads, n_kv, hidden):</span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>()</span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.h, <span class="va">self</span>.n_kv, <span class="va">self</span>.dh <span class="op">=</span> n_heads, n_kv, d <span class="op">//</span> n_heads</span>
+<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.wq <span class="op">=</span> nn.Linear(d, n_heads <span class="op">*</span> <span class="va">self</span>.dh, bias<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.wk <span class="op">=</span> nn.Linear(d, n_kv <span class="op">*</span> <span class="va">self</span>.dh, bias<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.wv <span class="op">=</span> nn.Linear(d, n_kv <span class="op">*</span> <span class="va">self</span>.dh, bias<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb14-25"><a href="#cb14-25" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.wo <span class="op">=</span> nn.Linear(n_heads <span class="op">*</span> <span class="va">self</span>.dh, d, bias<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb14-26"><a href="#cb14-26" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.w1 <span class="op">=</span> nn.Linear(d, hidden, bias<span class="op">=</span><span class="va">False</span>)       <span class="co"># gate branch</span></span>
+<span id="cb14-27"><a href="#cb14-27" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.w3 <span class="op">=</span> nn.Linear(d, hidden, bias<span class="op">=</span><span class="va">False</span>)       <span class="co"># linear branch</span></span>
+<span id="cb14-28"><a href="#cb14-28" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.w2 <span class="op">=</span> nn.Linear(hidden, d, bias<span class="op">=</span><span class="va">False</span>)       <span class="co"># down projection</span></span>
+<span id="cb14-29"><a href="#cb14-29" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.n1, <span class="va">self</span>.n2 <span class="op">=</span> RMSNorm(d), RMSNorm(d)</span>
+<span id="cb14-30"><a href="#cb14-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-31"><a href="#cb14-31" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> _qkv(<span class="va">self</span>, x, cos, sin):</span>
+<span id="cb14-32"><a href="#cb14-32" aria-hidden="true" tabindex="-1"></a>        B, T, _ <span class="op">=</span> x.shape</span>
+<span id="cb14-33"><a href="#cb14-33" aria-hidden="true" tabindex="-1"></a>        q <span class="op">=</span> <span class="va">self</span>.wq(x).view(B, T, <span class="va">self</span>.h, <span class="va">self</span>.dh).transpose(<span class="dv">1</span>, <span class="dv">2</span>)</span>
+<span id="cb14-34"><a href="#cb14-34" aria-hidden="true" tabindex="-1"></a>        k <span class="op">=</span> <span class="va">self</span>.wk(x).view(B, T, <span class="va">self</span>.n_kv, <span class="va">self</span>.dh).transpose(<span class="dv">1</span>, <span class="dv">2</span>)</span>
+<span id="cb14-35"><a href="#cb14-35" aria-hidden="true" tabindex="-1"></a>        v <span class="op">=</span> <span class="va">self</span>.wv(x).view(B, T, <span class="va">self</span>.n_kv, <span class="va">self</span>.dh).transpose(<span class="dv">1</span>, <span class="dv">2</span>)</span>
+<span id="cb14-36"><a href="#cb14-36" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> apply_rope(q, cos, sin), apply_rope(k, cos, sin), v</span>
+<span id="cb14-37"><a href="#cb14-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-38"><a href="#cb14-38" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> _mlp(<span class="va">self</span>, x):</span>
+<span id="cb14-39"><a href="#cb14-39" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>.w2(F.silu(<span class="va">self</span>.w1(x)) <span class="op">*</span> <span class="va">self</span>.w3(x))</span>
+<span id="cb14-40"><a href="#cb14-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-41"><a href="#cb14-41" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, x, cos, sin):</span>
+<span id="cb14-42"><a href="#cb14-42" aria-hidden="true" tabindex="-1"></a>        B, T, d <span class="op">=</span> x.shape</span>
+<span id="cb14-43"><a href="#cb14-43" aria-hidden="true" tabindex="-1"></a>        q, k, v <span class="op">=</span> <span class="va">self</span>._qkv(<span class="va">self</span>.n1(x), cos[:T], sin[:T])</span>
+<span id="cb14-44"><a href="#cb14-44" aria-hidden="true" tabindex="-1"></a>        rep <span class="op">=</span> <span class="va">self</span>.h <span class="op">//</span> <span class="va">self</span>.n_kv                              <span class="co"># query heads per KV head</span></span>
+<span id="cb14-45"><a href="#cb14-45" aria-hidden="true" tabindex="-1"></a>        k, v <span class="op">=</span> k.repeat_interleave(rep, dim<span class="op">=</span><span class="dv">1</span>), v.repeat_interleave(rep, dim<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb14-46"><a href="#cb14-46" aria-hidden="true" tabindex="-1"></a>        a <span class="op">=</span> F.scaled_dot_product_attention(q, k, v, is_causal<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb14-47"><a href="#cb14-47" aria-hidden="true" tabindex="-1"></a>        x <span class="op">=</span> x <span class="op">+</span> <span class="va">self</span>.wo(a.transpose(<span class="dv">1</span>, <span class="dv">2</span>).reshape(B, T, d))</span>
+<span id="cb14-48"><a href="#cb14-48" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> x <span class="op">+</span> <span class="va">self</span>._mlp(<span class="va">self</span>.n2(x))</span>
+<span id="cb14-49"><a href="#cb14-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-50"><a href="#cb14-50" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> step(<span class="va">self</span>, x_t, pos, cache, cos, sin):</span>
+<span id="cb14-51"><a href="#cb14-51" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""One-token forward with a KV cache. x_t: (B, 1, d)."""</span></span>
+<span id="cb14-52"><a href="#cb14-52" aria-hidden="true" tabindex="-1"></a>        B, _, d <span class="op">=</span> x_t.shape</span>
+<span id="cb14-53"><a href="#cb14-53" aria-hidden="true" tabindex="-1"></a>        q, k, v <span class="op">=</span> <span class="va">self</span>._qkv(<span class="va">self</span>.n1(x_t), cos[pos:pos <span class="op">+</span> <span class="dv">1</span>], sin[pos:pos <span class="op">+</span> <span class="dv">1</span>])</span>
+<span id="cb14-54"><a href="#cb14-54" aria-hidden="true" tabindex="-1"></a>        cache[<span class="st">"k"</span>] <span class="op">=</span> k <span class="cf">if</span> cache.get(<span class="st">"k"</span>) <span class="kw">is</span> <span class="va">None</span> <span class="cf">else</span> torch.cat([cache[<span class="st">"k"</span>], k], dim<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb14-55"><a href="#cb14-55" aria-hidden="true" tabindex="-1"></a>        cache[<span class="st">"v"</span>] <span class="op">=</span> v <span class="cf">if</span> cache.get(<span class="st">"v"</span>) <span class="kw">is</span> <span class="va">None</span> <span class="cf">else</span> torch.cat([cache[<span class="st">"v"</span>], v], dim<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb14-56"><a href="#cb14-56" aria-hidden="true" tabindex="-1"></a>        rep <span class="op">=</span> <span class="va">self</span>.h <span class="op">//</span> <span class="va">self</span>.n_kv</span>
+<span id="cb14-57"><a href="#cb14-57" aria-hidden="true" tabindex="-1"></a>        K, Vv <span class="op">=</span> cache[<span class="st">"k"</span>].repeat_interleave(rep, <span class="dv">1</span>), cache[<span class="st">"v"</span>].repeat_interleave(rep, <span class="dv">1</span>)</span>
+<span id="cb14-58"><a href="#cb14-58" aria-hidden="true" tabindex="-1"></a>        a <span class="op">=</span> F.scaled_dot_product_attention(q, K, Vv)           <span class="co"># one query: no mask needed</span></span>
+<span id="cb14-59"><a href="#cb14-59" aria-hidden="true" tabindex="-1"></a>        x_t <span class="op">=</span> x_t <span class="op">+</span> <span class="va">self</span>.wo(a.transpose(<span class="dv">1</span>, <span class="dv">2</span>).reshape(B, <span class="dv">1</span>, d))</span>
+<span id="cb14-60"><a href="#cb14-60" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> x_t <span class="op">+</span> <span class="va">self</span>._mlp(<span class="va">self</span>.n2(x_t))</span>
+<span id="cb14-61"><a href="#cb14-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-62"><a href="#cb14-62" aria-hidden="true" tabindex="-1"></a>torch.manual_seed(<span class="dv">0</span>)</span>
+<span id="cb14-63"><a href="#cb14-63" aria-hidden="true" tabindex="-1"></a>d, h, n_kv, hid <span class="op">=</span> <span class="dv">64</span>, <span class="dv">8</span>, <span class="dv">2</span>, <span class="dv">176</span>                                <span class="co"># hidden ≈ 8d/3 rounded</span></span>
+<span id="cb14-64"><a href="#cb14-64" aria-hidden="true" tabindex="-1"></a>blk <span class="op">=</span> LlamaBlock(d, h, n_kv, hid)</span>
+<span id="cb14-65"><a href="#cb14-65" aria-hidden="true" tabindex="-1"></a>cos, sin <span class="op">=</span> rope_cache(d <span class="op">//</span> h, <span class="dv">64</span>)</span>
+<span id="cb14-66"><a href="#cb14-66" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> torch.randn(<span class="dv">2</span>, <span class="dv">10</span>, d)</span>
+<span id="cb14-67"><a href="#cb14-67" aria-hidden="true" tabindex="-1"></a>Y <span class="op">=</span> blk(X, cos, sin)</span>
+<span id="cb14-68"><a href="#cb14-68" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"output shape:"</span>, <span class="bu">tuple</span>(Y.shape))</span>
+<span id="cb14-69"><a href="#cb14-69" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-70"><a href="#cb14-70" aria-hidden="true" tabindex="-1"></a>n_counted <span class="op">=</span> <span class="bu">sum</span>(p.numel() <span class="cf">for</span> p <span class="kw">in</span> blk.parameters())</span>
+<span id="cb14-71"><a href="#cb14-71" aria-hidden="true" tabindex="-1"></a>n_formula <span class="op">=</span> (<span class="dv">2</span> <span class="op">*</span> d <span class="op">*</span> d <span class="op">+</span> <span class="dv">2</span> <span class="op">*</span> d <span class="op">*</span> n_kv <span class="op">*</span> (d <span class="op">//</span> h)) <span class="op">+</span> <span class="dv">3</span> <span class="op">*</span> d <span class="op">*</span> hid <span class="op">+</span> <span class="dv">2</span> <span class="op">*</span> d</span>
+<span id="cb14-72"><a href="#cb14-72" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"parameters: counted </span><span class="sc">{</span>n_counted<span class="sc">:,}</span><span class="ss">, formula </span><span class="sc">{</span>n_formula<span class="sc">:,}</span><span class="ss">, equal: </span><span class="sc">{</span>n_counted <span class="op">==</span> n_formula<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>output shape: (2, 10, 64)
+parameters: counted 44,160, formula 44,160, equal: True</code></pre>
+</div>
+</div>
+<section id="checks" class="level3" data-number="32.8.1">
+<h3 data-number="32.8.1" class="anchored" data-anchor-id="checks"><span class="header-section-number">32.8.1</span> Checks</h3>
+<p><strong>Causality.</strong> Changing a future token must not change earlier outputs.</p>
+<p><strong>KV cache.</strong> Decoding one token at a time with a cache must give exactly the same outputs as the full forward pass.</p>
+<div id="code-checks" class="cell" data-execution_count="11">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>X2 <span class="op">=</span> X.clone()<span class="op">;</span> X2[:, <span class="dv">7</span>:] <span class="op">+=</span> torch.randn(<span class="dv">2</span>, <span class="dv">3</span>, d)              <span class="co"># change tokens 7..9</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>Y2 <span class="op">=</span> blk(X2, cos, sin)</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"outputs at positions 0..6 unchanged by a change in the future:"</span>,</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>      torch.allclose(Y[:, :<span class="dv">7</span>], Y2[:, :<span class="dv">7</span>], atol<span class="op">=</span><span class="fl">1e-6</span>))</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>cache, outs <span class="op">=</span> {}, []</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> t <span class="kw">in</span> <span class="bu">range</span>(X.shape[<span class="dv">1</span>]):</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>    outs.append(blk.step(X[:, t:t <span class="op">+</span> <span class="dv">1</span>], t, cache, cos, sin))</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>Y_cached <span class="op">=</span> torch.cat(outs, dim<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"KV-cache decoding equals the full forward pass:"</span>, torch.allclose(Y, Y_cached, atol<span class="op">=</span><span class="fl">1e-5</span>))</span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"cache shapes (B, n_kv, T, d_h):"</span>, <span class="bu">tuple</span>(cache[<span class="st">"k"</span>].shape))</span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a><span class="co"># attention score count: recompute everything each step vs cached</span></span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>T <span class="op">=</span> <span class="dv">1000</span></span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>no_cache <span class="op">=</span> <span class="bu">sum</span>(t <span class="op">*</span> t <span class="cf">for</span> t <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, T <span class="op">+</span> <span class="dv">1</span>))<span class="op">;</span> with_cache <span class="op">=</span> <span class="bu">sum</span>(t <span class="cf">for</span> t <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, T <span class="op">+</span> <span class="dv">1</span>))</span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"query–key score computations to generate </span><span class="sc">{</span>T<span class="sc">}</span><span class="ss"> tokens: "</span></span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>      <span class="ss">f"without cache </span><span class="sc">{</span>no_cache<span class="sc">:,}</span><span class="ss">, with cache </span><span class="sc">{</span>with_cache<span class="sc">:,}</span><span class="ss">  (×</span><span class="sc">{</span>no_cache <span class="op">/</span> with_cache<span class="sc">:.0f}</span><span class="ss">)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>outputs at positions 0..6 unchanged by a change in the future: True
+KV-cache decoding equals the full forward pass: True
+cache shapes (B, n_kv, T, d_h): (2, 2, 10, 8)
+query–key score computations to generate 1000 tokens: without cache 333,833,500, with cache 500,500  (×667)</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="sec-tying" class="level2" data-number="32.9">
+<h2 data-number="32.9" class="anchored" data-anchor-id="sec-tying"><span class="header-section-number">32.9</span> Weight tying and the output head</h2>
+<p>The output layer maps a hidden vector <span class="math inline">\(\mathbf{h}\in\mathbb{R}^d\)</span> to <span class="math inline">\(V\)</span> scores. If we reuse the embedding matrix, the logits are</p>
+<p><span id="eq-tying"><span class="math display">\[
+\mathbf{z}=\mathbf{h}\,\mathbf{E}^{\intercal}\in\mathbb{R}^V,\qquad z_t=\mathbf{h}\cdot\mathbf{e}_t.
+\tag{32.4}\]</span></span></p>
+<p>The score of token <span class="math inline">\(t\)</span> is the <strong>dot product</strong> of the final representation with that token’s embedding (Chapter 4). Embedding and output share one matrix and the model saves <span class="math inline">\(Vd\)</span> parameters. After softmax this is the next-token distribution (Chapter 24).</p>
+</section>
+<section id="sec-count" class="level2" data-number="32.10">
+<h2 data-number="32.10" class="anchored" data-anchor-id="sec-count"><span class="header-section-number">32.10</span> Counting a full model</h2>
+<p>Putting the pieces together, for width <span class="math inline">\(d\)</span>, <span class="math inline">\(L\)</span> blocks, <span class="math inline">\(h\)</span> query heads of size <span class="math inline">\(d_h=d/h\)</span>, <span class="math inline">\(n_{\text{kv}}\)</span> key/value heads, and hidden size <span class="math inline">\(f\)</span>:</p>
+<p><span id="eq-llama-params"><span class="math display">\[
+N\approx Vd+L\Bigl(\underbrace{2d^2+2\,d\,n_{\text{kv}}d_h}_{\text{attention}}+\underbrace{3\,d\,f}_{\text{SwiGLU}}+\underbrace{2d}_{\text{norms}}\Bigr)+d.
+\tag{32.5}\]</span></span></p>
+<div id="code-llama7b" class="cell" data-execution_count="12">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> llama_params(V, d, L, h, n_kv, f):</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>    dh <span class="op">=</span> d <span class="op">//</span> h</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>    per_block <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> d <span class="op">*</span> d <span class="op">+</span> <span class="dv">2</span> <span class="op">*</span> d <span class="op">*</span> n_kv <span class="op">*</span> dh <span class="op">+</span> <span class="dv">3</span> <span class="op">*</span> d <span class="op">*</span> f <span class="op">+</span> <span class="dv">2</span> <span class="op">*</span> d</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> V <span class="op">*</span> d <span class="op">+</span> L <span class="op">*</span> per_block <span class="op">+</span> d</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>N7 <span class="op">=</span> llama_params(V<span class="op">=</span><span class="dv">32000</span>, d<span class="op">=</span><span class="dv">4096</span>, L<span class="op">=</span><span class="dv">32</span>, h<span class="op">=</span><span class="dv">32</span>, n_kv<span class="op">=</span><span class="dv">32</span>, f<span class="op">=</span><span class="dv">11008</span>)</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"7B-class configuration: </span><span class="sc">{</span>N7 <span class="op">/</span> <span class="fl">1e9</span><span class="sc">:.2f}</span><span class="ss"> billion parameters"</span>)</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"  embedding: </span><span class="sc">{</span><span class="dv">32000</span> <span class="op">*</span> <span class="dv">4096</span> <span class="op">/</span> <span class="fl">1e6</span><span class="sc">:.0f}</span><span class="ss"> M;  blocks: </span><span class="sc">{</span>(N7 <span class="op">-</span> <span class="dv">32000</span> <span class="op">*</span> <span class="dv">4096</span>) <span class="op">/</span> <span class="fl">1e9</span><span class="sc">:.2f}</span><span class="ss"> B"</span>)</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"forward FLOPs per token ≈ 2N = </span><span class="sc">{</span><span class="dv">2</span> <span class="op">*</span> N7 <span class="op">/</span> <span class="fl">1e9</span><span class="sc">:.1f}</span><span class="ss"> GFLOP"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>7B-class configuration: 6.61 billion parameters
+  embedding: 131 M;  blocks: 6.48 B
+forward FLOPs per token ≈ 2N = 13.2 GFLOP</code></pre>
+</div>
+</div>
+</section>
+<section id="sec-sources" class="level2" data-number="32.11">
+<h2 data-number="32.11" class="anchored" data-anchor-id="sec-sources"><span class="header-section-number">32.11</span> Where each equation comes from</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Piece</th>
+<th>Object</th>
+<th>Developed in</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Token ids, embedding <span class="math inline">\(\mathbf{E}\)</span></td>
+<td>lookup table</td>
+<td>Chapters 3, 5</td>
+</tr>
+<tr class="even">
+<td>RoPE: rotate <span class="math inline">\((q_{2i},q_{2i+1})\)</span></td>
+<td><span class="math inline">\(2\times2\)</span> rotation matrices, composition</td>
+<td>Chapter 5</td>
+</tr>
+<tr class="odd">
+<td>Score depends on offset</td>
+<td><span class="math inline">\(\mathbf{R}_m^{\intercal}\mathbf{R}_n=\mathbf{R}_{n-m}\)</span></td>
+<td>Chapters 4, 5</td>
+</tr>
+<tr class="even">
+<td>Causal attention</td>
+<td>masked soft lookup</td>
+<td>Chapter 30</td>
+</tr>
+<tr class="odd">
+<td>GQA: repeat KV heads</td>
+<td>reshape and broadcast</td>
+<td>Chapters 6, 30</td>
+</tr>
+<tr class="even">
+<td>RMSNorm</td>
+<td><span class="math inline">\(\ell_2\)</span> norm, rescaling</td>
+<td>Chapters 4, 20</td>
+</tr>
+<tr class="odd">
+<td>SwiGLU: <span class="math inline">\(\text{SiLU}(\mathbf{W}_{1}\mathbf{x})\odot\mathbf{W}_{3}\mathbf{x}\)</span></td>
+<td>activation, element-wise product</td>
+<td>Chapters 10, 11</td>
+</tr>
+<tr class="even">
+<td>Residual connections</td>
+<td>identity Jacobian path</td>
+<td>Chapters 18, 31</td>
+</tr>
+<tr class="odd">
+<td>Tied head <span class="math inline">\(\mathbf{h}\mathbf{E}^{\intercal}\)</span></td>
+<td>dot products with embeddings</td>
+<td>Chapters 4, 5</td>
+</tr>
+<tr class="even">
+<td>KV cache</td>
+<td>reuse of <span class="math inline">\(\mathbf{K},\mathbf{V}\)</span></td>
+<td>Chapter 30</td>
+</tr>
+<tr class="odd">
+<td>Softmax over <span class="math inline">\(V\)</span></td>
+<td>next-token distribution</td>
+<td>Chapter 24</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="sec-failure" class="level2" data-number="32.12">
+<h2 data-number="32.12" class="anchored" data-anchor-id="sec-failure"><span class="header-section-number">32.12</span> Failure modes</h2>
+<p><strong>RoPE beyond the training length.</strong> Rotation angles for positions never seen in training put queries and keys in configurations the model did not learn. Quality falls sharply past the trained context. Methods that rescale positions (position interpolation) exist for this reason.</p>
+<p><strong>Position precision.</strong> Position indices stored in 16-bit floats lose exactness:</p>
+<div id="code-bf16" class="cell" data-execution_count="13">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>pos <span class="op">=</span> torch.arange(<span class="dv">250</span>, <span class="dv">270</span>, dtype<span class="op">=</span>torch.float32)</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"float32:"</span>, pos[:<span class="dv">8</span>].tolist())</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"bfloat16:"</span>, pos.to(torch.bfloat16)[:<span class="dv">8</span>].<span class="bu">float</span>().tolist(), <span class="st">" &lt;- distinct positions collide"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>float32: [250.0, 251.0, 252.0, 253.0, 254.0, 255.0, 256.0, 257.0]
+bfloat16: [250.0, 251.0, 252.0, 253.0, 254.0, 255.0, 256.0, 256.0]  &lt;- distinct positions collide</code></pre>
+</div>
+</div>
+<p>Compute RoPE angles in float32.</p>
+<p><strong>Norm epsilon.</strong> In 16-bit arithmetic, <span class="math inline">\(\epsilon=10^{-6}\)</span> can vanish in the sum, and the reciprocal square root may overflow for tiny inputs. Models normalise in float32.</p>
+<p><strong>GQA grouping.</strong> If <span class="math inline">\(h\)</span> is not a multiple of <span class="math inline">\(n_{\text{kv}}\)</span>, heads cannot be grouped. If the repeat uses the wrong order (<code>repeat</code> instead of <code>repeat_interleave</code>), query heads read the wrong KV head and the model silently degrades.</p>
+<p><strong>Cache memory.</strong> The KV cache grows linearly with context and batch size and often limits the number of simultaneous requests.</p>
+</section>
+<section id="sec-ai-connection" class="level2" data-number="32.13">
+<h2 data-number="32.13" class="anchored" data-anchor-id="sec-ai-connection"><span class="header-section-number">32.13</span> Where this appears in modern AI</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Model family</th>
+<th>Features from this chapter</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Llama 1/2/3, Mistral, Qwen</td>
+<td>RoPE, RMSNorm, SwiGLU, GQA (in later versions)</td>
+</tr>
+<tr class="even">
+<td>GPT-2/3</td>
+<td>learned positions, LayerNorm, GELU MLP (Chapter 31)</td>
+</tr>
+<tr class="odd">
+<td>PaLM, Gemma</td>
+<td>SwiGLU/GeGLU, multi-query attention</td>
+</tr>
+<tr class="even">
+<td>Long-context models</td>
+<td>RoPE scaling, sliding-window attention</td>
+</tr>
+<tr class="odd">
+<td>Inference servers</td>
+<td>KV-cache management, GQA to shrink memory</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="sec-system-connection" class="level2" data-number="32.14">
+<h2 data-number="32.14" class="anchored" data-anchor-id="sec-system-connection"><span class="header-section-number">32.14</span> System connection</h2>
+<div class="callout callout-style-default callout-note callout-titled" title="What the system gained in this chapter">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>What the system gained in this chapter
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>System C is now a <strong>modern language-model architecture</strong>: tokens <span class="math inline">\(\to\)</span> embeddings <span class="math inline">\(\to\)</span> (RMSNorm, RoPE-attention, SwiGLU) <span class="math inline">\(\times\,N\to\)</span> logits <span class="math inline">\(=\mathbf{h}\mathbf{E}^{\intercal}\)</span> <span class="math inline">\(\to\)</span> softmax. Every change from Chapter 31 was an application of earlier mathematics: rotations, norms, element-wise gating, and reuse of cached tensors.</p>
+<p>The model gives a <strong>distribution over the next token</strong>. Chapter 33 shows how a distribution becomes a sentence, and how the whole model is trained by the chain rule of probability.</p>
+</div>
+</div>
+</section>
+<section id="chapter-summary" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="chapter-summary">Chapter summary</h2>
+<ul>
+<li>RoPE rotates query/key pairs by <span class="math inline">\(m\theta_i\)</span>. The score depends on content and the offset <span class="math inline">\(n-m\)</span>.</li>
+<li>RMSNorm: <span class="math inline">\(\mathbf{x}/\text{RMS}(\mathbf{x})\odot\mathbf{g}\)</span>, no mean subtraction.</li>
+<li>SwiGLU: <span class="math inline">\(\mathbf{W}_2(\text{SiLU}(\mathbf{W}_{1}\mathbf{x})\odot\mathbf{W}_{3}\mathbf{x})\)</span>, hidden size <span class="math inline">\(\frac83d\)</span> for equal parameters.</li>
+<li>GQA shares KV heads and shrinks the cache by <span class="math inline">\(h/n_{\text{kv}}\)</span>. The cache has <span class="math inline">\(2LTn_{\text{kv}}d_h\)</span> numbers.</li>
+<li>Tied head: <span class="math inline">\(\mathbf{z}=\mathbf{h}\mathbf{E}^{\intercal}\)</span>.</li>
+<li>A 7B-class model: about <span class="math inline">\(12d^2L\)</span> block parameters, <span class="math inline">\(2N\)</span> FLOPs per token.</li>
+</ul>
+</section>
+<section id="exercises" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="exercises">Exercises</h2>
+<ol type="1">
+<li><strong>Compute.</strong> For <span class="math inline">\(d=2048\)</span>, <span class="math inline">\(L=24\)</span>, <span class="math inline">\(h=16\)</span>, <span class="math inline">\(n_{\text{kv}}=4\)</span>, <span class="math inline">\(f=5632\)</span>, <span class="math inline">\(V=32{,}000\)</span>, give the parameter count with tied embeddings.</li>
+<li><strong>Compute.</strong> The KV cache of that model at <span class="math inline">\(T=4096\)</span> in float16: how many GiB per sequence?</li>
+<li><strong>Derive.</strong> Show that <span class="math inline">\(\mathbf{R}_m^{\intercal}\mathbf{R}_n=\mathbf{R}_{n-m}\)</span> for a single <span class="math inline">\(2\times2\)</span> rotation block, using the angle-addition formulas.</li>
+<li><strong>Derive.</strong> Show that RMSNorm output has root-mean-square <span class="math inline">\(\approx1\)</span> regardless of the input scale.</li>
+<li><strong>Code.</strong> Verify numerically that scaling the hidden size of SwiGLU to <span class="math inline">\(\frac83d\)</span> equalises the parameters, for <span class="math inline">\(d=1024\)</span> (round to a multiple of 64).</li>
+<li><strong>Code.</strong> Replace RoPE by learned absolute positions in <code>LlamaBlock</code>. Train both on the copy task of Chapter 31. Which learns faster?</li>
+<li><strong>Code.</strong> Evaluate your block at positions beyond those seen in training, by computing attention between a query at position 0 and keys at offsets up to 4,000. Where does the RoPE score pattern repeat?</li>
+<li><strong>Code.</strong> Implement a multi-token generation loop that uses the KV cache and compare its speed with full recomputation for 200 tokens.</li>
+<li><strong>Diagnose.</strong> A model fine-tuned with <span class="math inline">\(T=2{,}048\)</span> is run at <span class="math inline">\(T=8{,}192\)</span> and produces incoherent text. Give two likely causes from this chapter.</li>
+<li><strong>Explain.</strong> Why does tying the input and output embeddings make sense mathematically (think of what a dot product with <span class="math inline">\(\mathbf{e}_t\)</span> measures)?</li>
+</ol>
+
+
+</section>
+
+</main> <!-- /main -->
+<script>
+/* Keep the left navigation stable between pages: all parts expanded,
+   and the sidebar scroll position remembered across page loads. */
+(function () {
+  var KEY = "mathsystems-sidebar-scroll";
+  function side() { return document.getElementById("quarto-sidebar"); }
+  function scroller() {
+    var s = side(); if (!s) return null;
+    return s.querySelector(".sidebar-menu-container") || s;
+  }
+  function expandAll() {
+    var s = side(); if (!s) return;
+    s.querySelectorAll(".collapse").forEach(function (el) { el.classList.add("show"); });
+    s.querySelectorAll('[aria-expanded="false"]').forEach(function (el) { el.setAttribute("aria-expanded", "true"); });
+    s.querySelectorAll(".sidebar-item-toggle.collapsed, a.collapsed").forEach(function (el) { el.classList.remove("collapsed"); });
+  }
+  function restore() {
+    var sc = scroller(), v = null;
+    try { v = sessionStorage.getItem(KEY); } catch (e) {}
+    if (sc && v !== null) sc.scrollTop = parseInt(v, 10);
+  }
+  function save() {
+    var sc = scroller();
+    if (!sc) return;
+    try { sessionStorage.setItem(KEY, String(sc.scrollTop)); } catch (e) {}
+  }
+  document.addEventListener("DOMContentLoaded", function () {
+    expandAll(); restore();
+    var sc = scroller();
+    if (sc) sc.addEventListener("scroll", save, { passive: true });
+    document.addEventListener("click", save, true);
+    window.addEventListener("pagehide", save);
+  });
+  window.addEventListener("load", function () {
+    expandAll(); restore();
+    setTimeout(restore, 50); setTimeout(restore, 250);   /* after the theme's own scroll-into-view */
+  });
+})();
+</script>
+<style>
+/* no jump while the menu is being expanded */
+#quarto-sidebar .collapse { transition: none !important; }
+</style>
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/vsrveera\.github\.io\/books\/mathai\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../chapters/ch31_the_mathematics_of_the_transformer.html" class="pagination-link" aria-label="The Mathematics of the Transformer">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">31</span>&nbsp; <span class="chapter-title">The Mathematics of the Transformer</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../chapters/ch33_autoregressive_generation_and_sampling.html" class="pagination-link" aria-label="Autoregressive Generation and Sampling">
+        <span class="nav-page-text"><span class="chapter-number">33</span>&nbsp; <span class="chapter-title">Autoregressive Generation and Sampling</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<script>var lightboxQuarto = GLightbox({"closeEffect":"zoom","descPosition":"bottom","loop":false,"openEffect":"zoom","selector":".lightbox"});
+(function() {
+  let previousOnload = window.onload;
+  window.onload = () => {
+    if (previousOnload) {
+      previousOnload();
+    }
+    lightboxQuarto.on('slide_before_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      const href = trigger.getAttribute('href');
+      if (href !== null) {
+        const imgEl = window.document.querySelector(`a[href="${href}"] img`);
+        if (imgEl !== null) {
+          const srcAttr = imgEl.getAttribute("src");
+          if (srcAttr && srcAttr.startsWith("data:")) {
+            slideConfig.href = srcAttr;
+          }
+        }
+      } 
+    });
+  
+    lightboxQuarto.on('slide_after_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(slideNode);
+      }
+    });
+  
+  };
+  
+})();
+          </script>
+
+
+
+
+<script src="../site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

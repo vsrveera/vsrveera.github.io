@@ -1,0 +1,1677 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.19">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>10&nbsp; Nonlinearity and Expressiveness – Mathematics of Artificial Intelligence</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../chapters/ch11_neural_networks_as_function_composition.html" rel="next">
+<link href="../chapters/ch09_linear_transformations.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-43d2fa13cb35dd2022b3c25d65fdd634.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-19432b6b5c85f3ab30851b7038f884b0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="../site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
+<link href="../site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
+<link href="../site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar docked quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/ch08_functions_as_machines.html">Part III — Transformation</a></li><li class="breadcrumb-item"><a href="../chapters/ch10_nonlinearity_and_expressiveness.html"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Nonlinearity and Expressiveness</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">Mathematics of Artificial Intelligence</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part I — The Mathematical Machine</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch01_ai_as_a_mathematical_system.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">AI as a Mathematical System</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch02_language_of_mathematical_ai.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">The Language of Mathematical AI</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part II — Representation</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch03_vectors_representing_information.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Vectors: Representing Information</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch04_geometry_of_representations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Geometry of Representations</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch05_matrices_representing_transformations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Matrices: Representing Transformations</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch06_tensors_and_high_dimensional_data.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Tensors and High-Dimensional Data</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch07_structure_hidden_in_data.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Structure Hidden in Data</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part III — Transformation</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch08_functions_as_machines.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Functions as Machines</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch09_linear_transformations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Linear Transformations</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch10_nonlinearity_and_expressiveness.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Nonlinearity and Expressiveness</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch11_neural_networks_as_function_composition.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Neural Networks as Function Composition</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch12_convolution_and_structured_transformations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Convolution and Structured Transformations</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part IV — Measurement</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch13_distance_similarity_and_geometry.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Distance, Similarity and Geometry</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch14_loss_functions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Loss Functions</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch15_information_as_a_mathematical_quantity.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Information as a Mathematical Quantity</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part V — Learning</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch16_change_and_derivatives.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Change and Derivatives</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch17_gradients_and_multivariable_calculus.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Gradients and Multivariable Calculus</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch18_chain_rule_and_backpropagation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">The Chain Rule and Backpropagation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch19_optimization.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Optimization</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch20_the_geometry_and_dynamics_of_learning.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">The Geometry and Dynamics of Learning</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part VI — Uncertainty</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch21_probability_as_a_language_of_uncertainty.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Probability as a Language of Uncertainty</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch22_conditional_probability_and_bayes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Conditional Probability and Bayes</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch23_probability_distributions_used_in_ai.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Probability Distributions Used in AI</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch24_from_scores_to_probabilities.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">From Scores to Probabilities</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch25_statistical_estimation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Statistical Estimation</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part VII — Generalization</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch26_from_samples_to_populations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">From Samples to Populations</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch27_generalization.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Generalization</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch28_bias_variance_and_regularization.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Bias, Variance and Regularization</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch29_statistical_learning_theory.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Statistical Learning Theory</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part VIII — Putting the Mathematical Systems Together</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch30_the_mathematics_of_attention.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">30</span>&nbsp; <span class="chapter-title">The Mathematics of Attention</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch31_the_mathematics_of_the_transformer.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">31</span>&nbsp; <span class="chapter-title">The Mathematics of the Transformer</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch32_decoder_only_language_models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">32</span>&nbsp; <span class="chapter-title">Decoder-only Language Models</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch33_autoregressive_generation_and_sampling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">33</span>&nbsp; <span class="chapter-title">Autoregressive Generation and Sampling</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch34_mixture_of_experts_scale_and_numerical_precision.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">34</span>&nbsp; <span class="chapter-title">Mixture-of-Experts, Scale and Numerical Precision</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch35_convolutional_vision_in_depth.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">Convolutional Vision in Depth</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch36_vision_transformers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Vision Transformers</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch37_detection_and_structured_prediction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">Detection and Structured Prediction</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch38_representation_and_self_supervised_learning.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">38</span>&nbsp; <span class="chapter-title">Representation and Self-Supervised Learning</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch39_clip_and_multimodal_language_models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">39</span>&nbsp; <span class="chapter-title">CLIP and Multimodal Language Models</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch40_latent_variable_models_and_vaes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">40</span>&nbsp; <span class="chapter-title">Latent-Variable Models and VAEs</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch41_diffusion_models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">41</span>&nbsp; <span class="chapter-title">Diffusion Models</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch42_latent_diffusion_and_diffusion_transformers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">42</span>&nbsp; <span class="chapter-title">Latent Diffusion and Diffusion Transformers</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch43_flow_matching.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">43</span>&nbsp; <span class="chapter-title">Flow Matching</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch44_one_ai_system_all_the_mathematics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">44</span>&nbsp; <span class="chapter-title">One AI System, All the Mathematics</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part IX — Systems Thinking and Performance Characterisation</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch45_systems_thinking_components_and_interfaces.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">45</span>&nbsp; <span class="chapter-title">Systems Thinking: Components, Interfaces and Contracts</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch46_feedback_coupling_and_stability.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">46</span>&nbsp; <span class="chapter-title">Feedback, Coupling and Stability</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch47_performance_characterisation_the_paradigm.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">47</span>&nbsp; <span class="chapter-title">Performance Characterisation: The Paradigm</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch48_random_perturbation_and_error_propagation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">48</span>&nbsp; <span class="chapter-title">Random Perturbation and Error Propagation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch49_operating_curves_roc_and_confidence.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">49</span>&nbsp; <span class="chapter-title">Operating Curves, ROC and Confidence</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch50_characterisation_protocol_and_experimental_design.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">50</span>&nbsp; <span class="chapter-title">A Characterisation Protocol: Experimental Design and Reporting</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch51_characterising_large_models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">51</span>&nbsp; <span class="chapter-title">Characterising Large Models</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#sec-system-problem" id="toc-sec-system-problem" class="nav-link active" data-scroll-target="#sec-system-problem"><span class="header-section-number">10.1</span> The system problem</a></li>
+  <li><a href="#sec-collapse" id="toc-sec-collapse" class="nav-link" data-scroll-target="#sec-collapse"><span class="header-section-number">10.2</span> The collapse, once more</a></li>
+  <li><a href="#sec-gallery" id="toc-sec-gallery" class="nav-link" data-scroll-target="#sec-gallery"><span class="header-section-number">10.3</span> A gallery of activations</a></li>
+  <li><a href="#sec-xor" id="toc-sec-xor" class="nav-link" data-scroll-target="#sec-xor"><span class="header-section-number">10.4</span> Solving XOR by hand</a></li>
+  <li><a href="#sec-pwl" id="toc-sec-pwl" class="nav-link" data-scroll-target="#sec-pwl"><span class="header-section-number">10.5</span> How a ReLU network represents a function</a>
+  <ul class="collapse">
+  <li><a href="#width-pieces-side-by-side" id="toc-width-pieces-side-by-side" class="nav-link" data-scroll-target="#width-pieces-side-by-side"><span class="header-section-number">10.5.1</span> Width: pieces side by side</a></li>
+  <li><a href="#regions-in-higher-dimension" id="toc-regions-in-higher-dimension" class="nav-link" data-scroll-target="#regions-in-higher-dimension"><span class="header-section-number">10.5.2</span> Regions in higher dimension</a></li>
+  <li><a href="#depth-pieces-multiply" id="toc-depth-pieces-multiply" class="nav-link" data-scroll-target="#depth-pieces-multiply"><span class="header-section-number">10.5.3</span> Depth: pieces multiply</a></li>
+  </ul></li>
+  <li><a href="#sec-choosing" id="toc-sec-choosing" class="nav-link" data-scroll-target="#sec-choosing"><span class="header-section-number">10.6</span> Choosing an activation</a></li>
+  <li><a href="#sec-production" id="toc-sec-production" class="nav-link" data-scroll-target="#sec-production"><span class="header-section-number">10.7</span> From first principles to production</a></li>
+  <li><a href="#sec-failure" id="toc-sec-failure" class="nav-link" data-scroll-target="#sec-failure"><span class="header-section-number">10.8</span> Failure modes</a>
+  <ul class="collapse">
+  <li><a href="#saturation" id="toc-saturation" class="nav-link" data-scroll-target="#saturation"><span class="header-section-number">10.8.1</span> Saturation</a></li>
+  <li><a href="#dead-relus" id="toc-dead-relus" class="nav-link" data-scroll-target="#dead-relus"><span class="header-section-number">10.8.2</span> Dead ReLUs</a></li>
+  <li><a href="#nonlinearity-at-the-output" id="toc-nonlinearity-at-the-output" class="nav-link" data-scroll-target="#nonlinearity-at-the-output"><span class="header-section-number">10.8.3</span> Nonlinearity at the output</a></li>
+  <li><a href="#too-little-or-too-much" id="toc-too-little-or-too-much" class="nav-link" data-scroll-target="#too-little-or-too-much"><span class="header-section-number">10.8.4</span> Too little or too much</a></li>
+  </ul></li>
+  <li><a href="#sec-ai-connection" id="toc-sec-ai-connection" class="nav-link" data-scroll-target="#sec-ai-connection"><span class="header-section-number">10.9</span> Where this appears in modern AI</a></li>
+  <li><a href="#sec-system-connection" id="toc-sec-system-connection" class="nav-link" data-scroll-target="#sec-system-connection"><span class="header-section-number">10.10</span> System connection</a></li>
+  <li><a href="#chapter-summary" id="toc-chapter-summary" class="nav-link" data-scroll-target="#chapter-summary">Chapter summary</a></li>
+  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises">Exercises</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/ch08_functions_as_machines.html">Part III — Transformation</a></li><li class="breadcrumb-item"><a href="../chapters/ch10_nonlinearity_and_expressiveness.html"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Nonlinearity and Expressiveness</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Nonlinearity and Expressiveness</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="callout callout-style-default callout-note callout-titled" title="Key ideas">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Key ideas
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li>Linear layers alone collapse into one linear layer. A <strong>nonlinear activation</strong> between them removes this limit.</li>
+<li>Common activations: <strong>ReLU</strong>, <strong>sigmoid</strong>, <strong>tanh</strong>, <strong>GELU</strong>, <strong>SiLU</strong>. They differ in range, smoothness, and gradient.</li>
+<li>A ReLU network is <strong>piecewise linear</strong>: it cuts space into regions and is linear inside each one.</li>
+<li>Width adds pieces side by side. <strong>Depth multiplies them</strong> by composition.</li>
+<li>The wrong activation can saturate or die, and the gradient then vanishes.</li>
+</ul>
+</div>
+</div>
+<section id="sec-system-problem" class="level2" data-number="10.1">
+<h2 data-number="10.1" class="anchored" data-anchor-id="sec-system-problem"><span class="header-section-number">10.1</span> The system problem</h2>
+<p>Chapter 9 ended with a problem. A stack of linear layers is equal to one linear layer. XOR cannot be learned. Curved boundaries cannot be learned.</p>
+<blockquote class="blockquote">
+<p><strong>Why does a stack of linear layers equal one linear layer, and what is the smallest change that fixes it?</strong></p>
+</blockquote>
+<p>The change is small: apply a simple fixed nonlinear function to each number between the layers.</p>
+<div id="cell-fig-where" class="cell" data-execution_count="2">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>system_map(highlight<span class="op">=</span>[<span class="st">"Representation"</span>, <span class="st">"Transformation"</span>],</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>           sublabels<span class="op">=</span>{<span class="st">"Transformation"</span>: <span class="st">"Ch. 8–12"</span>})<span class="op">;</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="fig-where" class="quarto-float quarto-figure quarto-figure-center anchored" alt="System map with Transformation highlighted.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-where-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="ch10_nonlinearity_and_expressiveness_files/figure-html/fig-where-output-1.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-1" title="Figure&nbsp;10.1: Chapter 10 adds nonlinearity to the Transformation stage."><img src="ch10_nonlinearity_and_expressiveness_files/figure-html/fig-where-output-1.svg" class="img-fluid figure-img" alt="System map with Transformation highlighted."></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-where-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;10.1: Chapter 10 adds nonlinearity to the Transformation stage.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="sec-collapse" class="level2" data-number="10.2">
+<h2 data-number="10.2" class="anchored" data-anchor-id="sec-collapse"><span class="header-section-number">10.2</span> The collapse, once more</h2>
+<p>Chapter 9 showed <span class="math inline">\(\mathbf{W}_2(\mathbf{W}_{1}\mathbf{x})=(\mathbf{W}_{2}\mathbf{W}_1)\mathbf{x}\)</span>. By induction, any depth reduces to a single matrix. The reason is that the product of matrices is a matrix.</p>
+<p>The fix: insert a function <span class="math inline">\(\sigma\)</span> that is <strong>not</strong> linear, applied element by element:</p>
+<p><span id="eq-two-layer"><span class="math display">\[
+\mathbf{h}=\sigma(\mathbf{W}_{1}\mathbf{x}+\mathbf{b}_1),\qquad
+\mathbf{y}=\mathbf{W}_{2}\mathbf{h}+\mathbf{b}_2.
+\tag{10.1}\]</span></span></p>
+<p>Now <span class="math inline">\(\mathbf{y}\)</span> is not a matrix times <span class="math inline">\(\mathbf{x}\)</span>, because <span class="math inline">\(\sigma\)</span> sits between the two matrices.</p>
+</section>
+<section id="sec-gallery" class="level2" data-number="10.3">
+<h2 data-number="10.3" class="anchored" data-anchor-id="sec-gallery"><span class="header-section-number">10.3</span> A gallery of activations</h2>
+<p>Five activations appear in almost all models.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Formula</th>
+<th>Range</th>
+<th>Where used</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>ReLU</strong></td>
+<td><span class="math inline">\(\max(0,z)\)</span></td>
+<td><span class="math inline">\([0,\infty)\)</span></td>
+<td>CNNs, many MLPs</td>
+</tr>
+<tr class="even">
+<td><strong>Sigmoid</strong></td>
+<td><span class="math inline">\(\dfrac{1}{1+e^{-z}}\)</span></td>
+<td><span class="math inline">\((0,1)\)</span></td>
+<td>gates, binary outputs</td>
+</tr>
+<tr class="odd">
+<td><strong>Tanh</strong></td>
+<td><span class="math inline">\(\dfrac{e^z-e^{-z}}{e^z+e^{-z}}\)</span></td>
+<td><span class="math inline">\((-1,1)\)</span></td>
+<td>RNNs, small networks</td>
+</tr>
+<tr class="even">
+<td><strong>GELU</strong></td>
+<td><span class="math inline">\(z\,\Phi(z)\)</span></td>
+<td><span class="math inline">\(\approx[-0.17,\infty)\)</span></td>
+<td>Transformers (BERT, GPT)</td>
+</tr>
+<tr class="odd">
+<td><strong>SiLU</strong> (swish)</td>
+<td><span class="math inline">\(z\,\sigma(z)\)</span></td>
+<td><span class="math inline">\(\approx[-0.28,\infty)\)</span></td>
+<td>modern LLM MLPs (SwiGLU)</td>
+</tr>
+</tbody>
+</table>
+<p>Here <span class="math inline">\(\Phi\)</span> is the cumulative distribution function of the standard normal distribution. GELU weights its input by the probability that a standard normal variable is smaller than it.</p>
+<p>We define them and their derivatives. Then we check each derivative against a finite difference, as in Chapter 1.</p>
+<div id="code-activations" class="cell" data-execution_count="3">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.special <span class="im">import</span> erf</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> Phi(z):                                   <span class="co"># normal CDF</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="fl">0.5</span> <span class="op">*</span> (<span class="fl">1.0</span> <span class="op">+</span> erf(z <span class="op">/</span> np.sqrt(<span class="fl">2.0</span>)))</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> phi(z):                                   <span class="co"># normal density</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.exp(<span class="op">-</span><span class="fl">0.5</span> <span class="op">*</span> z <span class="op">**</span> <span class="dv">2</span>) <span class="op">/</span> np.sqrt(<span class="fl">2.0</span> <span class="op">*</span> np.pi)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>sig <span class="op">=</span> <span class="kw">lambda</span> z: <span class="fl">1.0</span> <span class="op">/</span> (<span class="fl">1.0</span> <span class="op">+</span> np.exp(<span class="op">-</span>z))</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>ACTS <span class="op">=</span> {   <span class="co"># name: (function, derivative)</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">"ReLU"</span>:    (<span class="kw">lambda</span> z: np.maximum(<span class="dv">0</span>, z),   <span class="kw">lambda</span> z: (z <span class="op">&gt;</span> <span class="dv">0</span>) <span class="op">*</span> <span class="fl">1.0</span>),</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="st">"sigmoid"</span>: (sig,                          <span class="kw">lambda</span> z: sig(z) <span class="op">*</span> (<span class="dv">1</span> <span class="op">-</span> sig(z))),</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">"tanh"</span>:    (np.tanh,                      <span class="kw">lambda</span> z: <span class="dv">1</span> <span class="op">-</span> np.tanh(z) <span class="op">**</span> <span class="dv">2</span>),</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="st">"GELU"</span>:    (<span class="kw">lambda</span> z: z <span class="op">*</span> Phi(z),         <span class="kw">lambda</span> z: Phi(z) <span class="op">+</span> z <span class="op">*</span> phi(z)),</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    <span class="st">"SiLU"</span>:    (<span class="kw">lambda</span> z: z <span class="op">*</span> sig(z),         <span class="kw">lambda</span> z: sig(z) <span class="op">+</span> z <span class="op">*</span> sig(z) <span class="op">*</span> (<span class="dv">1</span> <span class="op">-</span> sig(z))),</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>z <span class="op">=</span> np.linspace(<span class="op">-</span><span class="dv">4</span>, <span class="dv">4</span>, <span class="dv">801</span>)</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>eps <span class="op">=</span> <span class="fl">1e-6</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> name, (f, df) <span class="kw">in</span> ACTS.items():</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>    fd <span class="op">=</span> (f(z <span class="op">+</span> eps) <span class="op">-</span> f(z <span class="op">-</span> eps)) <span class="op">/</span> (<span class="dv">2</span> <span class="op">*</span> eps)</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>    mask <span class="op">=</span> np.<span class="bu">abs</span>(z) <span class="op">&gt;</span> <span class="fl">1e-3</span>                   <span class="co"># skip the ReLU kink at 0</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>name<span class="sc">:8s}</span><span class="ss"> max |derivative - finite difference| = "</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>          <span class="ss">f"</span><span class="sc">{</span>np<span class="sc">.</span><span class="bu">max</span>(np.<span class="bu">abs</span>(fd <span class="op">-</span> df(z))[mask])<span class="sc">:.1e}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>ReLU     max |derivative - finite difference| = 1.4e-10
+sigmoid  max |derivative - finite difference| = 1.3e-10
+tanh     max |derivative - finite difference| = 7.3e-11
+GELU     max |derivative - finite difference| = 4.8e-10
+SiLU     max |derivative - finite difference| = 5.7e-10</code></pre>
+</div>
+</div>
+<div id="cell-fig-gallery" class="cell" data-execution_count="4">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>cols <span class="op">=</span> [PALETTE[k] <span class="cf">for</span> k <span class="kw">in</span> [<span class="st">"data"</span>, <span class="st">"model"</span>, <span class="st">"prob"</span>, <span class="st">"grad"</span>, <span class="st">"loss"</span>]]</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">5</span>, figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="fl">4.2</span>), sharex<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> j, (name, (f, df)) <span class="kw">in</span> <span class="bu">enumerate</span>(ACTS.items()):</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    axes[<span class="dv">0</span>, j].plot(z, f(z), color<span class="op">=</span>cols[j], lw<span class="op">=</span><span class="dv">2</span>)<span class="op">;</span> axes[<span class="dv">0</span>, j].set_title(name)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    axes[<span class="dv">1</span>, j].plot(z, df(z), color<span class="op">=</span>cols[j], lw<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> (<span class="dv">0</span>, <span class="dv">1</span>):</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>        axes[i, j].axhline(<span class="dv">0</span>, color<span class="op">=</span><span class="st">"#9CA3AF"</span>, lw<span class="op">=</span><span class="fl">0.6</span>)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>        axes[i, j].set_ylim(<span class="op">-</span><span class="fl">1.3</span>, <span class="fl">2.0</span> <span class="cf">if</span> i <span class="op">==</span> <span class="dv">0</span> <span class="cf">else</span> <span class="fl">1.3</span>)</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>, <span class="dv">0</span>].set_ylabel(<span class="st">"σ(z)"</span>)<span class="op">;</span> axes[<span class="dv">1</span>, <span class="dv">0</span>].set_ylabel(<span class="st">"σ′(z)"</span>)</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="fig-gallery" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Two rows of five panels. The top row shows the activation curves ReLU, sigmoid, tanh, GELU and SiLU. The bottom row shows their derivatives.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-gallery-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="ch10_nonlinearity_and_expressiveness_files/figure-html/fig-gallery-output-1.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-2" title="Figure&nbsp;10.2: Five activations (top) and their derivatives (bottom). ReLU has a constant gradient of 1 for positive input and 0 otherwise. Sigmoid and tanh have gradients that vanish at both ends. GELU and SiLU are smooth versions of ReLU with a small dip below zero."><img src="ch10_nonlinearity_and_expressiveness_files/figure-html/fig-gallery-output-1.svg" class="img-fluid figure-img" alt="Two rows of five panels. The top row shows the activation curves ReLU, sigmoid, tanh, GELU and SiLU. The bottom row shows their derivatives."></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-gallery-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;10.2: Five activations (top) and their derivatives (bottom). ReLU has a constant gradient of 1 for positive input and 0 otherwise. Sigmoid and tanh have gradients that vanish at both ends. GELU and SiLU are smooth versions of ReLU with a small dip below zero.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="sec-xor" class="level2" data-number="10.4">
+<h2 data-number="10.4" class="anchored" data-anchor-id="sec-xor"><span class="header-section-number">10.4</span> Solving XOR by hand</h2>
+<p>We now solve the problem that a linear model cannot. With two ReLU units we can set the weights by hand.</p>
+<p><span id="eq-xor"><span class="math display">\[
+h_1=\text{ReLU}(x_1+x_2),\qquad
+h_2=\text{ReLU}(x_1+x_2-1),\qquad
+y=h_1-2h_2.
+\tag{10.2}\]</span></span></p>
+<div id="code-xor" class="cell" data-execution_count="5">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>relu <span class="op">=</span> <span class="kw">lambda</span> z: np.maximum(<span class="dv">0</span>, z)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>pts <span class="op">=</span> np.array([[<span class="dv">0</span>, <span class="dv">0</span>], [<span class="dv">1</span>, <span class="dv">0</span>], [<span class="dv">0</span>, <span class="dv">1</span>], [<span class="dv">1</span>, <span class="dv">1</span>]], dtype<span class="op">=</span><span class="bu">float</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>W1 <span class="op">=</span> np.array([[<span class="fl">1.0</span>, <span class="fl">1.0</span>], [<span class="fl">1.0</span>, <span class="fl">1.0</span>]])<span class="op">;</span> b1 <span class="op">=</span> np.array([<span class="fl">0.0</span>, <span class="op">-</span><span class="fl">1.0</span>])</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>W2 <span class="op">=</span> np.array([<span class="fl">1.0</span>, <span class="op">-</span><span class="fl">2.0</span>])</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>h <span class="op">=</span> relu(pts <span class="op">@</span> W1.T <span class="op">+</span> b1)                  <span class="co"># (4, 2)</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> h <span class="op">@</span> W2                                 <span class="co"># (4,)</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> p, hh, yy <span class="kw">in</span> <span class="bu">zip</span>(pts, h, y):</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"x = </span><span class="sc">{</span>p<span class="sc">}</span><span class="ss">   h = </span><span class="sc">{</span>hh<span class="sc">}</span><span class="ss">   y = </span><span class="sc">{</span>yy<span class="sc">:+.0f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>x = [0. 0.]   h = [0. 0.]   y = +0
+x = [1. 0.]   h = [1. 0.]   y = +1
+x = [0. 1.]   h = [1. 0.]   y = +1
+x = [1. 1.]   h = [2. 1.]   y = +0</code></pre>
+</div>
+</div>
+<p>The four points give <span class="math inline">\(0,1,1,0\)</span>. XOR is solved. The hidden layer <strong>bends</strong> the plane: it maps <span class="math inline">\((1,1)\)</span> to a point where a line can separate it from <span class="math inline">\((0,1)\)</span> and <span class="math inline">\((1,0)\)</span>.</p>
+</section>
+<section id="sec-pwl" class="level2" data-number="10.5">
+<h2 data-number="10.5" class="anchored" data-anchor-id="sec-pwl"><span class="header-section-number">10.5</span> How a ReLU network represents a function</h2>
+<p>A network with ReLU units is a <strong>piecewise linear</strong> function. Each unit is linear on each side of its hyperplane, and the sum of such functions is linear on each region.</p>
+<section id="width-pieces-side-by-side" class="level3" data-number="10.5.1">
+<h3 data-number="10.5.1" class="anchored" data-anchor-id="width-pieces-side-by-side"><span class="header-section-number">10.5.1</span> Width: pieces side by side</h3>
+<p>In one dimension, a sum of shifted ReLUs makes a polyline:</p>
+<p><span id="eq-polyline"><span class="math display">\[
+f(x)=y_0+\sum_{i=1}^{k}c_i\,\text{ReLU}(x-t_i).
+\tag{10.3}\]</span></span></p>
+<p>The knots <span class="math inline">\(t_i\)</span> are where the slope changes, and <span class="math inline">\(c_i\)</span> is the change in slope. We can choose them to match any target function at the knots. With <span class="math inline">\(k\)</span> units, the function has <span class="math inline">\(k+1\)</span> linear pieces. Here we approximate <span class="math inline">\(\sin\)</span>.</p>
+<div id="cell-fig-approx" class="cell" data-execution_count="6">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> relu_interpolant(target, a, b, k):</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""k ReLU units at equal spacing that interpolate `target` at k+1 points."""</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    knots <span class="op">=</span> np.linspace(a, b, k <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    vals <span class="op">=</span> target(knots)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    slopes <span class="op">=</span> np.diff(vals) <span class="op">/</span> np.diff(knots)              <span class="co"># slope on each piece</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    c <span class="op">=</span> np.diff(slopes, prepend<span class="op">=</span><span class="fl">0.0</span>)                     <span class="co"># slope changes</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> f(x):</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>        out <span class="op">=</span> vals[<span class="dv">0</span>] <span class="op">+</span> <span class="fl">0.0</span> <span class="op">*</span> x</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> ci, ti <span class="kw">in</span> <span class="bu">zip</span>(c, knots[:<span class="op">-</span><span class="dv">1</span>]):</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>            out <span class="op">=</span> out <span class="op">+</span> ci <span class="op">*</span> np.maximum(<span class="dv">0</span>, x <span class="op">-</span> ti)</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> out</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> f</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>xs <span class="op">=</span> np.linspace(<span class="dv">0</span>, <span class="dv">2</span> <span class="op">*</span> np.pi, <span class="dv">1000</span>)</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>ks <span class="op">=</span> [<span class="dv">2</span>, <span class="dv">4</span>, <span class="dv">8</span>, <span class="dv">16</span>, <span class="dv">32</span>, <span class="dv">64</span>]</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>errs <span class="op">=</span> [np.<span class="bu">max</span>(np.<span class="bu">abs</span>(relu_interpolant(np.sin, <span class="dv">0</span>, <span class="dv">2</span> <span class="op">*</span> np.pi, k)(xs) <span class="op">-</span> np.sin(xs)))</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> k <span class="kw">in</span> ks]</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>fig, (ax1, ax2) <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="fl">3.4</span>))</span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>ax1.plot(xs, np.sin(xs), color<span class="op">=</span><span class="st">"black"</span>, lw<span class="op">=</span><span class="dv">2</span>, label<span class="op">=</span><span class="st">"sin x"</span>)</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> k, col <span class="kw">in</span> <span class="bu">zip</span>([<span class="dv">2</span>, <span class="dv">4</span>, <span class="dv">8</span>], [PALETTE[<span class="st">"loss"</span>], PALETTE[<span class="st">"model"</span>], PALETTE[<span class="st">"grad"</span>]]):</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>    ax1.plot(xs, relu_interpolant(np.sin, <span class="dv">0</span>, <span class="dv">2</span> <span class="op">*</span> np.pi, k)(xs), color<span class="op">=</span>col, label<span class="op">=</span><span class="ss">f"k = </span><span class="sc">{</span>k<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>ax1.legend(fontsize<span class="op">=</span><span class="dv">8</span>)<span class="op">;</span> ax1.set_xlabel(<span class="st">"x"</span>)</span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>ax2.loglog(ks, errs, <span class="st">"o-"</span>, color<span class="op">=</span>PALETTE[<span class="st">"data"</span>], label<span class="op">=</span><span class="st">"max error"</span>)</span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>ax2.loglog(ks, [errs[<span class="dv">0</span>] <span class="op">*</span> (ks[<span class="dv">0</span>] <span class="op">/</span> k) <span class="op">**</span> <span class="dv">2</span> <span class="cf">for</span> k <span class="kw">in</span> ks], <span class="st">"--"</span>,</span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>           color<span class="op">=</span>PALETTE[<span class="st">"neutral"</span>], label<span class="op">=</span><span class="st">"∝ 1/k²"</span>)</span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>ax2.set_xlabel(<span class="st">"number of ReLU units k"</span>)<span class="op">;</span> ax2.set_ylabel(<span class="st">"max |error|"</span>)<span class="op">;</span> ax2.legend()</span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"errors:"</span>, [<span class="ss">f"</span><span class="sc">{</span>e<span class="sc">:.4f}</span><span class="ss">"</span> <span class="cf">for</span> e <span class="kw">in</span> errs])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="fig-approx" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Left: sine curve with three piecewise linear approximations using 2, 4, and 8 pieces. Right: log-log plot of maximum error versus number of units, a straight falling line.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-approx-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="ch10_nonlinearity_and_expressiveness_files/figure-html/fig-approx-output-1.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-3" title="Figure&nbsp;10.3: Approximating sin(x) with k ReLU units placed at equal spacing. With k = 2 the fit is rough. With k = 8 it is close. The maximum error falls roughly with 1/k²: doubling the width cuts the error by about four."><img src="ch10_nonlinearity_and_expressiveness_files/figure-html/fig-approx-output-1.svg" class="img-fluid figure-img" alt="Left: sine curve with three piecewise linear approximations using 2, 4, and 8 pieces. Right: log-log plot of maximum error versus number of units, a straight falling line."></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-approx-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;10.3: Approximating sin(x) with k ReLU units placed at equal spacing. With k = 2 the fit is rough. With k = 8 it is close. The maximum error falls roughly with 1/k²: doubling the width cuts the error by about four.
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>errors: ['1.0000', '0.2105', '0.0704', '0.0188', '0.0048', '0.0012']</code></pre>
+</div>
+</div>
+<p>This construction is the core of the <strong>universal approximation</strong> idea: a network with one hidden layer of enough units can approximate any continuous function on a bounded interval to any accuracy. The theorem says that such a network <em>exists</em>. It does not say how to find it, how large it must be, or that training will find it.</p>
+</section>
+<section id="regions-in-higher-dimension" class="level3" data-number="10.5.2">
+<h3 data-number="10.5.2" class="anchored" data-anchor-id="regions-in-higher-dimension"><span class="header-section-number">10.5.2</span> Regions in higher dimension</h3>
+<p>In 2D, each hidden unit has a boundary line <span class="math inline">\(\mathbf{w}\cdot\mathbf{x}+b=0\)</span>. Together, <span class="math inline">\(n\)</span> lines cut the plane into regions. In each region the on/off pattern of the units is fixed, so the network is <strong>affine</strong> there.</p>
+<p><span class="math inline">\(n\)</span> lines in general position make at most <span class="math inline">\(1+n+\binom{n}{2}\)</span> regions. We count the regions of random networks by the number of distinct activation patterns.</p>
+<div id="cell-fig-regions" class="cell" data-execution_count="7">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> count_regions(n, rng, grid<span class="op">=</span><span class="dv">500</span>, lim<span class="op">=</span><span class="fl">3.0</span>):</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    W <span class="op">=</span> rng.normal(size<span class="op">=</span>(n, <span class="dv">2</span>))<span class="op">;</span> b <span class="op">=</span> rng.normal(scale<span class="op">=</span><span class="fl">0.6</span>, size<span class="op">=</span>n)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    g <span class="op">=</span> np.linspace(<span class="op">-</span>lim, lim, grid)</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    P <span class="op">=</span> np.stack(np.meshgrid(g, g), <span class="op">-</span><span class="dv">1</span>).reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">2</span>)</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    codes <span class="op">=</span> (P <span class="op">@</span> W.T <span class="op">+</span> b <span class="op">&gt;</span> <span class="dv">0</span>)                         <span class="co"># (G, n) on/off pattern</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    keys <span class="op">=</span> codes.dot(<span class="dv">1</span> <span class="op">&lt;&lt;</span> np.arange(n))               <span class="co"># pattern as one integer</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    uniq, inv <span class="op">=</span> np.unique(keys, return_inverse<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">len</span>(uniq), inv.reshape(grid, grid)</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">1</span>)</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="fl">3.8</span>))</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax, n <span class="kw">in</span> <span class="bu">zip</span>(axes, [<span class="dv">3</span>, <span class="dv">8</span>]):</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>    n_reg, labels <span class="op">=</span> count_regions(n, rng)</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>    ax.imshow(labels, extent<span class="op">=</span>(<span class="op">-</span><span class="dv">3</span>, <span class="dv">3</span>, <span class="op">-</span><span class="dv">3</span>, <span class="dv">3</span>), origin<span class="op">=</span><span class="st">"lower"</span>, cmap<span class="op">=</span><span class="st">"tab20"</span>)</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>    ax.set_title(<span class="ss">f"</span><span class="sc">{</span>n<span class="sc">}</span><span class="ss"> units: </span><span class="sc">{</span>n_reg<span class="sc">}</span><span class="ss"> regions (max </span><span class="sc">{</span><span class="dv">1</span> <span class="op">+</span> n <span class="op">+</span> n <span class="op">*</span> (n <span class="op">-</span> <span class="dv">1</span>) <span class="op">//</span> <span class="dv">2</span><span class="sc">}</span><span class="ss">)"</span>)</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>    ax.set_xticks([])<span class="op">;</span> ax.set_yticks([])<span class="op">;</span> ax.grid(<span class="va">False</span>)</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="fig-regions" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Two panels showing the plane cut into coloured convex regions by 3 lines and by 8 lines.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-regions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="ch10_nonlinearity_and_expressiveness_files/figure-html/fig-regions-output-1.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-4" title="Figure&nbsp;10.4: Linear regions of a random one-hidden-layer ReLU network in 2D. Each colour is one on/off pattern of the hidden units. Inside a region the network is affine. Three units reach the maximum of 7 regions. Eight units give 20 in this window, below the maximum of 37, because some lines cross outside it."><img src="ch10_nonlinearity_and_expressiveness_files/figure-html/fig-regions-output-1.svg" class="img-fluid figure-img" alt="Two panels showing the plane cut into coloured convex regions by 3 lines and by 8 lines."></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-regions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;10.4: Linear regions of a random one-hidden-layer ReLU network in 2D. Each colour is one on/off pattern of the hidden units. Inside a region the network is affine. Three units reach the maximum of 7 regions. Eight units give 20 in this window, below the maximum of 37, because some lines cross outside it.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="depth-pieces-multiply" class="level3" data-number="10.5.3">
+<h3 data-number="10.5.3" class="anchored" data-anchor-id="depth-pieces-multiply"><span class="header-section-number">10.5.3</span> Depth: pieces multiply</h3>
+<p>Width adds pieces. <strong>Composition multiplies them.</strong> Take the tent map on <span class="math inline">\([0,1]\)</span>, built from two ReLUs:</p>
+<p><span id="eq-tent"><span class="math display">\[
+\text{tent}(x)=2\,\text{ReLU}(x)-4\,\text{ReLU}\!\left(x-\tfrac12\right).
+\tag{10.4}\]</span></span></p>
+<p>It rises from 0 to 1 on <span class="math inline">\([0,\frac12]\)</span> and falls back on <span class="math inline">\([\frac12,1]\)</span>. Composing it with itself <span class="math inline">\(k\)</span> times gives a sawtooth with <span class="math inline">\(2^k\)</span> teeth, using only <span class="math inline">\(2k\)</span> ReLU units.</p>
+<div id="cell-fig-tent" class="cell" data-execution_count="8">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>tent <span class="op">=</span> <span class="kw">lambda</span> x: <span class="dv">2</span> <span class="op">*</span> np.maximum(<span class="dv">0</span>, x) <span class="op">-</span> <span class="dv">4</span> <span class="op">*</span> np.maximum(<span class="dv">0</span>, x <span class="op">-</span> <span class="fl">0.5</span>)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> np.linspace(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">2001</span>)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">4</span>, figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="fl">2.6</span>))</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> x.copy()</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> k, ax <span class="kw">in</span> <span class="bu">enumerate</span>(axes, start<span class="op">=</span><span class="dv">1</span>):</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    y <span class="op">=</span> tent(y)                                       <span class="co"># one more composition</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    ax.plot(x, y, color<span class="op">=</span>PALETTE[<span class="st">"model"</span>], lw<span class="op">=</span><span class="fl">1.4</span>)</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    slopes <span class="op">=</span> np.sign(np.diff(y))</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>    pieces <span class="op">=</span> <span class="dv">1</span> <span class="op">+</span> <span class="bu">int</span>(np.<span class="bu">sum</span>(slopes[<span class="dv">1</span>:] <span class="op">!=</span> slopes[:<span class="op">-</span><span class="dv">1</span>]))</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>    ax.set_title(<span class="ss">f"depth </span><span class="sc">{</span>k<span class="sc">}</span><span class="ss">:  </span><span class="sc">{</span>pieces<span class="sc">}</span><span class="ss"> pieces,  </span><span class="sc">{</span><span class="dv">2</span> <span class="op">*</span> k<span class="sc">}</span><span class="ss"> units"</span>, fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>    ax.set_xticks([<span class="dv">0</span>, <span class="dv">1</span>])<span class="op">;</span> ax.set_yticks([<span class="dv">0</span>, <span class="dv">1</span>])</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="fig-tent" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Four panels showing the tent map composed 1, 2, 3, and 4 times, producing 2, 4, 8, and 16 teeth.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-tent-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="ch10_nonlinearity_and_expressiveness_files/figure-html/fig-tent-output-1.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-5" title="Figure&nbsp;10.5: Depth multiplies linear pieces. Each additional tent layer doubles the number of teeth while adding only two hidden units. A one-hidden-layer network would need about 2^k units for the same function."><img src="ch10_nonlinearity_and_expressiveness_files/figure-html/fig-tent-output-1.svg" class="img-fluid figure-img" alt="Four panels showing the tent map composed 1, 2, 3, and 4 times, producing 2, 4, 8, and 16 teeth."></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-tent-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;10.5: Depth multiplies linear pieces. Each additional tent layer doubles the number of teeth while adding only two hidden units. A one-hidden-layer network would need about 2^k units for the same function.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Real networks do not build sawtooths. The lesson is general: depth gives a number of regions that grows <strong>exponentially</strong> with the number of layers, while width grows it only polynomially.</p>
+</section>
+</section>
+<section id="sec-choosing" class="level2" data-number="10.6">
+<h2 data-number="10.6" class="anchored" data-anchor-id="sec-choosing"><span class="header-section-number">10.6</span> Choosing an activation</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th>ReLU</th>
+<th>sigmoid / tanh</th>
+<th>GELU / SiLU</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Cost</td>
+<td>very cheap</td>
+<td>exponential</td>
+<td>exponential or erf</td>
+</tr>
+<tr class="even">
+<td>Gradient for large <span class="math inline">\(|z|\)</span></td>
+<td>1 (positive) / 0</td>
+<td>→ 0 (saturates)</td>
+<td>≈ 1 / ≈ 0</td>
+</tr>
+<tr class="odd">
+<td>Smooth at 0</td>
+<td>no</td>
+<td>yes</td>
+<td>yes</td>
+</tr>
+<tr class="even">
+<td>Risk</td>
+<td>dead units</td>
+<td>vanishing gradient</td>
+<td>small cost</td>
+</tr>
+<tr class="odd">
+<td>Typical use</td>
+<td>CNNs, plain MLPs</td>
+<td>gates, probabilities</td>
+<td>Transformers, LLMs</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Smoothness.</strong> ReLU has a kink at 0, where the derivative is undefined. Libraries use 0 or 1 there, and this almost never matters. GELU and SiLU are smooth, which can help optimisation of very deep Transformers.</p>
+<p><strong>Why not use sigmoid everywhere?</strong> Its maximum derivative is <span class="math inline">\(0.25\)</span>, so the backward signal shrinks by at least <span class="math inline">\(4\times\)</span> per layer (Chapter 18).</p>
+</section>
+<section id="sec-production" class="level2" data-number="10.7">
+<h2 data-number="10.7" class="anchored" data-anchor-id="sec-production"><span class="header-section-number">10.7</span> From first principles to production</h2>
+<p>PyTorch implements these functions and their derivatives. We check that they agree with ours.</p>
+<div id="code-torch" class="cell" data-execution_count="9">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch.nn <span class="im">as</span> nn</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch.nn.functional <span class="im">as</span> F</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>zt <span class="op">=</span> torch.tensor(z, dtype<span class="op">=</span>torch.float64, requires_grad<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>pairs <span class="op">=</span> {<span class="st">"ReLU"</span>: F.relu, <span class="st">"sigmoid"</span>: torch.sigmoid, <span class="st">"tanh"</span>: torch.tanh,</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>         <span class="st">"GELU"</span>: F.gelu, <span class="st">"SiLU"</span>: F.silu}</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> name, fn <span class="kw">in</span> pairs.items():</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>    out <span class="op">=</span> fn(zt)</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>    grad, <span class="op">=</span> torch.autograd.grad(out.<span class="bu">sum</span>(), zt)       <span class="co"># derivative at every point</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>    f_np, df_np <span class="op">=</span> ACTS[name]</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>    mask <span class="op">=</span> np.<span class="bu">abs</span>(z) <span class="op">&gt;</span> <span class="fl">1e-3</span></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>name<span class="sc">:8s}</span><span class="ss"> value diff </span><span class="sc">{</span>np<span class="sc">.</span><span class="bu">max</span>(np.<span class="bu">abs</span>(out.detach().numpy() <span class="op">-</span> f_np(z)))<span class="sc">:.1e}</span><span class="ss">"</span></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>          <span class="ss">f"   derivative diff </span><span class="sc">{</span>np<span class="sc">.</span><span class="bu">max</span>(np.<span class="bu">abs</span>(grad.numpy() <span class="op">-</span> df_np(z))[mask])<span class="sc">:.1e}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>ReLU     value diff 0.0e+00   derivative diff 0.0e+00
+sigmoid  value diff 1.1e-16   derivative diff 5.6e-17
+tanh     value diff 1.1e-16   derivative diff 2.2e-16
+GELU     value diff 4.4e-16   derivative diff 2.2e-16
+SiLU     value diff 4.4e-16   derivative diff 2.2e-16</code></pre>
+</div>
+</div>
+</section>
+<section id="sec-failure" class="level2" data-number="10.8">
+<h2 data-number="10.8" class="anchored" data-anchor-id="sec-failure"><span class="header-section-number">10.8</span> Failure modes</h2>
+<section id="saturation" class="level3" data-number="10.8.1">
+<h3 data-number="10.8.1" class="anchored" data-anchor-id="saturation"><span class="header-section-number">10.8.1</span> Saturation</h3>
+<p>For sigmoid and tanh, large <span class="math inline">\(|z|\)</span> gives a nearly flat curve. The derivative is almost zero. The backward signal dies, and the weights below that unit hardly change.</p>
+<div id="code-saturation" class="cell" data-execution_count="10">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> zv <span class="kw">in</span> [<span class="fl">0.0</span>, <span class="fl">2.0</span>, <span class="fl">5.0</span>, <span class="fl">10.0</span>]:</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"z = </span><span class="sc">{</span>zv<span class="sc">:4.1f}</span><span class="ss">   sigmoid'(z) = </span><span class="sc">{</span>ACTS[<span class="st">'sigmoid'</span>][<span class="dv">1</span>](np.array(zv))<span class="sc">:.2e}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>z =  0.0   sigmoid'(z) = 2.50e-01
+z =  2.0   sigmoid'(z) = 1.05e-01
+z =  5.0   sigmoid'(z) = 6.65e-03
+z = 10.0   sigmoid'(z) = 4.54e-05</code></pre>
+</div>
+</div>
+</section>
+<section id="dead-relus" class="level3" data-number="10.8.2">
+<h3 data-number="10.8.2" class="anchored" data-anchor-id="dead-relus"><span class="header-section-number">10.8.2</span> Dead ReLUs</h3>
+<p>If a ReLU unit gets <span class="math inline">\(z\le0\)</span> for every input, its output and its gradient are both zero. Its weights stop changing. The unit is <strong>dead</strong> for good.</p>
+<div id="code-dead" class="cell" data-execution_count="11">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">0</span>)</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> rng.uniform(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, size<span class="op">=</span>(<span class="dv">1000</span>, <span class="dv">2</span>))</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>w_dead, b_dead <span class="op">=</span> np.array([<span class="fl">1.0</span>, <span class="fl">1.0</span>]), <span class="op">-</span><span class="fl">10.0</span>         <span class="co"># bias far too negative</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>z_unit <span class="op">=</span> X <span class="op">@</span> w_dead <span class="op">+</span> b_dead</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"fraction of inputs with the unit active:"</span>, np.mean(z_unit <span class="op">&gt;</span> <span class="dv">0</span>))</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"gradient of the unit w.r.t. its weights: "</span>,</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>      np.mean((z_unit <span class="op">&gt;</span> <span class="dv">0</span>)[:, <span class="va">None</span>] <span class="op">*</span> X, axis<span class="op">=</span><span class="dv">0</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>fraction of inputs with the unit active: 0.0
+gradient of the unit w.r.t. its weights:  [0. 0.]</code></pre>
+</div>
+</div>
+<p>Common causes are a too-large learning rate and a poor initialisation. Remedies: smaller learning rates, careful initialisation (Chapter 20), and “leaky” variants (<span class="math inline">\(\max(0.01z,z)\)</span>).</p>
+</section>
+<section id="nonlinearity-at-the-output" class="level3" data-number="10.8.3">
+<h3 data-number="10.8.3" class="anchored" data-anchor-id="nonlinearity-at-the-output"><span class="header-section-number">10.8.3</span> Nonlinearity at the output</h3>
+<p>The last layer usually has <strong>no</strong> activation, or one matched to the loss: a sigmoid for binary outputs, a softmax for classes (Chapter 24). A ReLU at the output would forbid negative predictions.</p>
+</section>
+<section id="too-little-or-too-much" class="level3" data-number="10.8.4">
+<h3 data-number="10.8.4" class="anchored" data-anchor-id="too-little-or-too-much"><span class="header-section-number">10.8.4</span> Too little or too much</h3>
+<p>A network with too few nonlinear units underfits. One with too many can fit noise. This trade-off is the subject of Part VII.</p>
+</section>
+</section>
+<section id="sec-ai-connection" class="level2" data-number="10.9">
+<h2 data-number="10.9" class="anchored" data-anchor-id="sec-ai-connection"><span class="header-section-number">10.9</span> Where this appears in modern AI</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Place</th>
+<th>Activation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>ResNet, VGG</td>
+<td>ReLU</td>
+</tr>
+<tr class="even">
+<td>BERT, GPT-2, ViT</td>
+<td>GELU</td>
+</tr>
+<tr class="odd">
+<td>Llama, PaLM, Mistral (SwiGLU, Chapter 32)</td>
+<td>SiLU inside a gated MLP</td>
+</tr>
+<tr class="even">
+<td>LSTM, GRU gates</td>
+<td>sigmoid and tanh</td>
+</tr>
+<tr class="odd">
+<td>Attention weights</td>
+<td>softmax (Chapter 24)</td>
+</tr>
+<tr class="even">
+<td>Output of a binary classifier</td>
+<td>sigmoid</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="sec-system-connection" class="level2" data-number="10.10">
+<h2 data-number="10.10" class="anchored" data-anchor-id="sec-system-connection"><span class="header-section-number">10.10</span> System connection</h2>
+<div class="callout callout-style-default callout-note callout-titled" title="What the system gained in this chapter">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>What the system gained in this chapter
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The system can now represent <strong>curved</strong> boundaries and nonlinear functions. The key is one fixed nonlinear function between linear layers. Width adds linear pieces side by side, and depth multiplies them.</p>
+<p>We have the two ingredients, <span class="math inline">\(\mathbf{W}\mathbf{x}+\mathbf{b}\)</span> and <span class="math inline">\(\sigma\)</span>. Chapter 11 assembles them into a complete network and trains it.</p>
+</div>
+</div>
+</section>
+<section id="chapter-summary" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="chapter-summary">Chapter summary</h2>
+<ul>
+<li>Linear layers collapse. A nonlinearity between them prevents this.</li>
+<li>ReLU, sigmoid, tanh, GELU, and SiLU differ in range, smoothness, and gradient.</li>
+<li>Two ReLU units solve XOR by hand.</li>
+<li>A ReLU network is piecewise linear. <span class="math inline">\(k\)</span> units in 1D make <span class="math inline">\(k+1\)</span> pieces. <span class="math inline">\(n\)</span> units in 2D make up to <span class="math inline">\(1+n+\binom n2\)</span> regions.</li>
+<li>Depth multiplies pieces. A <span class="math inline">\(k\)</span>-fold composition of the tent map has <span class="math inline">\(2^k\)</span> pieces.</li>
+<li>Universal approximation says a good network exists. It does not say that training finds it.</li>
+<li>Sigmoid and tanh saturate. ReLU units can die.</li>
+</ul>
+</section>
+<section id="exercises" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="exercises">Exercises</h2>
+<ol type="1">
+<li><strong>Compute.</strong> Evaluate ReLU, sigmoid, tanh, and SiLU at <span class="math inline">\(z=-2,0,2\)</span>. Give their derivatives at the same points.</li>
+<li><strong>Derive.</strong> Show that <span class="math inline">\(\tanh(z)=2\sigma(2z)-1\)</span>. What does this say about the relation of their derivatives?</li>
+<li><strong>Derive.</strong> Show that <span class="math inline">\(\sigma'(z)=\sigma(z)(1-\sigma(z))\)</span> and that its maximum is <span class="math inline">\(\frac14\)</span>.</li>
+<li><strong>Derive.</strong> Find the derivative of GELU: <span class="math inline">\(\frac{d}{dz}[z\Phi(z)]\)</span>. Check it at <span class="math inline">\(z=0\)</span>.</li>
+<li><strong>Design.</strong> Find weights for a network with two ReLU hidden units that computes <span class="math inline">\(|x|\)</span> for scalar <span class="math inline">\(x\)</span>.</li>
+<li><strong>Design.</strong> Find weights that compute <span class="math inline">\(\max(x_1,x_2)\)</span> using ReLUs. (Hint: <span class="math inline">\(\max(a,b)=a+\text{ReLU}(b-a)\)</span>.)</li>
+<li><strong>Code.</strong> Approximate <span class="math inline">\(f(x)=e^{-x^2}\)</span> on <span class="math inline">\([-3,3]\)</span> with <span class="math inline">\(k=4,8,16,32\)</span> ReLUs. Plot the error against <span class="math inline">\(k\)</span> on a log-log scale.</li>
+<li><strong>Code.</strong> Count the regions of a random two-hidden-layer network (4 units, then 4 units) in 2D. Compare with a one-layer network of 8 units.</li>
+<li><strong>Diagnose.</strong> After training, 40% of the units in a layer output zero on all inputs. Name the problem and two remedies.</li>
+<li><strong>Explain.</strong> Why do we usually put no activation after the last layer of a regression model?</li>
+</ol>
+
+
+</section>
+
+</main> <!-- /main -->
+<script>
+/* Keep the left navigation stable between pages: all parts expanded,
+   and the sidebar scroll position remembered across page loads. */
+(function () {
+  var KEY = "mathsystems-sidebar-scroll";
+  function side() { return document.getElementById("quarto-sidebar"); }
+  function scroller() {
+    var s = side(); if (!s) return null;
+    return s.querySelector(".sidebar-menu-container") || s;
+  }
+  function expandAll() {
+    var s = side(); if (!s) return;
+    s.querySelectorAll(".collapse").forEach(function (el) { el.classList.add("show"); });
+    s.querySelectorAll('[aria-expanded="false"]').forEach(function (el) { el.setAttribute("aria-expanded", "true"); });
+    s.querySelectorAll(".sidebar-item-toggle.collapsed, a.collapsed").forEach(function (el) { el.classList.remove("collapsed"); });
+  }
+  function restore() {
+    var sc = scroller(), v = null;
+    try { v = sessionStorage.getItem(KEY); } catch (e) {}
+    if (sc && v !== null) sc.scrollTop = parseInt(v, 10);
+  }
+  function save() {
+    var sc = scroller();
+    if (!sc) return;
+    try { sessionStorage.setItem(KEY, String(sc.scrollTop)); } catch (e) {}
+  }
+  document.addEventListener("DOMContentLoaded", function () {
+    expandAll(); restore();
+    var sc = scroller();
+    if (sc) sc.addEventListener("scroll", save, { passive: true });
+    document.addEventListener("click", save, true);
+    window.addEventListener("pagehide", save);
+  });
+  window.addEventListener("load", function () {
+    expandAll(); restore();
+    setTimeout(restore, 50); setTimeout(restore, 250);   /* after the theme's own scroll-into-view */
+  });
+})();
+</script>
+<style>
+/* no jump while the menu is being expanded */
+#quarto-sidebar .collapse { transition: none !important; }
+</style>
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/vsrveera\.github\.io\/books\/mathai\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../chapters/ch09_linear_transformations.html" class="pagination-link" aria-label="Linear Transformations">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Linear Transformations</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../chapters/ch11_neural_networks_as_function_composition.html" class="pagination-link" aria-label="Neural Networks as Function Composition">
+        <span class="nav-page-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Neural Networks as Function Composition</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<script>var lightboxQuarto = GLightbox({"closeEffect":"zoom","descPosition":"bottom","loop":false,"openEffect":"zoom","selector":".lightbox"});
+(function() {
+  let previousOnload = window.onload;
+  window.onload = () => {
+    if (previousOnload) {
+      previousOnload();
+    }
+    lightboxQuarto.on('slide_before_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      const href = trigger.getAttribute('href');
+      if (href !== null) {
+        const imgEl = window.document.querySelector(`a[href="${href}"] img`);
+        if (imgEl !== null) {
+          const srcAttr = imgEl.getAttribute("src");
+          if (srcAttr && srcAttr.startsWith("data:")) {
+            slideConfig.href = srcAttr;
+          }
+        }
+      } 
+    });
+  
+    lightboxQuarto.on('slide_after_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(slideNode);
+      }
+    });
+  
+  };
+  
+})();
+          </script>
+
+
+
+
+<script src="../site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

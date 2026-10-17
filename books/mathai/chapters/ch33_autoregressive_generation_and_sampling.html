@@ -1,0 +1,1632 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.19">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>33&nbsp; Autoregressive Generation and Sampling – Mathematics of Artificial Intelligence</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../chapters/ch34_mixture_of_experts_scale_and_numerical_precision.html" rel="next">
+<link href="../chapters/ch32_decoder_only_language_models.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-43d2fa13cb35dd2022b3c25d65fdd634.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-19432b6b5c85f3ab30851b7038f884b0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="../site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
+<link href="../site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
+<link href="../site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar docked quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/ch30_the_mathematics_of_attention.html">Part VIII — Putting the Mathematical Systems Together</a></li><li class="breadcrumb-item"><a href="../chapters/ch33_autoregressive_generation_and_sampling.html"><span class="chapter-number">33</span>&nbsp; <span class="chapter-title">Autoregressive Generation and Sampling</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">Mathematics of Artificial Intelligence</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part I — The Mathematical Machine</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch01_ai_as_a_mathematical_system.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">AI as a Mathematical System</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch02_language_of_mathematical_ai.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">The Language of Mathematical AI</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part II — Representation</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch03_vectors_representing_information.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Vectors: Representing Information</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch04_geometry_of_representations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Geometry of Representations</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch05_matrices_representing_transformations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Matrices: Representing Transformations</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch06_tensors_and_high_dimensional_data.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Tensors and High-Dimensional Data</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch07_structure_hidden_in_data.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Structure Hidden in Data</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part III — Transformation</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch08_functions_as_machines.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Functions as Machines</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch09_linear_transformations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Linear Transformations</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch10_nonlinearity_and_expressiveness.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Nonlinearity and Expressiveness</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch11_neural_networks_as_function_composition.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Neural Networks as Function Composition</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch12_convolution_and_structured_transformations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Convolution and Structured Transformations</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part IV — Measurement</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch13_distance_similarity_and_geometry.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Distance, Similarity and Geometry</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch14_loss_functions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Loss Functions</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch15_information_as_a_mathematical_quantity.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Information as a Mathematical Quantity</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part V — Learning</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch16_change_and_derivatives.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Change and Derivatives</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch17_gradients_and_multivariable_calculus.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Gradients and Multivariable Calculus</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch18_chain_rule_and_backpropagation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">The Chain Rule and Backpropagation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch19_optimization.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Optimization</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch20_the_geometry_and_dynamics_of_learning.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">The Geometry and Dynamics of Learning</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part VI — Uncertainty</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch21_probability_as_a_language_of_uncertainty.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Probability as a Language of Uncertainty</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch22_conditional_probability_and_bayes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Conditional Probability and Bayes</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch23_probability_distributions_used_in_ai.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Probability Distributions Used in AI</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch24_from_scores_to_probabilities.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">From Scores to Probabilities</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch25_statistical_estimation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Statistical Estimation</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part VII — Generalization</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch26_from_samples_to_populations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">From Samples to Populations</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch27_generalization.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Generalization</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch28_bias_variance_and_regularization.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Bias, Variance and Regularization</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch29_statistical_learning_theory.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Statistical Learning Theory</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part VIII — Putting the Mathematical Systems Together</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch30_the_mathematics_of_attention.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">30</span>&nbsp; <span class="chapter-title">The Mathematics of Attention</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch31_the_mathematics_of_the_transformer.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">31</span>&nbsp; <span class="chapter-title">The Mathematics of the Transformer</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch32_decoder_only_language_models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">32</span>&nbsp; <span class="chapter-title">Decoder-only Language Models</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch33_autoregressive_generation_and_sampling.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">33</span>&nbsp; <span class="chapter-title">Autoregressive Generation and Sampling</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch34_mixture_of_experts_scale_and_numerical_precision.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">34</span>&nbsp; <span class="chapter-title">Mixture-of-Experts, Scale and Numerical Precision</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch35_convolutional_vision_in_depth.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">Convolutional Vision in Depth</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch36_vision_transformers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Vision Transformers</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch37_detection_and_structured_prediction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">Detection and Structured Prediction</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch38_representation_and_self_supervised_learning.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">38</span>&nbsp; <span class="chapter-title">Representation and Self-Supervised Learning</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch39_clip_and_multimodal_language_models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">39</span>&nbsp; <span class="chapter-title">CLIP and Multimodal Language Models</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch40_latent_variable_models_and_vaes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">40</span>&nbsp; <span class="chapter-title">Latent-Variable Models and VAEs</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch41_diffusion_models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">41</span>&nbsp; <span class="chapter-title">Diffusion Models</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch42_latent_diffusion_and_diffusion_transformers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">42</span>&nbsp; <span class="chapter-title">Latent Diffusion and Diffusion Transformers</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch43_flow_matching.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">43</span>&nbsp; <span class="chapter-title">Flow Matching</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch44_one_ai_system_all_the_mathematics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">44</span>&nbsp; <span class="chapter-title">One AI System, All the Mathematics</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part IX — Systems Thinking and Performance Characterisation</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch45_systems_thinking_components_and_interfaces.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">45</span>&nbsp; <span class="chapter-title">Systems Thinking: Components, Interfaces and Contracts</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch46_feedback_coupling_and_stability.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">46</span>&nbsp; <span class="chapter-title">Feedback, Coupling and Stability</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch47_performance_characterisation_the_paradigm.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">47</span>&nbsp; <span class="chapter-title">Performance Characterisation: The Paradigm</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch48_random_perturbation_and_error_propagation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">48</span>&nbsp; <span class="chapter-title">Random Perturbation and Error Propagation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch49_operating_curves_roc_and_confidence.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">49</span>&nbsp; <span class="chapter-title">Operating Curves, ROC and Confidence</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch50_characterisation_protocol_and_experimental_design.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">50</span>&nbsp; <span class="chapter-title">A Characterisation Protocol: Experimental Design and Reporting</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch51_characterising_large_models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">51</span>&nbsp; <span class="chapter-title">Characterising Large Models</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#sec-system-problem" id="toc-sec-system-problem" class="nav-link active" data-scroll-target="#sec-system-problem"><span class="header-section-number">33.1</span> The system problem</a></li>
+  <li><a href="#sec-factorisation" id="toc-sec-factorisation" class="nav-link" data-scroll-target="#sec-factorisation"><span class="header-section-number">33.2</span> The factorisation</a>
+  <ul class="collapse">
+  <li><a href="#training-maximum-likelihood" id="toc-training-maximum-likelihood" class="nav-link" data-scroll-target="#training-maximum-likelihood"><span class="header-section-number">33.2.1</span> Training: maximum likelihood</a></li>
+  </ul></li>
+  <li><a href="#sec-model" id="toc-sec-model" class="nav-link" data-scroll-target="#sec-model"><span class="header-section-number">33.3</span> A small language model</a></li>
+  <li><a href="#sec-scoring" id="toc-sec-scoring" class="nav-link" data-scroll-target="#sec-scoring"><span class="header-section-number">33.4</span> Scoring versus generating</a></li>
+  <li><a href="#sec-decoding" id="toc-sec-decoding" class="nav-link" data-scroll-target="#sec-decoding"><span class="header-section-number">33.5</span> Decoding</a>
+  <ul class="collapse">
+  <li><a href="#measuring-it" id="toc-measuring-it" class="nav-link" data-scroll-target="#measuring-it"><span class="header-section-number">33.5.1</span> Measuring it</a></li>
+  <li><a href="#entropy-and-temperature-on-real-model-output" id="toc-entropy-and-temperature-on-real-model-output" class="nav-link" data-scroll-target="#entropy-and-temperature-on-real-model-output"><span class="header-section-number">33.5.2</span> Entropy and temperature on real model output</a></li>
+  </ul></li>
+  <li><a href="#sec-production" id="toc-sec-production" class="nav-link" data-scroll-target="#sec-production"><span class="header-section-number">33.6</span> Production</a></li>
+  <li><a href="#sec-failure" id="toc-sec-failure" class="nav-link" data-scroll-target="#sec-failure"><span class="header-section-number">33.7</span> Failure modes</a></li>
+  <li><a href="#sec-ai-connection" id="toc-sec-ai-connection" class="nav-link" data-scroll-target="#sec-ai-connection"><span class="header-section-number">33.8</span> Where this appears in modern AI</a></li>
+  <li><a href="#sec-system-connection" id="toc-sec-system-connection" class="nav-link" data-scroll-target="#sec-system-connection"><span class="header-section-number">33.9</span> System connection</a></li>
+  <li><a href="#chapter-summary" id="toc-chapter-summary" class="nav-link" data-scroll-target="#chapter-summary">Chapter summary</a></li>
+  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises">Exercises</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/ch30_the_mathematics_of_attention.html">Part VIII — Putting the Mathematical Systems Together</a></li><li class="breadcrumb-item"><a href="../chapters/ch33_autoregressive_generation_and_sampling.html"><span class="chapter-number">33</span>&nbsp; <span class="chapter-title">Autoregressive Generation and Sampling</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">33</span>&nbsp; <span class="chapter-title">Autoregressive Generation and Sampling</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="callout callout-style-default callout-note callout-titled" title="Key ideas">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Key ideas
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li>A language model is a machine for <strong>one</strong> quantity: <span class="math inline">\(P(x_{t}\mid x_{&lt;t})\)</span>. The chain rule turns it into a distribution over whole sequences.</li>
+<li><strong>Training</strong> (teacher forcing) maximises the likelihood of real text: the loss is the average negative log-probability of each next token, and its exponential is the <strong>perplexity</strong>.</li>
+<li><strong>Generation</strong> samples one token at a time and feeds it back. The decoding rule (greedy, temperature, top-<span class="math inline">\(k\)</span>, top-<span class="math inline">\(p\)</span>) is a choice made <em>after</em> training.</li>
+<li>Lower temperature gives less entropy and more repetition. Higher temperature gives more diversity and more errors.</li>
+<li>Scoring a sequence is <strong>one parallel</strong> pass. Generating it is <strong>sequential</strong>.</li>
+</ul>
+</div>
+</div>
+<section id="sec-system-problem" class="level2" data-number="33.1">
+<h2 data-number="33.1" class="anchored" data-anchor-id="sec-system-problem"><span class="header-section-number">33.1</span> The system problem</h2>
+<p>Chapter 32 gave an architecture that outputs a probability distribution over the next token. A sentence is a long chain of such tokens. Two questions remain: how is this machine <strong>trained</strong>, and how does it <strong>produce text</strong>?</p>
+<blockquote class="blockquote">
+<p><strong>How does a model that outputs a distribution produce a sentence, and how is it trained to do so?</strong></p>
+</blockquote>
+<div id="cell-fig-where" class="cell" data-execution_count="2">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>system_map(highlight<span class="op">=</span>[<span class="st">"Learning"</span>, <span class="st">"Uncertainty"</span>, <span class="st">"Generalization"</span>, <span class="st">"AI system"</span>],</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>           sublabels<span class="op">=</span>{<span class="st">"AI system"</span>: <span class="st">"Part VIII"</span>})<span class="op">;</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="fig-where" class="quarto-float quarto-figure quarto-figure-center anchored" alt="System map with Learning, Uncertainty and AI system highlighted.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-where-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="ch33_autoregressive_generation_and_sampling_files/figure-html/fig-where-output-1.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-1" title="Figure&nbsp;33.1: Chapter 33 connects the architecture (Transformation) with probability (Uncertainty) and learning."><img src="ch33_autoregressive_generation_and_sampling_files/figure-html/fig-where-output-1.svg" class="img-fluid figure-img" alt="System map with Learning, Uncertainty and AI system highlighted."></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-where-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;33.1: Chapter 33 connects the architecture (Transformation) with probability (Uncertainty) and learning.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="sec-factorisation" class="level2" data-number="33.2">
+<h2 data-number="33.2" class="anchored" data-anchor-id="sec-factorisation"><span class="header-section-number">33.2</span> The factorisation</h2>
+<p>The probability of a text <span class="math inline">\(x_1,\dots,x_n\)</span> is, by the chain rule (Chapter 22):</p>
+<p><span id="eq-autoregressive"><span class="math display">\[
+P_\theta(x_1,\dots,x_n)=\prod_{t=1}^{n}P_\theta(x_{t}\mid x_{&lt;t}).
+\tag{33.1}\]</span></span></p>
+<p>This is exact: no independence assumption is made. The model <span class="math inline">\(f_\theta\)</span> computes each factor from the prefix: its softmax output (Chapter 24) is the categorical distribution <span class="math inline">\(P_\theta(\cdot\mid x_{&lt;t})\)</span>.</p>
+<section id="training-maximum-likelihood" class="level3" data-number="33.2.1">
+<h3 data-number="33.2.1" class="anchored" data-anchor-id="training-maximum-likelihood"><span class="header-section-number">33.2.1</span> Training: maximum likelihood</h3>
+<p>Maximum likelihood (Chapter 25) maximises <span class="math inline">\(\ln P_\theta\)</span> of the training text. Taking the negative log of <a href="#eq-autoregressive" class="quarto-xref">Equation&nbsp;<span>33.1</span></a> and averaging over positions gives the <strong>cross-entropy loss</strong>:</p>
+<p><span id="eq-lm-loss"><span class="math display">\[
+\mathcal{L}(\theta)=-\frac1n\sum_{t=1}^{n}\ln P_\theta(x_{t}\mid x_{&lt;t}).
+\tag{33.2}\]</span></span></p>
+<p>This is the same cross-entropy as in Chapter 14. The only difference is that the “label” at each position is the next token of the text itself. All <span class="math inline">\(n\)</span> factors are computed <strong>in one forward pass</strong>, thanks to the causal mask (Chapter 30). This is called <strong>teacher forcing</strong>: the model is always fed the true prefix.</p>
+<p>The exponential of the loss is the <strong>perplexity</strong> (Chapter 15). It is the effective number of tokens the model hesitates between.</p>
+</section>
+</section>
+<section id="sec-model" class="level2" data-number="33.3">
+<h2 data-number="33.3" class="anchored" data-anchor-id="sec-model"><span class="header-section-number">33.3</span> A small language model</h2>
+<p>We train a character-level Transformer (Chapter 31) on a text of 300,000 characters: the documentation shipped with Python, lower-cased, using 29 symbols (letters, space, <code>.</code>, <code>,</code>, newline). The model is small (3 blocks, width 96) so that it trains in under a minute on a CPU.</p>
+<div id="code-data" class="cell" data-execution_count="3">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch, torch.nn <span class="im">as</span> nn, torch.nn.functional <span class="im">as</span> F</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pydoc_data <span class="im">import</span> topics</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>raw <span class="op">=</span> <span class="st">" "</span>.join(topics.topics[k] <span class="cf">for</span> k <span class="kw">in</span> <span class="bu">sorted</span>(topics.topics)).lower()</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>keep <span class="op">=</span> <span class="bu">set</span>(<span class="st">"abcdefghijklmnopqrstuvwxyz .,</span><span class="ch">\n</span><span class="st">"</span>)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>text <span class="op">=</span> <span class="st">" "</span>.join(<span class="st">""</span>.join(c <span class="cf">if</span> c <span class="kw">in</span> keep <span class="cf">else</span> <span class="st">" "</span> <span class="cf">for</span> c <span class="kw">in</span> raw).split())[:<span class="dv">300_000</span>]</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>chars <span class="op">=</span> <span class="bu">sorted</span>(<span class="bu">set</span>(text))<span class="op">;</span> V <span class="op">=</span> <span class="bu">len</span>(chars)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>ix <span class="op">=</span> {c: i <span class="cf">for</span> i, c <span class="kw">in</span> <span class="bu">enumerate</span>(chars)}</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> torch.tensor([ix[c] <span class="cf">for</span> c <span class="kw">in</span> text])</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>n_train <span class="op">=</span> <span class="bu">int</span>(<span class="fl">0.9</span> <span class="op">*</span> <span class="bu">len</span>(data))</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>train_data, val_data <span class="op">=</span> data[:n_train], data[n_train:]</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span><span class="bu">len</span>(text)<span class="sc">:,}</span><span class="ss"> characters; vocabulary </span><span class="sc">{</span>V<span class="sc">}</span><span class="ss">: </span><span class="sc">{</span><span class="st">''</span><span class="sc">.</span>join(chars)<span class="sc">!r}</span><span class="ss">"</span>)</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"sample:"</span>, <span class="bu">repr</span>(text[:<span class="dv">100</span>]))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>300,000 characters; vocabulary 29: ' ,.abcdefghijklmnopqrstuvwxyz'
+sample: 'the assert statement assert statements are a convenient way to insert debugging assertions into a pr'</code></pre>
+</div>
+</div>
+<div id="code-model" class="cell" data-execution_count="4">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>T_ctx, d_model, n_heads, n_layers <span class="op">=</span> <span class="dv">64</span>, <span class="dv">96</span>, <span class="dv">4</span>, <span class="dv">3</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Block(nn.Module):</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>):</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>()</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.ln1, <span class="va">self</span>.ln2 <span class="op">=</span> nn.LayerNorm(d_model), nn.LayerNorm(d_model)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.qkv, <span class="va">self</span>.o <span class="op">=</span> nn.Linear(d_model, <span class="dv">3</span> <span class="op">*</span> d_model), nn.Linear(d_model, d_model)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.mlp <span class="op">=</span> nn.Sequential(nn.Linear(d_model, <span class="dv">4</span> <span class="op">*</span> d_model), nn.GELU(),</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>                                 nn.Linear(<span class="dv">4</span> <span class="op">*</span> d_model, d_model))</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, x):</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>        B, T, _ <span class="op">=</span> x.shape</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>        q, k, v <span class="op">=</span> <span class="va">self</span>.qkv(<span class="va">self</span>.ln1(x)).chunk(<span class="dv">3</span>, dim<span class="op">=-</span><span class="dv">1</span>)</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>        sp <span class="op">=</span> <span class="kw">lambda</span> t: t.view(B, T, n_heads, d_model <span class="op">//</span> n_heads).transpose(<span class="dv">1</span>, <span class="dv">2</span>)</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>        a <span class="op">=</span> F.scaled_dot_product_attention(sp(q), sp(k), sp(v), is_causal<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>        x <span class="op">=</span> x <span class="op">+</span> <span class="va">self</span>.o(a.transpose(<span class="dv">1</span>, <span class="dv">2</span>).reshape(B, T, d_model))</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> x <span class="op">+</span> <span class="va">self</span>.mlp(<span class="va">self</span>.ln2(x))</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> CharLM(nn.Module):</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>):</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>()</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.E, <span class="va">self</span>.P <span class="op">=</span> nn.Embedding(V, d_model), nn.Embedding(T_ctx, d_model)</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>        nn.init.normal_(<span class="va">self</span>.E.weight, std<span class="op">=</span><span class="fl">0.02</span>)<span class="op">;</span> nn.init.normal_(<span class="va">self</span>.P.weight, std<span class="op">=</span><span class="fl">0.02</span>)</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.blocks <span class="op">=</span> nn.ModuleList([Block() <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(n_layers)])</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.ln <span class="op">=</span> nn.LayerNorm(d_model)</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, idx):</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>        x <span class="op">=</span> <span class="va">self</span>.E(idx) <span class="op">+</span> <span class="va">self</span>.P(torch.arange(idx.shape[<span class="dv">1</span>]))</span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> b <span class="kw">in</span> <span class="va">self</span>.blocks:</span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>            x <span class="op">=</span> b(x)</span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>.ln(x) <span class="op">@</span> <span class="va">self</span>.E.weight.T            <span class="co"># tied output head: logits = h Eᵀ</span></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_batch(src, B<span class="op">=</span><span class="dv">64</span>):</span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>    starts <span class="op">=</span> torch.randint(<span class="dv">0</span>, <span class="bu">len</span>(src) <span class="op">-</span> T_ctx <span class="op">-</span> <span class="dv">1</span>, (B,))</span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> torch.stack([src[s:s <span class="op">+</span> T_ctx <span class="op">+</span> <span class="dv">1</span>] <span class="cf">for</span> s <span class="kw">in</span> starts])</span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>torch.manual_seed(<span class="dv">0</span>)</span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>lm <span class="op">=</span> CharLM()</span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>opt <span class="op">=</span> torch.optim.AdamW(lm.parameters(), lr<span class="op">=</span><span class="fl">3e-3</span>, weight_decay<span class="op">=</span><span class="fl">0.01</span>)</span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>hist, t0 <span class="op">=</span> [], time.time()</span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> step <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1500</span>):</span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>    b <span class="op">=</span> get_batch(train_data)</span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>    loss <span class="op">=</span> F.cross_entropy(lm(b[:, :<span class="op">-</span><span class="dv">1</span>]).reshape(<span class="op">-</span><span class="dv">1</span>, V), b[:, <span class="dv">1</span>:].reshape(<span class="op">-</span><span class="dv">1</span>))</span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>    opt.zero_grad()<span class="op">;</span> loss.backward()<span class="op">;</span> opt.step()<span class="op">;</span> hist.append(loss.item())</span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> torch.no_grad():</span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a>    vb <span class="op">=</span> get_batch(val_data, <span class="dv">512</span>)</span>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a>    val_loss <span class="op">=</span> F.cross_entropy(lm(vb[:, :<span class="op">-</span><span class="dv">1</span>]).reshape(<span class="op">-</span><span class="dv">1</span>, V), vb[:, <span class="dv">1</span>:].reshape(<span class="op">-</span><span class="dv">1</span>)).item()</span>
+<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"parameters: </span><span class="sc">{</span><span class="bu">sum</span>(p.numel() <span class="cf">for</span> p <span class="kw">in</span> lm.parameters())<span class="sc">:,}</span><span class="ss">   trained in </span><span class="sc">{</span>time<span class="sc">.</span>time() <span class="op">-</span> t0<span class="sc">:.0f}</span><span class="ss"> s"</span>)</span>
+<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"initial loss </span><span class="sc">{</span>hist[<span class="dv">0</span>]<span class="sc">:.3f}</span><span class="ss"> (≈ ln </span><span class="sc">{</span>V<span class="sc">}</span><span class="ss"> = </span><span class="sc">{</span>math<span class="sc">.</span>log(V)<span class="sc">:.3f}</span><span class="ss">),  final train loss </span><span class="sc">{</span>np<span class="sc">.</span>mean(hist[<span class="op">-</span><span class="dv">50</span>:])<span class="sc">:.3f}</span><span class="ss">"</span>)</span>
+<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"validation loss </span><span class="sc">{</span>val_loss<span class="sc">:.3f}</span><span class="ss"> nats/char  = </span><span class="sc">{</span>val_loss <span class="op">/</span> math<span class="sc">.</span>log(<span class="dv">2</span>)<span class="sc">:.2f}</span><span class="ss"> bits/char;  "</span></span>
+<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a>      <span class="ss">f"perplexity </span><span class="sc">{</span>math<span class="sc">.</span>exp(val_loss)<span class="sc">:.2f}</span><span class="ss">  (uniform: </span><span class="sc">{</span>V<span class="sc">}</span><span class="ss">)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>parameters: 344,640   trained in 45 s
+initial loss 3.414 (≈ ln 29 = 3.367),  final train loss 0.958
+validation loss 1.126 nats/char  = 1.62 bits/char;  perplexity 3.08  (uniform: 29)</code></pre>
+</div>
+</div>
+<p>The perplexity is far below 29: the model is, on average, as uncertain as between about 3 characters. It has learned spelling and some word structure.</p>
+<div id="cell-fig-loss" class="cell" data-execution_count="5">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">6</span>, <span class="fl">3.4</span>))</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>ax.plot(hist, color<span class="op">=</span>PALETTE[<span class="st">"loss"</span>], lw<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>ax.axhline(val_loss, ls<span class="op">=</span><span class="st">"--"</span>, color<span class="op">=</span><span class="st">"black"</span>, label<span class="op">=</span><span class="st">"validation loss"</span>)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>ax.axhline(math.log(V), ls<span class="op">=</span><span class="st">":"</span>, color<span class="op">=</span>PALETTE[<span class="st">"neutral"</span>], label<span class="op">=</span><span class="st">"uniform guess"</span>)</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"step"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"cross-entropy (nats per character)"</span>)<span class="op">;</span> ax.legend()</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="fig-loss" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A decreasing loss curve from about 3.4 to about 1.2 with a horizontal dashed line at the validation loss.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-loss-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="ch33_autoregressive_generation_and_sampling_files/figure-html/fig-loss-output-1.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-2" title="Figure&nbsp;33.2: Training loss of the character model. It starts at ln 29 (a uniform guess), falls fast as the model learns letter frequencies and common words, then slowly. The dashed line is the validation loss."><img src="ch33_autoregressive_generation_and_sampling_files/figure-html/fig-loss-output-1.svg" class="img-fluid figure-img" alt="A decreasing loss curve from about 3.4 to about 1.2 with a horizontal dashed line at the validation loss."></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-loss-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;33.2: Training loss of the character model. It starts at ln 29 (a uniform guess), falls fast as the model learns letter frequencies and common words, then slowly. The dashed line is the validation loss.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="sec-scoring" class="level2" data-number="33.4">
+<h2 data-number="33.4" class="anchored" data-anchor-id="sec-scoring"><span class="header-section-number">33.4</span> Scoring versus generating</h2>
+<p><strong>Scoring</strong> a given text needs one forward pass: the causal mask lets every position compute its next-token distribution at once. <strong>Generating</strong> needs one pass per token, because each token depends on the previous one. We check that the two give the same log-probability.</p>
+<div id="code-scoring" class="cell" data-execution_count="6">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="at">@torch.no_grad</span>()</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> seq_logprob_parallel(ids):</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    logits <span class="op">=</span> lm(ids[<span class="va">None</span>, :<span class="op">-</span><span class="dv">1</span>])[<span class="dv">0</span>]                                <span class="co"># one pass</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    lp <span class="op">=</span> F.log_softmax(logits, dim<span class="op">=-</span><span class="dv">1</span>)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> lp[torch.arange(<span class="bu">len</span>(ids) <span class="op">-</span> <span class="dv">1</span>), ids[<span class="dv">1</span>:]].<span class="bu">sum</span>().item()</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="at">@torch.no_grad</span>()</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> seq_logprob_sequential(ids):</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    total <span class="op">=</span> <span class="fl">0.0</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> t <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, <span class="bu">len</span>(ids)):                                   <span class="co"># one pass per token</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>        lp <span class="op">=</span> F.log_softmax(lm(ids[<span class="va">None</span>, :t])[<span class="dv">0</span>, <span class="op">-</span><span class="dv">1</span>], dim<span class="op">=-</span><span class="dv">1</span>)</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>        total <span class="op">+=</span> lp[ids[t]].item()</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> total</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>ids <span class="op">=</span> val_data[:<span class="dv">40</span>]</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"parallel (teacher-forcing) log P: </span><span class="sc">{</span>seq_logprob_parallel(ids)<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"sequential, token by token     : </span><span class="sc">{</span>seq_logprob_sequential(ids)<span class="sc">:.4f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>parallel (teacher-forcing) log P: -51.3990
+sequential, token by token     : -51.3990</code></pre>
+</div>
+</div>
+</section>
+<section id="sec-decoding" class="level2" data-number="33.5">
+<h2 data-number="33.5" class="anchored" data-anchor-id="sec-decoding"><span class="header-section-number">33.5</span> Decoding</h2>
+<p>The model fixes <span class="math inline">\(P_\theta(\cdot\mid x_{&lt;t})\)</span>. A <strong>decoding rule</strong> chooses the next token from it. The rule is not part of the model, and has a large effect on the text.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Rule</th>
+<th>Next token</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Greedy</strong></td>
+<td><span class="math inline">\(\arg\max_xp(x)\)</span></td>
+</tr>
+<tr class="even">
+<td><strong>Temperature</strong> <span class="math inline">\(T\)</span></td>
+<td>sample from <span class="math inline">\(p_T(x)\propto p(x)^{1/T}\)</span> (softmax of <span class="math inline">\(\mathbf{z}/T\)</span>, Chapter 24)</td>
+</tr>
+<tr class="odd">
+<td><strong>Top-<span class="math inline">\(k\)</span></strong></td>
+<td>keep the <span class="math inline">\(k\)</span> most likely tokens, renormalise, sample</td>
+</tr>
+<tr class="even">
+<td><strong>Top-<span class="math inline">\(p\)</span> (nucleus)</strong></td>
+<td>keep the smallest set whose probability sums to at least <span class="math inline">\(p\)</span>, renormalise, sample</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Temperature</strong> changes the shape: low <span class="math inline">\(T\)</span> sharpens, high <span class="math inline">\(T\)</span> flattens. <strong>Top-<span class="math inline">\(k\)</span></strong> and <strong>top-<span class="math inline">\(p\)</span></strong> cut off the unreliable tail, since sampling from the tail produces nonsense tokens with small but non-zero probability at every step.</p>
+<div id="code-decoding" class="cell" data-execution_count="7">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> next_token_probs(logits, temperature<span class="op">=</span><span class="fl">1.0</span>, top_k<span class="op">=</span><span class="va">None</span>, top_p<span class="op">=</span><span class="va">None</span>):</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    z <span class="op">=</span> logits <span class="op">/</span> <span class="bu">max</span>(temperature, <span class="fl">1e-8</span>)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    p <span class="op">=</span> F.softmax(z, dim<span class="op">=-</span><span class="dv">1</span>)</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> top_k <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span>:</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>        kth <span class="op">=</span> torch.topk(p, top_k).values[<span class="op">-</span><span class="dv">1</span>]</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>        p <span class="op">=</span> torch.where(p <span class="op">&gt;=</span> kth, p, torch.zeros_like(p))</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> top_p <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span>:</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>        sp, si <span class="op">=</span> torch.sort(p, descending<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>        cum <span class="op">=</span> torch.cumsum(sp, dim<span class="op">=-</span><span class="dv">1</span>)</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>        keep <span class="op">=</span> cum <span class="op">-</span> sp <span class="op">&lt;</span> top_p                         <span class="co"># keep tokens until mass &gt;= top_p</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>        mask <span class="op">=</span> torch.zeros_like(p, dtype<span class="op">=</span>torch.<span class="bu">bool</span>)<span class="op">;</span> mask[si[keep]] <span class="op">=</span> <span class="va">True</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>        p <span class="op">=</span> torch.where(mask, p, torch.zeros_like(p))</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> p <span class="op">/</span> p.<span class="bu">sum</span>()</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a><span class="at">@torch.no_grad</span>()</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> generate(prompt, n<span class="op">=</span><span class="dv">300</span>, greedy<span class="op">=</span><span class="va">False</span>, <span class="op">**</span>kw):</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>    ids <span class="op">=</span> torch.tensor([ix[c] <span class="cf">for</span> c <span class="kw">in</span> prompt])</span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(n):</span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>        logits <span class="op">=</span> lm(ids[<span class="va">None</span>, <span class="op">-</span>T_ctx:])[<span class="dv">0</span>, <span class="op">-</span><span class="dv">1</span>]</span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> greedy:</span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>            nxt <span class="op">=</span> logits.argmax()</span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>            nxt <span class="op">=</span> torch.multinomial(next_token_probs(logits, <span class="op">**</span>kw), <span class="dv">1</span>)[<span class="dv">0</span>]</span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>        ids <span class="op">=</span> torch.cat([ids, nxt.view(<span class="dv">1</span>)])</span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="st">""</span>.join(chars[i] <span class="cf">for</span> i <span class="kw">in</span> ids.tolist())</span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>torch.manual_seed(<span class="dv">1</span>)</span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>prompt <span class="op">=</span> <span class="st">"the function "</span></span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> name, kw <span class="kw">in</span> [(<span class="st">"greedy"</span>, <span class="bu">dict</span>(greedy<span class="op">=</span><span class="va">True</span>)), (<span class="st">"T = 0.7"</span>, <span class="bu">dict</span>(temperature<span class="op">=</span><span class="fl">0.7</span>)),</span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>                 (<span class="st">"T = 1.0"</span>, <span class="bu">dict</span>(temperature<span class="op">=</span><span class="fl">1.0</span>)), (<span class="st">"T = 1.5"</span>, <span class="bu">dict</span>(temperature<span class="op">=</span><span class="fl">1.5</span>)),</span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a>                 (<span class="st">"top-p 0.9"</span>, <span class="bu">dict</span>(top_p<span class="op">=</span><span class="fl">0.9</span>)), (<span class="st">"top-k 5"</span>, <span class="bu">dict</span>(top_k<span class="op">=</span><span class="dv">5</span>))]:</span>
+<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>name<span class="sc">:10s}</span><span class="ss">: </span><span class="sc">{</span>generate(prompt, <span class="dv">150</span>, <span class="op">**</span>kw)<span class="sc">!r}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>greedy    : 'the function can be context manager s and the same as the same as the same as the same as the same as the same as the same as the same as the same as the same as t'
+T = 0.7   : 'the function can be setting or abc reach same type parameters leading parameter lists are not replacement fields module function is executed within the last in con'
+T = 1.0   : 'the function floor functions. async wackether in any other havilable for attr fails an at result name is right exceptions as replace found for precisiouslety of mu'
+T = 1.5   : 'the function by attributes currwithoud fhtes try tal customization happel x. by all expre.get, these hit indents other sharr nonnew rules toighn is none . notters '
+top-p 0.9 : 'the function object getattribute and default values for the part of the object class instance class. object. chandly created as iterator is used to module. see sco'
+top-k 5   : 'the function can contain debugg one of they are no evaluated withse arithmeteration override an asynchronous group thems the equals . positional are constructed if'</code></pre>
+</div>
+</div>
+<p>Greedy decoding falls into a loop (here, “the same as the same as the same as…”). Pure sampling at <span class="math inline">\(T=1\)</span> is varied and often garbled. Truncation methods give a middle ground. This is typical, and it is why chat models use temperature around 0.7 with nucleus sampling.</p>
+<section id="measuring-it" class="level3" data-number="33.5.1">
+<h3 data-number="33.5.1" class="anchored" data-anchor-id="measuring-it"><span class="header-section-number">33.5.1</span> Measuring it</h3>
+<p>We quantify two things over 20 samples of 300 characters for each rule: the fraction of repeated 8-grams (repetition) and the average log-probability the model assigns to its own text (how “likely” the output is).</p>
+<div id="cell-fig-decoding-stats" class="cell" data-execution_count="8">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> stats(kw, n_samples<span class="op">=</span><span class="dv">20</span>, n<span class="op">=</span><span class="dv">300</span>):</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    reps, lps <span class="op">=</span> [], []</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(n_samples):</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>        s <span class="op">=</span> generate(<span class="st">"the function "</span>, n, <span class="op">**</span>kw)</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>        grams <span class="op">=</span> [s[i:i <span class="op">+</span> <span class="dv">8</span>] <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(s) <span class="op">-</span> <span class="dv">8</span>)]</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>        seen, rep <span class="op">=</span> <span class="bu">set</span>(), <span class="dv">0</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> g <span class="kw">in</span> grams:</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>            rep <span class="op">+=</span> g <span class="kw">in</span> seen<span class="op">;</span> seen.add(g)</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>        reps.append(rep <span class="op">/</span> <span class="bu">len</span>(grams))</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>        ids <span class="op">=</span> torch.tensor([ix[c] <span class="cf">for</span> c <span class="kw">in</span> s])</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>        lps.append(seq_logprob_parallel(ids[<span class="op">-</span>(T_ctx <span class="op">+</span> <span class="dv">1</span>):]) <span class="op">/</span> T_ctx)</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.mean(reps), np.mean(lps)</span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>torch.manual_seed(<span class="dv">2</span>)</span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>settings <span class="op">=</span> {<span class="st">"greedy"</span>: <span class="bu">dict</span>(greedy<span class="op">=</span><span class="va">True</span>), <span class="st">"T=0.5"</span>: <span class="bu">dict</span>(temperature<span class="op">=</span><span class="fl">0.5</span>), <span class="st">"T=1.0"</span>: <span class="bu">dict</span>(temperature<span class="op">=</span><span class="fl">1.0</span>),</span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>            <span class="st">"T=1.5"</span>: <span class="bu">dict</span>(temperature<span class="op">=</span><span class="fl">1.5</span>), <span class="st">"top-p 0.9"</span>: <span class="bu">dict</span>(top_p<span class="op">=</span><span class="fl">0.9</span>), <span class="st">"top-k 5"</span>: <span class="bu">dict</span>(top_k<span class="op">=</span><span class="dv">5</span>)}</span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>res <span class="op">=</span> {k: stats(v, n_samples<span class="op">=</span><span class="dv">1</span> <span class="cf">if</span> k <span class="op">==</span> <span class="st">"greedy"</span> <span class="cf">else</span> <span class="dv">20</span>) <span class="cf">for</span> k, v <span class="kw">in</span> settings.items()}</span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>fig, (ax1, ax2) <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="fl">3.4</span>))</span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>names <span class="op">=</span> <span class="bu">list</span>(res)</span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>ax1.bar(names, [res[k][<span class="dv">0</span>] <span class="cf">for</span> k <span class="kw">in</span> names], color<span class="op">=</span>PALETTE[<span class="st">"loss"</span>])<span class="op">;</span> ax1.set_ylabel(<span class="st">"repeated 8-gram fraction"</span>)</span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>ax2.bar(names, [res[k][<span class="dv">1</span>] <span class="cf">for</span> k <span class="kw">in</span> names], color<span class="op">=</span>PALETTE[<span class="st">"data"</span>])<span class="op">;</span> ax2.set_ylabel(<span class="st">"mean log P per character"</span>)</span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax <span class="kw">in</span> (ax1, ax2): ax.tick_params(axis<span class="op">=</span><span class="st">"x"</span>, rotation<span class="op">=</span><span class="dv">30</span>)</span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span>
+<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> k <span class="kw">in</span> names: <span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>k<span class="sc">:10s}</span><span class="ss"> repeats </span><span class="sc">{</span>res[k][<span class="dv">0</span>]<span class="sc">:.2f}</span><span class="ss">   mean log P </span><span class="sc">{</span>res[k][<span class="dv">1</span>]<span class="sc">:.2f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="fig-decoding-stats" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Two bar charts across six decoding settings: repeated 8-gram fraction on the left, mean log-probability per character on the right.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-decoding-stats-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="ch33_autoregressive_generation_and_sampling_files/figure-html/fig-decoding-stats-output-1.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-3" title="Figure&nbsp;33.3: Properties of generated text for different decoding rules (20 samples of 300 characters each). Left: share of 8-character windows that repeat an earlier window. Greedy decoding repeats the most. Right: average log-probability per character that the model assigns to the text it generated. Lower temperature gives more ‘likely’ text; high temperature gives text the model itself finds unlikely."><img src="ch33_autoregressive_generation_and_sampling_files/figure-html/fig-decoding-stats-output-1.svg" class="img-fluid figure-img" alt="Two bar charts across six decoding settings: repeated 8-gram fraction on the left, mean log-probability per character on the right."></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-decoding-stats-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;33.3: Properties of generated text for different decoding rules (20 samples of 300 characters each). Left: share of 8-character windows that repeat an earlier window. Greedy decoding repeats the most. Right: average log-probability per character that the model assigns to the text it generated. Lower temperature gives more ‘likely’ text; high temperature gives text the model itself finds unlikely.
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>greedy     repeats 0.83   mean log P -0.65
+T=0.5      repeats 0.07   mean log P -0.74
+T=1.0      repeats 0.02   mean log P -1.14
+T=1.5      repeats 0.00   mean log P -1.78
+top-p 0.9  repeats 0.03   mean log P -0.90
+top-k 5    repeats 0.02   mean log P -0.93</code></pre>
+</div>
+</div>
+</section>
+<section id="entropy-and-temperature-on-real-model-output" class="level3" data-number="33.5.2">
+<h3 data-number="33.5.2" class="anchored" data-anchor-id="entropy-and-temperature-on-real-model-output"><span class="header-section-number">33.5.2</span> Entropy and temperature on real model output</h3>
+<p>Chapter 24 showed that entropy rises with <span class="math inline">\(T\)</span> for a fixed set of logits. We confirm it for the model’s actual next-token distribution, and look at how many tokens a nucleus of <span class="math inline">\(p=0.9\)</span> actually contains.</p>
+<div id="cell-fig-entropy-nucleus" class="cell" data-execution_count="9">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="at">@torch.no_grad</span>()</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> ent_bits(p):</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    p <span class="op">=</span> p[p <span class="op">&gt;</span> <span class="dv">0</span>]<span class="op">;</span> <span class="cf">return</span> <span class="op">-</span>(p <span class="op">*</span> p.log2()).<span class="bu">sum</span>().item()</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>ctx <span class="op">=</span> val_data[:T_ctx]</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>logits <span class="op">=</span> lm(ctx[<span class="va">None</span>])[<span class="dv">0</span>, <span class="op">-</span><span class="dv">1</span>]</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>Ts <span class="op">=</span> np.linspace(<span class="fl">0.1</span>, <span class="fl">3.0</span>, <span class="dv">30</span>)</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>ents <span class="op">=</span> [ent_bits(F.softmax(logits <span class="op">/</span> t, <span class="op">-</span><span class="dv">1</span>)) <span class="cf">for</span> t <span class="kw">in</span> Ts]</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> torch.no_grad():</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>    b <span class="op">=</span> get_batch(val_data, <span class="dv">32</span>)</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>    P <span class="op">=</span> F.softmax(lm(b[:, :<span class="op">-</span><span class="dv">1</span>]), dim<span class="op">=-</span><span class="dv">1</span>).reshape(<span class="op">-</span><span class="dv">1</span>, V)[:<span class="dv">2000</span>]</span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>sp, _ <span class="op">=</span> torch.sort(P, dim<span class="op">=-</span><span class="dv">1</span>, descending<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>sizes <span class="op">=</span> (torch.cumsum(sp, <span class="op">-</span><span class="dv">1</span>) <span class="op">&lt;</span> <span class="fl">0.9</span>).<span class="bu">sum</span>(<span class="op">-</span><span class="dv">1</span>).numpy() <span class="op">+</span> <span class="dv">1</span></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>fig, (ax1, ax2) <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="fl">3.4</span>))</span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>ax1.plot(Ts, ents, color<span class="op">=</span>PALETTE[<span class="st">"model"</span>], lw<span class="op">=</span><span class="dv">2</span>)<span class="op">;</span> ax1.set_xlabel(<span class="st">"temperature T"</span>)<span class="op">;</span> ax1.set_ylabel(<span class="st">"entropy (bits)"</span>)</span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>ax2.hist(sizes, bins<span class="op">=</span>np.arange(<span class="fl">0.5</span>, sizes.<span class="bu">max</span>() <span class="op">+</span> <span class="fl">1.5</span>), color<span class="op">=</span>PALETTE[<span class="st">"data"</span>])</span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>ax2.set_xlabel(<span class="st">"tokens in the top-p = 0.9 nucleus"</span>)<span class="op">;</span> ax2.set_ylabel(<span class="st">"number of positions"</span>)</span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"entropy is increasing in T:"</span>, <span class="bu">all</span>(np.diff(ents) <span class="op">&gt;</span> <span class="dv">0</span>))</span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"nucleus size: median </span><span class="sc">{</span>np<span class="sc">.</span>median(sizes)<span class="sc">:.0f}</span><span class="ss">, mean </span><span class="sc">{</span>sizes<span class="sc">.</span>mean()<span class="sc">:.1f}</span><span class="ss">, max </span><span class="sc">{</span>sizes<span class="sc">.</span><span class="bu">max</span>()<span class="sc">}</span><span class="ss"> of </span><span class="sc">{</span>V<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="fig-entropy-nucleus" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Left: a rising entropy curve against temperature. Right: a histogram of nucleus sizes, concentrated at small values with a tail to larger ones.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-entropy-nucleus-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="ch33_autoregressive_generation_and_sampling_files/figure-html/fig-entropy-nucleus-output-1.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-4" title="Figure&nbsp;33.4: Left: entropy of the model’s next-token distribution at one context, as a function of temperature. It rises monotonically. Right: the size of the top-p = 0.9 nucleus over 2,000 validation positions. In many places a handful of tokens carry 90% of the probability. In a few, many do: the nucleus adapts to the model’s uncertainty, which a fixed top-k cannot."><img src="ch33_autoregressive_generation_and_sampling_files/figure-html/fig-entropy-nucleus-output-1.svg" class="img-fluid figure-img" alt="Left: a rising entropy curve against temperature. Right: a histogram of nucleus sizes, concentrated at small values with a tail to larger ones."></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-entropy-nucleus-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;33.4: Left: entropy of the model’s next-token distribution at one context, as a function of temperature. It rises monotonically. Right: the size of the top-p = 0.9 nucleus over 2,000 validation positions. In many places a handful of tokens carry 90% of the probability. In a few, many do: the nucleus adapts to the model’s uncertainty, which a fixed top-k cannot.
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>entropy is increasing in T: True
+nucleus size: median 2, mean 4.2, max 18 of 29</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="sec-production" class="level2" data-number="33.6">
+<h2 data-number="33.6" class="anchored" data-anchor-id="sec-production"><span class="header-section-number">33.6</span> Production</h2>
+<p>PyTorch provides <code>torch.topk</code>, <code>torch.multinomial</code>, and <code>torch.cumsum</code>. We check our nucleus implementation against a direct, slower one.</p>
+<div id="code-check-nucleus" class="cell" data-execution_count="10">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> nucleus_reference(p, top_p):</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    order <span class="op">=</span> np.argsort(<span class="op">-</span>p)<span class="op">;</span> cum <span class="op">=</span> <span class="fl">0.0</span><span class="op">;</span> keep <span class="op">=</span> []</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> j <span class="kw">in</span> order:</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>        keep.append(j)<span class="op">;</span> cum <span class="op">+=</span> p[j]</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> cum <span class="op">&gt;=</span> top_p:</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>            <span class="cf">break</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>    out <span class="op">=</span> np.zeros_like(p)<span class="op">;</span> out[keep] <span class="op">=</span> p[keep]</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> out <span class="op">/</span> out.<span class="bu">sum</span>()</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>ok <span class="op">=</span> <span class="va">True</span></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">100</span>):</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>    z <span class="op">=</span> torch.randn(V) <span class="op">*</span> <span class="dv">3</span></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>    mine <span class="op">=</span> next_token_probs(z, top_p<span class="op">=</span><span class="fl">0.8</span>).numpy()</span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>    ref <span class="op">=</span> nucleus_reference(F.softmax(z, <span class="op">-</span><span class="dv">1</span>).numpy(), <span class="fl">0.8</span>)</span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>    ok <span class="op">&amp;=</span> np.allclose(mine, ref, atol<span class="op">=</span><span class="fl">1e-6</span>)</span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"top-p implementation matches the reference on 100 random distributions:"</span>, ok)</span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"temperature 1 and no truncation leaves the distribution unchanged:"</span>,</span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>      torch.allclose(next_token_probs(logits), F.softmax(logits, <span class="op">-</span><span class="dv">1</span>)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>top-p implementation matches the reference on 100 random distributions: True
+temperature 1 and no truncation leaves the distribution unchanged: True</code></pre>
+</div>
+</div>
+<p>In production, generation uses the <strong>KV cache</strong> (Chapter 32), so each new token costs one attention step over the cache and not a full recomputation.</p>
+</section>
+<section id="sec-failure" class="level2" data-number="33.7">
+<h2 data-number="33.7" class="anchored" data-anchor-id="sec-failure"><span class="header-section-number">33.7</span> Failure modes</h2>
+<p><strong>Repetition loops.</strong> Greedy and low-temperature decoding return to the same high-probability continuation (see above). Remedies are sampling, repetition penalties, and nucleus truncation.</p>
+<p><strong>Exposure bias.</strong> In training the model always sees the true prefix. At generation it sees its own samples. An early mistake puts it in a context it never saw. The mismatch can compound over long outputs.</p>
+<p><strong>Tail sampling.</strong> At <span class="math inline">\(T=1\)</span> without truncation, each step has a small chance of sampling a bad token. Over hundreds of tokens, this accumulates.</p>
+<p><strong>Degenerate settings.</strong> <span class="math inline">\(T\to0\)</span> is greedy. Top-<span class="math inline">\(p\)</span> near 0 keeps one token. <span class="math inline">\(T=0\)</span> exactly divides by zero: implementations clamp it.</p>
+<p><strong>Miscalibration.</strong> A language model’s probabilities need not be calibrated (Chapter 24). A sequence with a high probability is not necessarily a good one: the most probable text is often generic or repetitive.</p>
+<p><strong>Likelihood is not quality.</strong> Perplexity measures prediction of held-out text. It does not measure truthfulness, helpfulness, or safety.</p>
+<p><strong>Cost.</strong> Each token needs a forward pass. Generating <span class="math inline">\(n\)</span> tokens takes <span class="math inline">\(n\)</span> sequential steps, which cannot be parallelised across time for one sequence.</p>
+</section>
+<section id="sec-ai-connection" class="level2" data-number="33.8">
+<h2 data-number="33.8" class="anchored" data-anchor-id="sec-ai-connection"><span class="header-section-number">33.8</span> Where this appears in modern AI</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Place</th>
+<th>Use</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Pre-training of every LLM</td>
+<td>minimise <a href="#eq-lm-loss" class="quarto-xref">Equation&nbsp;<span>33.2</span></a> on trillions of tokens</td>
+</tr>
+<tr class="even">
+<td>Evaluation</td>
+<td>perplexity / bits per byte on held-out text</td>
+</tr>
+<tr class="odd">
+<td>Chat and API settings</td>
+<td>temperature, top-<span class="math inline">\(p\)</span>, top-<span class="math inline">\(k\)</span>, max tokens</td>
+</tr>
+<tr class="even">
+<td>Speculative decoding</td>
+<td>a small model proposes several tokens, the large one verifies them in one parallel pass</td>
+</tr>
+<tr class="odd">
+<td>Beam search</td>
+<td>used in translation: keeps the best few sequences by total log-probability</td>
+</tr>
+<tr class="even">
+<td>Reward-model fine-tuning (RLHF)</td>
+<td>the policy is <span class="math inline">\(P_\theta(x_{t}\mid x_{&lt;t})\)</span>; its KL to a reference model is penalised (Chapter 15)</td>
+</tr>
+<tr class="odd">
+<td>Scoring and ranking</td>
+<td>log-probability of a candidate text (parallel pass)</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="sec-system-connection" class="level2" data-number="33.9">
+<h2 data-number="33.9" class="anchored" data-anchor-id="sec-system-connection"><span class="header-section-number">33.9</span> System connection</h2>
+<div class="callout callout-style-default callout-note callout-titled" title="What the system gained in this chapter">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>What the system gained in this chapter
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>System C is <strong>complete as a language model</strong>: it is trained by maximum likelihood with the chain rule, evaluated by perplexity, and used to generate text by sampling from its next-token distribution under a chosen decoding rule. The central equation <span class="math inline">\(P(x_{1:n})=\prod_tP(x_{t}\mid x_{&lt;t})\)</span> connects probability (Part VI), the architecture (Chapters 30–32), and learning (Part V).</p>
+<p>Next we ask what limits such models: how parameters, data, and compute scale, how to add parameters without adding compute (mixtures of experts), and how numerical precision constrains training. That is Chapter 34.</p>
+</div>
+</div>
+</section>
+<section id="chapter-summary" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="chapter-summary">Chapter summary</h2>
+<ul>
+<li><span class="math inline">\(P(x_{1:n})=\prod_tP(x_{t}\mid x_{&lt;t})\)</span> is exact. The model supplies each factor.</li>
+<li>Training minimises <span class="math inline">\(-\frac1n\sum_{t}\ln P_\theta(x_{t}\mid x_{&lt;t})\)</span> with teacher forcing. Perplexity is its exponential.</li>
+<li>Scoring is one parallel pass. Generation is sequential, one token per pass.</li>
+<li>Decoding: greedy, temperature, top-<span class="math inline">\(k\)</span>, top-<span class="math inline">\(p\)</span>. Entropy rises with temperature.</li>
+<li>Greedy repeats. Pure sampling is noisy. Truncated sampling balances them.</li>
+<li>Exposure bias, tail sampling, and the difference between likelihood and quality are the main caveats.</li>
+</ul>
+</section>
+<section id="exercises" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="exercises">Exercises</h2>
+<ol type="1">
+<li><strong>Compute.</strong> A model gives probabilities <span class="math inline">\(0.5,0.25,0.1\)</span> to three tokens of a sentence. Give the sequence log-probability and the per-token perplexity.</li>
+<li><strong>Derive.</strong> Show that the perplexity of a uniform model over <span class="math inline">\(V\)</span> tokens is <span class="math inline">\(V\)</span>.</li>
+<li><strong>Derive.</strong> Show that top-<span class="math inline">\(k\)</span> with <span class="math inline">\(k=1\)</span> equals greedy decoding, and that <span class="math inline">\(T\to0\)</span> also gives greedy decoding.</li>
+<li><strong>Derive.</strong> Show that scaling logits by <span class="math inline">\(1/T\)</span> and then applying softmax is the same as raising probabilities to the power <span class="math inline">\(1/T\)</span> and renormalising.</li>
+<li><strong>Code.</strong> Evaluate the bits per character of the model on the validation text for contexts of length 1, 4, 16, 64. Plot it.</li>
+<li><strong>Code.</strong> Implement beam search with width 3 for the character model. Compare the log-probability of its output to greedy.</li>
+<li><strong>Code.</strong> Add a repetition penalty (divide the logits of recently generated tokens by 1.2). Measure the repetition statistic again.</li>
+<li><strong>Code.</strong> Implement generation with a KV cache for this model and check that it gives the same text as the uncached version under greedy decoding.</li>
+<li><strong>Diagnose.</strong> A chat model is run at temperature 2.0 and produces random-looking words. Explain with the entropy plot.</li>
+<li><strong>Explain.</strong> Why is the most probable sentence under a language model often not the best one?</li>
+</ol>
+
+
+</section>
+
+</main> <!-- /main -->
+<script>
+/* Keep the left navigation stable between pages: all parts expanded,
+   and the sidebar scroll position remembered across page loads. */
+(function () {
+  var KEY = "mathsystems-sidebar-scroll";
+  function side() { return document.getElementById("quarto-sidebar"); }
+  function scroller() {
+    var s = side(); if (!s) return null;
+    return s.querySelector(".sidebar-menu-container") || s;
+  }
+  function expandAll() {
+    var s = side(); if (!s) return;
+    s.querySelectorAll(".collapse").forEach(function (el) { el.classList.add("show"); });
+    s.querySelectorAll('[aria-expanded="false"]').forEach(function (el) { el.setAttribute("aria-expanded", "true"); });
+    s.querySelectorAll(".sidebar-item-toggle.collapsed, a.collapsed").forEach(function (el) { el.classList.remove("collapsed"); });
+  }
+  function restore() {
+    var sc = scroller(), v = null;
+    try { v = sessionStorage.getItem(KEY); } catch (e) {}
+    if (sc && v !== null) sc.scrollTop = parseInt(v, 10);
+  }
+  function save() {
+    var sc = scroller();
+    if (!sc) return;
+    try { sessionStorage.setItem(KEY, String(sc.scrollTop)); } catch (e) {}
+  }
+  document.addEventListener("DOMContentLoaded", function () {
+    expandAll(); restore();
+    var sc = scroller();
+    if (sc) sc.addEventListener("scroll", save, { passive: true });
+    document.addEventListener("click", save, true);
+    window.addEventListener("pagehide", save);
+  });
+  window.addEventListener("load", function () {
+    expandAll(); restore();
+    setTimeout(restore, 50); setTimeout(restore, 250);   /* after the theme's own scroll-into-view */
+  });
+})();
+</script>
+<style>
+/* no jump while the menu is being expanded */
+#quarto-sidebar .collapse { transition: none !important; }
+</style>
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/vsrveera\.github\.io\/books\/mathai\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../chapters/ch32_decoder_only_language_models.html" class="pagination-link" aria-label="Decoder-only Language Models">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">32</span>&nbsp; <span class="chapter-title">Decoder-only Language Models</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../chapters/ch34_mixture_of_experts_scale_and_numerical_precision.html" class="pagination-link" aria-label="Mixture-of-Experts, Scale and Numerical Precision">
+        <span class="nav-page-text"><span class="chapter-number">34</span>&nbsp; <span class="chapter-title">Mixture-of-Experts, Scale and Numerical Precision</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<script>var lightboxQuarto = GLightbox({"closeEffect":"zoom","descPosition":"bottom","loop":false,"openEffect":"zoom","selector":".lightbox"});
+(function() {
+  let previousOnload = window.onload;
+  window.onload = () => {
+    if (previousOnload) {
+      previousOnload();
+    }
+    lightboxQuarto.on('slide_before_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      const href = trigger.getAttribute('href');
+      if (href !== null) {
+        const imgEl = window.document.querySelector(`a[href="${href}"] img`);
+        if (imgEl !== null) {
+          const srcAttr = imgEl.getAttribute("src");
+          if (srcAttr && srcAttr.startsWith("data:")) {
+            slideConfig.href = srcAttr;
+          }
+        }
+      } 
+    });
+  
+    lightboxQuarto.on('slide_after_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(slideNode);
+      }
+    });
+  
+  };
+  
+})();
+          </script>
+
+
+
+
+<script src="../site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

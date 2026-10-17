@@ -1,0 +1,1904 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.19">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>3&nbsp; Vectors: Representing Information – Mathematics of Artificial Intelligence</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../chapters/ch04_geometry_of_representations.html" rel="next">
+<link href="../chapters/ch02_language_of_mathematical_ai.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-43d2fa13cb35dd2022b3c25d65fdd634.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-19432b6b5c85f3ab30851b7038f884b0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="../site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
+<link href="../site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
+<link href="../site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar docked quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/ch03_vectors_representing_information.html">Part II — Representation</a></li><li class="breadcrumb-item"><a href="../chapters/ch03_vectors_representing_information.html"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Vectors: Representing Information</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">Mathematics of Artificial Intelligence</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part I — The Mathematical Machine</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch01_ai_as_a_mathematical_system.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">AI as a Mathematical System</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch02_language_of_mathematical_ai.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">The Language of Mathematical AI</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part II — Representation</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch03_vectors_representing_information.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Vectors: Representing Information</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch04_geometry_of_representations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Geometry of Representations</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch05_matrices_representing_transformations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Matrices: Representing Transformations</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch06_tensors_and_high_dimensional_data.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Tensors and High-Dimensional Data</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch07_structure_hidden_in_data.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Structure Hidden in Data</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part III — Transformation</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch08_functions_as_machines.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Functions as Machines</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch09_linear_transformations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Linear Transformations</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch10_nonlinearity_and_expressiveness.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Nonlinearity and Expressiveness</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch11_neural_networks_as_function_composition.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Neural Networks as Function Composition</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch12_convolution_and_structured_transformations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Convolution and Structured Transformations</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part IV — Measurement</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch13_distance_similarity_and_geometry.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Distance, Similarity and Geometry</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch14_loss_functions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Loss Functions</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch15_information_as_a_mathematical_quantity.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Information as a Mathematical Quantity</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part V — Learning</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch16_change_and_derivatives.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Change and Derivatives</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch17_gradients_and_multivariable_calculus.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Gradients and Multivariable Calculus</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch18_chain_rule_and_backpropagation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">The Chain Rule and Backpropagation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch19_optimization.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Optimization</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch20_the_geometry_and_dynamics_of_learning.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">The Geometry and Dynamics of Learning</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part VI — Uncertainty</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch21_probability_as_a_language_of_uncertainty.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Probability as a Language of Uncertainty</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch22_conditional_probability_and_bayes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Conditional Probability and Bayes</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch23_probability_distributions_used_in_ai.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Probability Distributions Used in AI</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch24_from_scores_to_probabilities.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">From Scores to Probabilities</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch25_statistical_estimation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Statistical Estimation</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part VII — Generalization</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch26_from_samples_to_populations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">From Samples to Populations</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch27_generalization.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Generalization</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch28_bias_variance_and_regularization.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Bias, Variance and Regularization</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch29_statistical_learning_theory.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Statistical Learning Theory</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part VIII — Putting the Mathematical Systems Together</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch30_the_mathematics_of_attention.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">30</span>&nbsp; <span class="chapter-title">The Mathematics of Attention</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch31_the_mathematics_of_the_transformer.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">31</span>&nbsp; <span class="chapter-title">The Mathematics of the Transformer</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch32_decoder_only_language_models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">32</span>&nbsp; <span class="chapter-title">Decoder-only Language Models</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch33_autoregressive_generation_and_sampling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">33</span>&nbsp; <span class="chapter-title">Autoregressive Generation and Sampling</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch34_mixture_of_experts_scale_and_numerical_precision.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">34</span>&nbsp; <span class="chapter-title">Mixture-of-Experts, Scale and Numerical Precision</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch35_convolutional_vision_in_depth.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">Convolutional Vision in Depth</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch36_vision_transformers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Vision Transformers</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch37_detection_and_structured_prediction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">Detection and Structured Prediction</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch38_representation_and_self_supervised_learning.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">38</span>&nbsp; <span class="chapter-title">Representation and Self-Supervised Learning</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch39_clip_and_multimodal_language_models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">39</span>&nbsp; <span class="chapter-title">CLIP and Multimodal Language Models</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch40_latent_variable_models_and_vaes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">40</span>&nbsp; <span class="chapter-title">Latent-Variable Models and VAEs</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch41_diffusion_models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">41</span>&nbsp; <span class="chapter-title">Diffusion Models</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch42_latent_diffusion_and_diffusion_transformers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">42</span>&nbsp; <span class="chapter-title">Latent Diffusion and Diffusion Transformers</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch43_flow_matching.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">43</span>&nbsp; <span class="chapter-title">Flow Matching</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch44_one_ai_system_all_the_mathematics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">44</span>&nbsp; <span class="chapter-title">One AI System, All the Mathematics</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part IX — Systems Thinking and Performance Characterisation</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch45_systems_thinking_components_and_interfaces.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">45</span>&nbsp; <span class="chapter-title">Systems Thinking: Components, Interfaces and Contracts</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch46_feedback_coupling_and_stability.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">46</span>&nbsp; <span class="chapter-title">Feedback, Coupling and Stability</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch47_performance_characterisation_the_paradigm.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">47</span>&nbsp; <span class="chapter-title">Performance Characterisation: The Paradigm</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch48_random_perturbation_and_error_propagation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">48</span>&nbsp; <span class="chapter-title">Random Perturbation and Error Propagation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch49_operating_curves_roc_and_confidence.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">49</span>&nbsp; <span class="chapter-title">Operating Curves, ROC and Confidence</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch50_characterisation_protocol_and_experimental_design.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">50</span>&nbsp; <span class="chapter-title">A Characterisation Protocol: Experimental Design and Reporting</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch51_characterising_large_models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">51</span>&nbsp; <span class="chapter-title">Characterising Large Models</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#sec-system-problem" id="toc-sec-system-problem" class="nav-link active" data-scroll-target="#sec-system-problem"><span class="header-section-number">3.1</span> The system problem</a></li>
+  <li><a href="#sec-intuition" id="toc-sec-intuition" class="nav-link" data-scroll-target="#sec-intuition"><span class="header-section-number">3.2</span> Intuition: three views of one object</a></li>
+  <li><a href="#sec-object" id="toc-sec-object" class="nav-link" data-scroll-target="#sec-object"><span class="header-section-number">3.3</span> The mathematical object</a></li>
+  <li><a href="#sec-operations" id="toc-sec-operations" class="nav-link" data-scroll-target="#sec-operations"><span class="header-section-number">3.4</span> Operations</a>
+  <ul class="collapse">
+  <li><a href="#linear-combination" id="toc-linear-combination" class="nav-link" data-scroll-target="#linear-combination"><span class="header-section-number">3.4.1</span> Linear combination</a></li>
+  </ul></li>
+  <li><a href="#sec-basis" id="toc-sec-basis" class="nav-link" data-scroll-target="#sec-basis"><span class="header-section-number">3.5</span> Basis and coordinates</a></li>
+  <li><a href="#sec-images" id="toc-sec-images" class="nav-link" data-scroll-target="#sec-images"><span class="header-section-number">3.6</span> Images as vectors</a>
+  <ul class="collapse">
+  <li><a href="#vector-arithmetic-on-images" id="toc-vector-arithmetic-on-images" class="nav-link" data-scroll-target="#vector-arithmetic-on-images"><span class="header-section-number">3.6.1</span> Vector arithmetic on images</a></li>
+  </ul></li>
+  <li><a href="#sec-words" id="toc-sec-words" class="nav-link" data-scroll-target="#sec-words"><span class="header-section-number">3.7</span> Words as vectors</a>
+  <ul class="collapse">
+  <li><a href="#one-hot-vectors" id="toc-one-hot-vectors" class="nav-link" data-scroll-target="#one-hot-vectors"><span class="header-section-number">3.7.1</span> One-hot vectors</a></li>
+  <li><a href="#embeddings" id="toc-embeddings" class="nav-link" data-scroll-target="#embeddings"><span class="header-section-number">3.7.2</span> Embeddings</a></li>
+  <li><a href="#a-hand-built-embedding" id="toc-a-hand-built-embedding" class="nav-link" data-scroll-target="#a-hand-built-embedding"><span class="header-section-number">3.7.3</span> A hand-built embedding</a></li>
+  </ul></li>
+  <li><a href="#sec-pipeline" id="toc-sec-pipeline" class="nav-link" data-scroll-target="#sec-pipeline"><span class="header-section-number">3.8</span> The representation pipeline</a></li>
+  <li><a href="#sec-production" id="toc-sec-production" class="nav-link" data-scroll-target="#sec-production"><span class="header-section-number">3.9</span> From first principles to production</a></li>
+  <li><a href="#sec-failure" id="toc-sec-failure" class="nav-link" data-scroll-target="#sec-failure"><span class="header-section-number">3.10</span> Failure modes and edge cases</a>
+  <ul class="collapse">
+  <li><a href="#shape-errors-that-do-not-raise-an-error" id="toc-shape-errors-that-do-not-raise-an-error" class="nav-link" data-scroll-target="#shape-errors-that-do-not-raise-an-error"><span class="header-section-number">3.10.1</span> Shape errors that do not raise an error</a></li>
+  <li><a href="#features-on-different-scales" id="toc-features-on-different-scales" class="nav-link" data-scroll-target="#features-on-different-scales"><span class="header-section-number">3.10.2</span> Features on different scales</a></li>
+  <li><a href="#limited-precision" id="toc-limited-precision" class="nav-link" data-scroll-target="#limited-precision"><span class="header-section-number">3.10.3</span> Limited precision</a></li>
+  <li><a href="#high-dimension-changes-geometry" id="toc-high-dimension-changes-geometry" class="nav-link" data-scroll-target="#high-dimension-changes-geometry"><span class="header-section-number">3.10.4</span> High dimension changes geometry</a></li>
+  </ul></li>
+  <li><a href="#sec-ai-connection" id="toc-sec-ai-connection" class="nav-link" data-scroll-target="#sec-ai-connection"><span class="header-section-number">3.11</span> Where this appears in modern AI</a></li>
+  <li><a href="#sec-system-connection" id="toc-sec-system-connection" class="nav-link" data-scroll-target="#sec-system-connection"><span class="header-section-number">3.12</span> System connection</a></li>
+  <li><a href="#chapter-summary" id="toc-chapter-summary" class="nav-link" data-scroll-target="#chapter-summary">Chapter summary</a></li>
+  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises">Exercises</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/ch03_vectors_representing_information.html">Part II — Representation</a></li><li class="breadcrumb-item"><a href="../chapters/ch03_vectors_representing_information.html"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Vectors: Representing Information</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Vectors: Representing Information</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="callout callout-style-default callout-note callout-titled" title="Key ideas">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Key ideas
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li>A <strong>vector</strong> is an ordered list of numbers. It is also a point, and also an arrow.</li>
+<li>Each number in a vector is a <strong>feature</strong>: one measured property of an object.</li>
+<li>Vectors can be <strong>added</strong> and <strong>scaled</strong>. These two operations define a vector space.</li>
+<li>A <strong>basis</strong> is a set of vectors that gives each point a unique set of coordinates. The coordinates depend on the basis. The vector does not.</li>
+<li>An image is a vector. A word is a vector. An <strong>embedding</strong> is a vector that a model learns for an object.</li>
+</ul>
+</div>
+</div>
+<section id="sec-system-problem" class="level2" data-number="3.1">
+<h2 data-number="3.1" class="anchored" data-anchor-id="sec-system-problem"><span class="header-section-number">3.1</span> The system problem</h2>
+<p>A model computes with numbers. The world does not give numbers. The world gives photos, sentences, sounds, and records.</p>
+<p>Before a model can learn anything, we must answer one question:</p>
+<blockquote class="blockquote">
+<p><strong>How can an image, a word, or a customer exist inside a computer so that a model can work with it?</strong></p>
+</blockquote>
+<p>The answer is a <strong>vector</strong>. This chapter shows what a vector is, which operations it supports, and why this one object is the starting point of every AI system in this book.</p>
+<p><a href="ch44_one_ai_system_all_the_mathematics.html#fig-where" class="quarto-xref">Figure&nbsp;<span>44.1</span></a> shows where we are on the system map. Part II builds the <strong>Representation</strong> stage.</p>
+<div id="cell-fig-where" class="cell" data-execution_count="2">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>system_map(highlight<span class="op">=</span>[<span class="st">"Data"</span>, <span class="st">"Representation"</span>],</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>           sublabels<span class="op">=</span>{<span class="st">"Representation"</span>: <span class="st">"Ch. 3–7"</span>})<span class="op">;</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="fig-where" class="quarto-float quarto-figure quarto-figure-center anchored" alt="System map with the Data and Representation boxes highlighted.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-where-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="ch03_vectors_representing_information_files/figure-html/fig-where-output-1.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-1" title="Figure&nbsp;3.1: This chapter builds the Representation stage. Everything after it works on vectors."><img src="ch03_vectors_representing_information_files/figure-html/fig-where-output-1.svg" class="img-fluid figure-img" alt="System map with the Data and Representation boxes highlighted."></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-where-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3.1: This chapter builds the Representation stage. Everything after it works on vectors.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Two running systems start here.</p>
+<ul>
+<li><strong>System A, Image Classifier:</strong> image → <em>vector</em> → class.</li>
+<li><strong>System B, Semantic Search:</strong> text → <em>vector</em> → similarity → retrieval.</li>
+</ul>
+</section>
+<section id="sec-intuition" class="level2" data-number="3.2">
+<h2 data-number="3.2" class="anchored" data-anchor-id="sec-intuition"><span class="header-section-number">3.2</span> Intuition: three views of one object</h2>
+<p>Take a house. We measure three properties: area in square meters, number of rooms, and age in years.</p>
+<p><span class="math display">\[
+\text{house} \;\longrightarrow\; (120,\; 4,\; 15)
+\]</span></p>
+<p>This list of numbers is a vector. It can be read in three ways. All three are useful.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>View</th>
+<th>Meaning</th>
+<th>Useful for</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>List</strong></td>
+<td>An ordered collection of numbers</td>
+<td>Storage, code</td>
+</tr>
+<tr class="even">
+<td><strong>Point</strong></td>
+<td>A location in a space with one axis per number</td>
+<td>Geometry, distance</td>
+</tr>
+<tr class="odd">
+<td><strong>Arrow</strong></td>
+<td>A movement from the origin to the point</td>
+<td>Direction, change</td>
+</tr>
+</tbody>
+</table>
+<p>The order matters. <span class="math inline">\((120, 4, 15)\)</span> and <span class="math inline">\((15, 4, 120)\)</span> are different houses.</p>
+<p>Each number is a <strong>feature</strong>. Choosing features is the first act of representation. A different choice of features gives a different space and a different problem.</p>
+<div id="cell-fig-point-arrow" class="cell" data-execution_count="3">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>v <span class="op">=</span> np.array([<span class="fl">3.0</span>, <span class="fl">2.0</span>])</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">4.8</span>, <span class="fl">3.8</span>))</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>setup_2d(ax, xlim<span class="op">=</span>(<span class="op">-</span><span class="fl">0.5</span>, <span class="fl">4.5</span>), ylim<span class="op">=</span>(<span class="op">-</span><span class="fl">0.5</span>, <span class="fl">3.5</span>))</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>ax.plot([v[<span class="dv">0</span>], v[<span class="dv">0</span>]], [<span class="dv">0</span>, v[<span class="dv">1</span>]], <span class="st">"--"</span>, color<span class="op">=</span>PALETTE[<span class="st">"neutral"</span>])</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>ax.plot([<span class="dv">0</span>, v[<span class="dv">0</span>]], [v[<span class="dv">1</span>], v[<span class="dv">1</span>]], <span class="st">"--"</span>, color<span class="op">=</span>PALETTE[<span class="st">"neutral"</span>])</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>ax.scatter(<span class="op">*</span>v, color<span class="op">=</span>PALETTE[<span class="st">"model"</span>], zorder<span class="op">=</span><span class="dv">3</span>)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>draw_arrow(ax, v, label<span class="op">=</span><span class="st">"$</span><span class="ch">\\</span><span class="st">mathbf</span><span class="sc">{x}</span><span class="st"> = (3, 2)$"</span>)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>ax.text(v[<span class="dv">0</span>], <span class="op">-</span><span class="fl">0.35</span>, <span class="st">"$x_1 = 3$"</span>, ha<span class="op">=</span><span class="st">"center"</span>, color<span class="op">=</span>PALETTE[<span class="st">"neutral"</span>])</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="op">-</span><span class="fl">0.45</span>, v[<span class="dv">1</span>], <span class="st">"$x_2 = 2$"</span>, va<span class="op">=</span><span class="st">"center"</span>, color<span class="op">=</span>PALETTE[<span class="st">"neutral"</span>])</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="fig-point-arrow" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A 2D plot with an arrow from the origin to the point (3, 2). Dashed lines drop from the point to each axis.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-point-arrow-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="ch03_vectors_representing_information_files/figure-html/fig-point-arrow-output-1.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-2" title="Figure&nbsp;3.2: One vector, two views. The point (3, 2) and the arrow from the origin to it are the same object. The dashed lines show its two components."><img src="ch03_vectors_representing_information_files/figure-html/fig-point-arrow-output-1.svg" class="img-fluid figure-img" alt="A 2D plot with an arrow from the origin to the point (3, 2). Dashed lines drop from the point to each axis."></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-point-arrow-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3.2: One vector, two views. The point (3, 2) and the arrow from the origin to it are the same object. The dashed lines show its two components.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="sec-object" class="level2" data-number="3.3">
+<h2 data-number="3.3" class="anchored" data-anchor-id="sec-object"><span class="header-section-number">3.3</span> The mathematical object</h2>
+<p>A <strong>vector</strong> with <span class="math inline">\(d\)</span> components is an ordered list of <span class="math inline">\(d\)</span> real numbers. We write</p>
+<p><span id="eq-vector"><span class="math display">\[
+\mathbf{x} = \begin{pmatrix} x_1 \\ x_2 \\ \vdots \\ x_d \end{pmatrix} \in \mathbb{R}^d.
+\tag{3.1}\]</span></span></p>
+<p>Read <span class="math inline">\(\mathbb{R}^d\)</span> as “the set of all lists of <span class="math inline">\(d\)</span> real numbers”. The number <span class="math inline">\(d\)</span> is the <strong>dimension</strong>. We write vectors in bold lowercase. The <span class="math inline">\(i\)</span>-th component is <span class="math inline">\(x_i\)</span>, a plain scalar.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Notation reminder">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Notation reminder
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Chapter 2 fixes the full notation. For now, remember three rules.</p>
+<ul>
+<li>A scalar is a single number: <span class="math inline">\(a\)</span>, <span class="math inline">\(\lambda\)</span>.</li>
+<li>A vector is a bold lowercase letter: <span class="math inline">\(\mathbf{x}\)</span>. By default it is a column.</li>
+<li><span class="math inline">\(\mathbb{R}^d\)</span> is the space of all vectors with <span class="math inline">\(d\)</span> components.</li>
+</ul>
+</div>
+</div>
+<p>In NumPy, a vector is a one-dimensional array. Its <strong>shape</strong> is <code>(d,)</code>.</p>
+<div id="f03012bb" class="cell" data-execution_count="4">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> np.array([<span class="fl">120.0</span>, <span class="fl">4.0</span>, <span class="fl">15.0</span>])   <span class="co"># (3,)   area, rooms, age</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"shape:"</span>, x.shape)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"dimension:"</span>, x.shape[<span class="dv">0</span>])</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"first component:"</span>, x[<span class="dv">0</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>shape: (3,)
+dimension: 3
+first component: 120.0</code></pre>
+</div>
+</div>
+</section>
+<section id="sec-operations" class="level2" data-number="3.4">
+<h2 data-number="3.4" class="anchored" data-anchor-id="sec-operations"><span class="header-section-number">3.4</span> Operations</h2>
+<p>Two operations make a set of vectors into a <strong>vector space</strong>.</p>
+<p><strong>Addition.</strong> Add two vectors component by component.</p>
+<p><span id="eq-add"><span class="math display">\[
+\mathbf{u} + \mathbf{v} = (u_1 + v_1,\; u_2 + v_2,\; \dots,\; u_d + v_d)
+\tag{3.2}\]</span></span></p>
+<p><strong>Scaling.</strong> Multiply every component by one scalar <span class="math inline">\(c\)</span>.</p>
+<p><span id="eq-scale"><span class="math display">\[
+c\,\mathbf{v} = (c\,v_1,\; c\,v_2,\; \dots,\; c\,v_d)
+\tag{3.3}\]</span></span></p>
+<p>Both operations must give a vector in the same space. This property is called <strong>closure</strong>. A vector space also needs a zero vector, and each vector needs a negative. In <span class="math inline">\(\mathbb{R}^d\)</span> all these rules hold.</p>
+<div id="cell-fig-add-scale" class="cell" data-execution_count="5">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>u, w <span class="op">=</span> np.array([<span class="fl">2.0</span>, <span class="fl">1.0</span>]), np.array([<span class="fl">1.0</span>, <span class="fl">2.0</span>])</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>fig, (ax1, ax2) <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">9</span>, <span class="fl">3.8</span>))</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>setup_2d(ax1, xlim<span class="op">=</span>(<span class="op">-</span><span class="fl">0.5</span>, <span class="fl">4.5</span>), ylim<span class="op">=</span>(<span class="op">-</span><span class="fl">0.5</span>, <span class="fl">4.0</span>))</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>draw_arrow(ax1, u, color<span class="op">=</span>PALETTE[<span class="st">"data"</span>], label<span class="op">=</span><span class="st">"u"</span>)</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>draw_arrow(ax1, w, color<span class="op">=</span>PALETTE[<span class="st">"prob"</span>], label<span class="op">=</span><span class="st">"v"</span>)</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>draw_arrow(ax1, w, origin<span class="op">=</span>u, color<span class="op">=</span>PALETTE[<span class="st">"prob"</span>], ls<span class="op">=</span><span class="st">"--"</span>, lw<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>draw_arrow(ax1, u, origin<span class="op">=</span>w, color<span class="op">=</span>PALETTE[<span class="st">"data"</span>], ls<span class="op">=</span><span class="st">"--"</span>, lw<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>draw_arrow(ax1, u <span class="op">+</span> w, color<span class="op">=</span>PALETTE[<span class="st">"model"</span>], label<span class="op">=</span><span class="st">"u + v"</span>, lw<span class="op">=</span><span class="fl">2.5</span>)</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>setup_2d(ax2, xlim<span class="op">=</span>(<span class="op">-</span><span class="dv">2</span>, <span class="dv">5</span>), ylim<span class="op">=</span>(<span class="op">-</span><span class="dv">2</span>, <span class="fl">4.5</span>))</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>scales <span class="op">=</span> [(<span class="dv">2</span>, PALETTE[<span class="st">"model"</span>]), (<span class="dv">1</span>, PALETTE[<span class="st">"prob"</span>]), (<span class="op">-</span><span class="fl">0.5</span>, PALETTE[<span class="st">"loss"</span>])]</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> c, col <span class="kw">in</span> scales:</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    draw_arrow(ax2, c <span class="op">*</span> w, color<span class="op">=</span>col, label<span class="op">=</span><span class="ss">f"</span><span class="sc">{</span>c<span class="sc">}</span><span class="ss">v"</span>)</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="fig-add-scale" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Left panel: vectors u and v with their sum u plus v and a dashed parallelogram. Right panel: vector v with 2v and minus 0.5 v on one line through the origin.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-add-scale-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="ch03_vectors_representing_information_files/figure-html/fig-add-scale-output-1.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-3" title="Figure&nbsp;3.3: Left: adding vectors places the second arrow at the tip of the first. The sum closes the parallelogram. Right: scaling stretches, shrinks, or flips an arrow along the same line."><img src="ch03_vectors_representing_information_files/figure-html/fig-add-scale-output-1.svg" class="img-fluid figure-img" alt="Left panel: vectors u and v with their sum u plus v and a dashed parallelogram. Right panel: vector v with 2v and minus 0.5 v on one line through the origin."></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-add-scale-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3.3: Left: adding vectors places the second arrow at the tip of the first. The sum closes the parallelogram. Right: scaling stretches, shrinks, or flips an arrow along the same line.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<section id="linear-combination" class="level3" data-number="3.4.1">
+<h3 data-number="3.4.1" class="anchored" data-anchor-id="linear-combination"><span class="header-section-number">3.4.1</span> Linear combination</h3>
+<p>Addition and scaling together give the most important idea of linear algebra. A <strong>linear combination</strong> of vectors <span class="math inline">\(\mathbf{b}_1, \dots, \mathbf{b}_k\)</span> is</p>
+<p><span id="eq-lincomb"><span class="math display">\[
+\mathbf{v} = c_1 \mathbf{b}_1 + c_2 \mathbf{b}_2 + \dots + c_k \mathbf{b}_k.
+\tag{3.4}\]</span></span></p>
+<p>The scalars <span class="math inline">\(c_i\)</span> are the <strong>coefficients</strong>. The set of all linear combinations of a list of vectors is their <strong>span</strong>.</p>
+<p>Linear combinations appear everywhere in AI. A linear layer <span class="math inline">\(\mathbf{W}\mathbf{x}\)</span> computes one. A weighted average of embeddings is one. The attention output in Chapter 30 is one.</p>
+<div id="3f9ab608" class="cell" data-execution_count="6">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>b1, b2 <span class="op">=</span> np.array([<span class="fl">1.0</span>, <span class="fl">0.0</span>]), np.array([<span class="fl">0.0</span>, <span class="fl">1.0</span>])</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>v <span class="op">=</span> <span class="dv">3</span> <span class="op">*</span> b1 <span class="op">+</span> <span class="dv">2</span> <span class="op">*</span> b2        <span class="co"># a linear combination of b1 and b2</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(v)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[3. 2.]</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="sec-basis" class="level2" data-number="3.5">
+<h2 data-number="3.5" class="anchored" data-anchor-id="sec-basis"><span class="header-section-number">3.5</span> Basis and coordinates</h2>
+<p>A list of numbers describes a vector only <em>relative to something</em>. The list <span class="math inline">\((3, 2)\)</span> means “three steps along <span class="math inline">\(\mathbf{b}_1\)</span> and two steps along <span class="math inline">\(\mathbf{b}_2\)</span>”. Here, <span class="math inline">\(\mathbf{b}_1 = (1, 0)\)</span> and <span class="math inline">\(\mathbf{b}_2 = (0, 1)\)</span> are the <strong>standard basis</strong>.</p>
+<p>A <strong>basis</strong> of a space is a list of vectors with two properties:</p>
+<ol type="1">
+<li><strong>Spanning.</strong> Every vector in the space is a linear combination of the list.</li>
+<li><strong>Independence.</strong> No vector in the list is a linear combination of the others.</li>
+</ol>
+<p>These two properties together guarantee that every vector has <strong>exactly one</strong> list of coefficients. This list is its <strong>coordinates</strong> in that basis.</p>
+<p><span id="eq-coords"><span class="math display">\[
+\mathbf{v} = c_1 \mathbf{b}_1 + c_2 \mathbf{b}_2
+\quad\Longleftrightarrow\quad
+[\mathbf{v}]_B = (c_1, c_2)
+\tag{3.5}\]</span></span></p>
+<p>The number of vectors in a basis is the <strong>dimension</strong> of the space. All bases of <span class="math inline">\(\mathbb{R}^d\)</span> have exactly <span class="math inline">\(d\)</span> vectors.</p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Derivation: coordinates in a skew basis">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Derivation: coordinates in a skew basis
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Let <span class="math inline">\(\mathbf{v} = (3, 2)\)</span>. Choose the basis <span class="math inline">\(\mathbf{b}_1 = (1, 0)\)</span> and <span class="math inline">\(\mathbf{b}_2 = (1, 1)\)</span>. We look for <span class="math inline">\(c_1, c_2\)</span> such that</p>
+<p><span class="math display">\[
+c_1 \begin{pmatrix}1\\0\end{pmatrix} + c_2 \begin{pmatrix}1\\1\end{pmatrix} = \begin{pmatrix}3\\2\end{pmatrix}.
+\]</span></p>
+<p>Write one equation per component:</p>
+<p><span class="math display">\[
+c_1 + c_2 = 3, \qquad c_2 = 2.
+\]</span></p>
+<p>The second equation gives <span class="math inline">\(c_2 = 2\)</span>. The first gives <span class="math inline">\(c_1 = 1\)</span>. So <span class="math inline">\([\mathbf{v}]_B = (1, 2)\)</span>.</p>
+<p>The <em>vector</em> did not change. Only the <em>description</em> changed.</p>
+</div>
+</div>
+<div id="cell-fig-basis" class="cell" data-execution_count="7">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>v <span class="op">=</span> np.array([<span class="fl">3.0</span>, <span class="fl">2.0</span>])</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>B <span class="op">=</span> np.array([[<span class="fl">1.0</span>, <span class="fl">1.0</span>],      <span class="co"># columns are the basis vectors b1, b2</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>              [<span class="fl">0.0</span>, <span class="fl">1.0</span>]])</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>coords <span class="op">=</span> np.linalg.solve(B, v)  <span class="co"># solve B @ c = v</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> np.allclose(B <span class="op">@</span> coords, v)</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>std <span class="op">=</span> np.eye(<span class="dv">2</span>)                    <span class="co"># columns: the standard basis</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>bases <span class="op">=</span> [(std, <span class="st">"standard basis:  (3, 2)"</span>),</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>         (B, <span class="ss">f"skew basis:  (</span><span class="sc">{</span>coords[<span class="dv">0</span>]<span class="sc">:.0f}</span><span class="ss">, </span><span class="sc">{</span>coords[<span class="dv">1</span>]<span class="sc">:.0f}</span><span class="ss">)"</span>)]</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">9</span>, <span class="fl">3.8</span>))</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax, (basis, title) <span class="kw">in</span> <span class="bu">zip</span>(axes, bases):</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>    setup_2d(ax, xlim<span class="op">=</span>(<span class="op">-</span><span class="fl">0.5</span>, <span class="dv">5</span>), ylim<span class="op">=</span>(<span class="op">-</span><span class="fl">0.5</span>, <span class="fl">3.5</span>))</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>    draw_basis_grid(ax, basis[:, <span class="dv">0</span>], basis[:, <span class="dv">1</span>])</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> k, (name, col) <span class="kw">in</span> <span class="bu">enumerate</span>([(<span class="st">"$</span><span class="ch">\\</span><span class="st">mathbf</span><span class="sc">{b}</span><span class="st">_1$"</span>, PALETTE[<span class="st">"data"</span>]),</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>                                     (<span class="st">"$</span><span class="ch">\\</span><span class="st">mathbf</span><span class="sc">{b}</span><span class="st">_2$"</span>, PALETTE[<span class="st">"prob"</span>])]):</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>        draw_arrow(ax, basis[:, k], color<span class="op">=</span>col, label<span class="op">=</span>name)</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>    draw_arrow(ax, v, color<span class="op">=</span>PALETTE[<span class="st">"model"</span>], lw<span class="op">=</span><span class="dv">3</span>)</span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>    ax.set_title(title, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="fig-basis" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Two panels showing the same arrow to the point (3, 2). Left panel has a square grid. Right panel has a skewed grid made from vectors (1,0) and (1,1).">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-basis-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="ch03_vectors_representing_information_files/figure-html/fig-basis-output-1.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-4" title="Figure&nbsp;3.4: One vector, two descriptions. The arrow is the same in both panels. In the standard basis its coordinates are (3, 2). In the skew basis they are (1, 2). A basis defines the grid used for counting."><img src="ch03_vectors_representing_information_files/figure-html/fig-basis-output-1.svg" class="img-fluid figure-img" alt="Two panels showing the same arrow to the point (3, 2). Left panel has a square grid. Right panel has a skewed grid made from vectors (1,0) and (1,1)."></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-basis-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3.4: One vector, two descriptions. The arrow is the same in both panels. In the standard basis its coordinates are (3, 2). In the skew basis they are (1, 2). A basis defines the grid used for counting.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Two facts will return in later chapters.</p>
+<ol type="1">
+<li><strong>Change of basis is a matrix operation.</strong> The <code>solve</code> call above finds coordinates in a new basis. Chapter 5 shows this as a matrix.</li>
+<li><strong>A good basis makes a problem simple.</strong> PCA (Chapter 7) searches for the best basis for a dataset.</li>
+</ol>
+<div class="callout callout-style-default callout-note callout-titled" title="Looking ahead">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Looking ahead
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>In an orthonormal basis, each coordinate is a dot product. We develop the dot product in Chapter 4.</p>
+</div>
+</div>
+</section>
+<section id="sec-images" class="level2" data-number="3.6">
+<h2 data-number="3.6" class="anchored" data-anchor-id="sec-images"><span class="header-section-number">3.6</span> Images as vectors</h2>
+<p>Now we apply the idea to System A. An image is a grid of brightness values. A grayscale image of <span class="math inline">\(8 \times 8\)</span> pixels has 64 numbers. Read the grid row by row. The result is a vector in <span class="math inline">\(\mathbb{R}^{64}\)</span>.</p>
+<p><span id="eq-flatten"><span class="math display">\[
+\text{image} \in \mathbb{R}^{8\times 8}
+\;\xrightarrow{\text{flatten}}\;
+\mathbf{x} \in \mathbb{R}^{64}
+\tag{3.6}\]</span></span></p>
+<div id="cell-fig-digit-vector" class="cell" data-execution_count="8">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.datasets <span class="im">import</span> load_digits</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>digits <span class="op">=</span> load_digits()</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>images, labels <span class="op">=</span> digits.images, digits.target       <span class="co"># (1797, 8, 8), (1797,)</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>img <span class="op">=</span> images[<span class="dv">3</span>]                                      <span class="co"># (8, 8)</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>x_img <span class="op">=</span> img.reshape(<span class="op">-</span><span class="dv">1</span>)                              <span class="co"># (64,)</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"image shape:"</span>, img.shape, <span class="st">"-&gt; vector shape:"</span>, x_img.shape)</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>fig, (ax1, ax2) <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">9</span>, <span class="dv">3</span>),</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>                               gridspec_kw<span class="op">=</span>{<span class="st">"width_ratios"</span>: [<span class="dv">1</span>, <span class="fl">2.4</span>]})</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>ax1.imshow(img, cmap<span class="op">=</span><span class="st">"gray_r"</span>)</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>ax1.set_title(<span class="ss">f"digit </span><span class="sc">{</span>labels[<span class="dv">3</span>]<span class="sc">}</span><span class="ss">, 8×8"</span>)</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>ax1.set_xticks([])<span class="op">;</span> ax1.set_yticks([])<span class="op">;</span> ax1.grid(<span class="va">False</span>)</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>ax2.bar(np.arange(<span class="dv">64</span>), x_img, color<span class="op">=</span>PALETTE[<span class="st">"data"</span>])</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>ax2.set_xlabel(<span class="st">"component index $i$"</span>)<span class="op">;</span> ax2.set_ylabel(<span class="st">"$x_i$"</span>)</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>image shape: (8, 8) -&gt; vector shape: (64,)</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div id="fig-digit-vector" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Left: an 8 by 8 grayscale image of a handwritten digit three. Right: a bar chart of the 64 pixel values in order.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-digit-vector-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="ch03_vectors_representing_information_files/figure-html/fig-digit-vector-output-2.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-5" title="Figure&nbsp;3.5: An image is a vector. Left: an 8×8 image of the digit 3. Right: the same data as 64 numbers in reading order. Each pixel is one feature."><img src="ch03_vectors_representing_information_files/figure-html/fig-digit-vector-output-2.svg" class="img-fluid figure-img" alt="Left: an 8 by 8 grayscale image of a handwritten digit three. Right: a bar chart of the 64 pixel values in order."></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-digit-vector-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3.5: An image is a vector. Left: an 8×8 image of the digit 3. Right: the same data as 64 numbers in reading order. Each pixel is one feature.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The flatten operation loses the <em>layout</em> of the image. The vector does not store which pixels are neighbors. Chapter 6 (tensors) and Chapter 12 (convolution) recover this structure.</p>
+<section id="vector-arithmetic-on-images" class="level3" data-number="3.6.1">
+<h3 data-number="3.6.1" class="anchored" data-anchor-id="vector-arithmetic-on-images"><span class="header-section-number">3.6.1</span> Vector arithmetic on images</h3>
+<p>Vector operations now have a visual meaning. The mean of many digit-0 vectors is the “average zero”. A linear combination of two class means blends them.</p>
+<div id="cell-fig-blend" class="cell" data-execution_count="9">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> images.reshape(<span class="bu">len</span>(images), <span class="op">-</span><span class="dv">1</span>)                  <span class="co"># (1797, 64)</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>mean0 <span class="op">=</span> X[labels <span class="op">==</span> <span class="dv">0</span>].mean(axis<span class="op">=</span><span class="dv">0</span>)                  <span class="co"># (64,)</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>mean1 <span class="op">=</span> X[labels <span class="op">==</span> <span class="dv">1</span>].mean(axis<span class="op">=</span><span class="dv">0</span>)                  <span class="co"># (64,)</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>ts <span class="op">=</span> np.linspace(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">6</span>)</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">6</span>, figsize<span class="op">=</span>(<span class="dv">9</span>, <span class="fl">1.9</span>))</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax, t <span class="kw">in</span> <span class="bu">zip</span>(axes, ts):</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>    blend <span class="op">=</span> (<span class="dv">1</span> <span class="op">-</span> t) <span class="op">*</span> mean0 <span class="op">+</span> t <span class="op">*</span> mean1              <span class="co"># linear combination</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>    ax.imshow(blend.reshape(<span class="dv">8</span>, <span class="dv">8</span>), cmap<span class="op">=</span><span class="st">"gray_r"</span>, vmin<span class="op">=</span><span class="dv">0</span>, vmax<span class="op">=</span><span class="dv">16</span>)</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>    ax.set_title(<span class="ss">f"t = </span><span class="sc">{</span>t<span class="sc">:.1f}</span><span class="ss">"</span>, fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>    ax.set_xticks([])<span class="op">;</span> ax.set_yticks([])<span class="op">;</span> ax.grid(<span class="va">False</span>)</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="fig-blend" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A row of six grayscale 8 by 8 images that morph from the average digit zero to the average digit one.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-blend-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="ch03_vectors_representing_information_files/figure-html/fig-blend-output-1.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-6" title="Figure&nbsp;3.6: A linear combination of two vectors is a blend. The coefficient t moves from the average 0 (t = 0) to the average 1 (t = 1). Every image in the row is a vector in the same space."><img src="ch03_vectors_representing_information_files/figure-html/fig-blend-output-1.svg" class="img-fluid figure-img" alt="A row of six grayscale 8 by 8 images that morph from the average digit zero to the average digit one."></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-blend-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3.6: A linear combination of two vectors is a blend. The coefficient t moves from the average 0 (t = 0) to the average 1 (t = 1). Every image in the row is a vector in the same space.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="sec-words" class="level2" data-number="3.7">
+<h2 data-number="3.7" class="anchored" data-anchor-id="sec-words"><span class="header-section-number">3.7</span> Words as vectors</h2>
+<p>Now we turn to System B. A word is not a number. We must choose a vector for it. There are two basic choices.</p>
+<section id="one-hot-vectors" class="level3" data-number="3.7.1">
+<h3 data-number="3.7.1" class="anchored" data-anchor-id="one-hot-vectors"><span class="header-section-number">3.7.1</span> One-hot vectors</h3>
+<p>Give each word in a vocabulary an index. The <strong>one-hot vector</strong> for word number <span class="math inline">\(t\)</span> has a 1 at position <span class="math inline">\(t\)</span> and 0 everywhere else.</p>
+<p><span id="eq-onehot"><span class="math display">\[
+\mathbf{o}_t = (0, \dots, 0, \underbrace{1}_{\text{position } t}, 0, \dots, 0) \in \mathbb{R}^{V}
+\tag{3.7}\]</span></span></p>
+<p>Here <span class="math inline">\(V\)</span> is the vocabulary size. One-hot vectors are simple and exact. They have two weaknesses.</p>
+<ol type="1">
+<li>They are very long: <span class="math inline">\(V\)</span> can be 50,000 or more.</li>
+<li>They contain no meaning. Every pair of different words is equally far apart. “cat” is no closer to “kitten” than to “tax”.</li>
+</ol>
+</section>
+<section id="embeddings" class="level3" data-number="3.7.2">
+<h3 data-number="3.7.2" class="anchored" data-anchor-id="embeddings"><span class="header-section-number">3.7.2</span> Embeddings</h3>
+<p>An <strong>embedding</strong> gives each word a short, dense vector, with <span class="math inline">\(d \ll V\)</span> components. A model <strong>learns</strong> the numbers. Words with similar roles receive nearby vectors.</p>
+<p>All the embeddings are rows of one table, the <strong>embedding matrix</strong> <span class="math inline">\(\mathbf{E} \in \mathbb{R}^{V \times d}\)</span>. Getting the embedding for token <span class="math inline">\(t\)</span> is a table lookup:</p>
+<p><span id="eq-lookup"><span class="math display">\[
+\mathbf{e}_t = \mathbf{E}[t, :]
+\tag{3.8}\]</span></span></p>
+<div id="code-lookup" class="cell" data-execution_count="10">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>vocab <span class="op">=</span> [<span class="st">"the"</span>, <span class="st">"cat"</span>, <span class="st">"sat"</span>, <span class="st">"on"</span>, <span class="st">"mat"</span>]</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>V, d <span class="op">=</span> <span class="bu">len</span>(vocab), <span class="dv">3</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">0</span>)</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>E <span class="op">=</span> rng.normal(size<span class="op">=</span>(V, d))                  <span class="co"># (V, d)  one row per word</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> vocab.index(<span class="st">"cat"</span>)</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>one_hot <span class="op">=</span> np.zeros(V)<span class="op">;</span> one_hot[t] <span class="op">=</span> <span class="fl">1.0</span>      <span class="co"># (V,)</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>lookup <span class="op">=</span> E[t]                                <span class="co"># table lookup, (d,)</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>matmul <span class="op">=</span> one_hot <span class="op">@</span> E                         <span class="co"># one-hot times matrix, (d,)</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> np.allclose(lookup, matmul)</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"lookup == one_hot @ E :"</span>, np.allclose(lookup, matmul))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>lookup == one_hot @ E : True</code></pre>
+</div>
+</div>
+<p>A lookup is the same as multiplying a one-hot vector by <span class="math inline">\(\mathbf{E}\)</span>. Chapter 5 explains this product. Real systems use the lookup form because it is much faster.</p>
+<div id="cell-fig-onehot-vs-dense" class="cell" data-execution_count="11">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>fig, (ax1, ax2) <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="fl">8.5</span>, <span class="fl">3.2</span>),</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>                               gridspec_kw<span class="op">=</span>{<span class="st">"width_ratios"</span>: [<span class="dv">5</span>, <span class="dv">3</span>]})</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>ax1.imshow(np.eye(V), cmap<span class="op">=</span><span class="st">"Blues"</span>, vmin<span class="op">=</span><span class="dv">0</span>, vmax<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>ax1.set_title(<span class="st">"one-hot  (V × V)"</span>)<span class="op">;</span> ax1.set_xlabel(<span class="st">"position"</span>)</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>ax2.imshow(E, cmap<span class="op">=</span><span class="st">"RdBu"</span>, vmin<span class="op">=-</span><span class="fl">2.5</span>, vmax<span class="op">=</span><span class="fl">2.5</span>)</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>ax2.set_title(<span class="st">"embedding  (V × d)"</span>)<span class="op">;</span> ax2.set_xlabel(<span class="st">"feature"</span>)</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax <span class="kw">in</span> (ax1, ax2):</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>    ax.set_yticks(<span class="bu">range</span>(V))<span class="op">;</span> ax.set_yticklabels(vocab)<span class="op">;</span> ax.grid(<span class="va">False</span>)</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="fig-onehot-vs-dense" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Two heatmaps. Left: a five by five identity matrix. Right: a five by three matrix of random values.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-onehot-vs-dense-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="ch03_vectors_representing_information_files/figure-html/fig-onehot-vs-dense-output-1.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-7" title="Figure&nbsp;3.7: Two ways to represent five words. Left: one-hot vectors. They are long, sparse, and have no similarity structure. Right: the same words as dense 3-component embeddings. Here the values are random. A trained model arranges them by meaning."><img src="ch03_vectors_representing_information_files/figure-html/fig-onehot-vs-dense-output-1.svg" class="img-fluid figure-img" alt="Two heatmaps. Left: a five by five identity matrix. Right: a five by three matrix of random values."></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-onehot-vs-dense-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3.7: Two ways to represent five words. Left: one-hot vectors. They are long, sparse, and have no similarity structure. Right: the same words as dense 3-component embeddings. Here the values are random. A trained model arranges them by meaning.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="a-hand-built-embedding" class="level3" data-number="3.7.3">
+<h3 data-number="3.7.3" class="anchored" data-anchor-id="a-hand-built-embedding"><span class="header-section-number">3.7.3</span> A hand-built embedding</h3>
+<p>A trained embedding has hundreds of features that no person can name. To see the geometry, we build a tiny embedding by hand. Each feature has a clear meaning.</p>
+<div class="callout callout-style-default callout-warning callout-titled" title="Important">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>Important
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>This embedding is <strong>constructed</strong>, not learned. It illustrates a property that learned embeddings show only approximately. We study learned embeddings in Chapters 13 and 38.</p>
+</div>
+</div>
+<p>The three features are <em>royalty</em>, <em>gender</em> (+1 male, −1 female), and <em>adult</em>.</p>
+<div id="code-toy-embedding" class="cell" data-execution_count="12">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># features:   royalty, gender (+1 male, -1 female), adult</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>table <span class="op">=</span> {<span class="st">"man"</span>:   (<span class="dv">0</span>,  <span class="dv">1</span>, <span class="dv">1</span>),   <span class="st">"woman"</span>:    (<span class="dv">0</span>, <span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>),</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>         <span class="st">"king"</span>:  (<span class="dv">1</span>,  <span class="dv">1</span>, <span class="dv">1</span>),   <span class="st">"queen"</span>:    (<span class="dv">1</span>, <span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>),</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>         <span class="st">"boy"</span>:   (<span class="dv">0</span>,  <span class="dv">1</span>, <span class="dv">0</span>),   <span class="st">"girl"</span>:     (<span class="dv">0</span>, <span class="op">-</span><span class="dv">1</span>, <span class="dv">0</span>),</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>         <span class="st">"prince"</span>: (<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>),   <span class="st">"princess"</span>: (<span class="dv">1</span>, <span class="op">-</span><span class="dv">1</span>, <span class="dv">0</span>)}</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>emb <span class="op">=</span> {w: np.array(v, dtype<span class="op">=</span><span class="bu">float</span>) <span class="cf">for</span> w, v <span class="kw">in</span> table.items()}</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>target <span class="op">=</span> emb[<span class="st">"king"</span>] <span class="op">-</span> emb[<span class="st">"man"</span>] <span class="op">+</span> emb[<span class="st">"woman"</span>]       <span class="co"># vector arithmetic</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"king - man + woman ="</span>, target)</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a><span class="co"># nearest word by straight-line distance (Chapter 4 defines distance)</span></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>dists <span class="op">=</span> {w: np.sqrt(np.<span class="bu">sum</span>((v <span class="op">-</span> target) <span class="op">**</span> <span class="dv">2</span>)) <span class="cf">for</span> w, v <span class="kw">in</span> emb.items()}</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"nearest word:"</span>, <span class="bu">min</span>(dists, key<span class="op">=</span>dists.get))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>king - man + woman = [ 1. -1.  1.]
+nearest word: queen</code></pre>
+</div>
+</div>
+<p>The answer is “queen”. The direction from “man” to “woman” is the same as the direction from “king” to “queen”. Vector subtraction extracts this direction. Vector addition applies it.</p>
+<div id="cell-fig-analogy" class="cell" data-execution_count="13">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>p <span class="op">=</span> {w: emb[w][:<span class="dv">2</span>] <span class="cf">for</span> w <span class="kw">in</span> [<span class="st">"man"</span>, <span class="st">"woman"</span>, <span class="st">"king"</span>, <span class="st">"queen"</span>]}   <span class="co"># royalty, gender</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">5.2</span>, <span class="dv">4</span>))</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>setup_2d(ax, xlim<span class="op">=</span>(<span class="op">-</span><span class="fl">0.5</span>, <span class="fl">1.7</span>), ylim<span class="op">=</span>(<span class="op">-</span><span class="fl">1.6</span>, <span class="fl">1.6</span>),</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>         xlabel<span class="op">=</span><span class="st">"royalty"</span>, ylabel<span class="op">=</span><span class="st">"gender"</span>)</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> w, pt <span class="kw">in</span> p.items():</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    ax.scatter(<span class="op">*</span>pt, color<span class="op">=</span>PALETTE[<span class="st">"data"</span>], zorder<span class="op">=</span><span class="dv">3</span>, s<span class="op">=</span><span class="dv">50</span>)</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>    ax.text(pt[<span class="dv">0</span>] <span class="op">+</span> <span class="fl">0.07</span>, pt[<span class="dv">1</span>] <span class="op">+</span> <span class="fl">0.1</span>, w, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>orange, purple <span class="op">=</span> PALETTE[<span class="st">"model"</span>], PALETTE[<span class="st">"prob"</span>]</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>draw_arrow(ax, p[<span class="st">"woman"</span>] <span class="op">-</span> p[<span class="st">"man"</span>], origin<span class="op">=</span>p[<span class="st">"man"</span>], color<span class="op">=</span>orange)</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>draw_arrow(ax, p[<span class="st">"queen"</span>] <span class="op">-</span> p[<span class="st">"king"</span>], origin<span class="op">=</span>p[<span class="st">"king"</span>], color<span class="op">=</span>orange)</span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>dash <span class="op">=</span> <span class="bu">dict</span>(color<span class="op">=</span>purple, ls<span class="op">=</span><span class="st">"--"</span>, lw<span class="op">=</span><span class="fl">1.2</span>)</span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>draw_arrow(ax, p[<span class="st">"king"</span>] <span class="op">-</span> p[<span class="st">"man"</span>], origin<span class="op">=</span>p[<span class="st">"man"</span>], <span class="op">**</span>dash)</span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>draw_arrow(ax, p[<span class="st">"queen"</span>] <span class="op">-</span> p[<span class="st">"woman"</span>], origin<span class="op">=</span>p[<span class="st">"woman"</span>], <span class="op">**</span>dash)</span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="fig-analogy" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A 2D plot with four labeled points forming a parallelogram: man, woman, king, queen. Parallel arrows connect man to woman and king to queen.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-analogy-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="ch03_vectors_representing_information_files/figure-html/fig-analogy-output-1.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-8" title="Figure&nbsp;3.8: Analogy as vector arithmetic. The arrow from man to woman equals the arrow from king to queen. In a good embedding, a relation between words becomes a direction in space."><img src="ch03_vectors_representing_information_files/figure-html/fig-analogy-output-1.svg" class="img-fluid figure-img" alt="A 2D plot with four labeled points forming a parallelogram: man, woman, king, queen. Parallel arrows connect man to woman and king to queen."></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-analogy-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3.8: Analogy as vector arithmetic. The arrow from man to woman equals the arrow from king to queen. In a good embedding, a relation between words becomes a direction in space.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="sec-pipeline" class="level2" data-number="3.8">
+<h2 data-number="3.8" class="anchored" data-anchor-id="sec-pipeline"><span class="header-section-number">3.8</span> The representation pipeline</h2>
+<p>We can now state the whole mechanism of this chapter. Every AI system starts with the same step.</p>
+<div id="cell-fig-pipeline" class="cell" data-execution_count="14">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>labels <span class="op">=</span> [<span class="st">"world object</span><span class="ch">\n</span><span class="st">(photo, text)"</span>, <span class="st">"encode</span><span class="ch">\n</span><span class="st">(features, lookup)"</span>,</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>          <span class="st">"vector  x ∈ ℝᵈ"</span>, <span class="st">"model"</span>]</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>colors <span class="op">=</span> [PALETTE[k] <span class="cf">for</span> k <span class="kw">in</span> [<span class="st">"neutral"</span>, <span class="st">"data"</span>, <span class="st">"model"</span>, <span class="st">"prob"</span>]]</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>fig <span class="op">=</span> box_flow(labels, colors<span class="op">=</span>colors, figsize<span class="op">=</span>(<span class="dv">9</span>, <span class="fl">1.7</span>), fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="fig-pipeline" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Flow: world object, measure or encode, vector in R to the d, model.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-pipeline-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="ch03_vectors_representing_information_files/figure-html/fig-pipeline-output-1.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-9" title="Figure&nbsp;3.9: Representation turns a thing in the world into a vector. All later mathematics works on this vector, not on the original object."><img src="ch03_vectors_representing_information_files/figure-html/fig-pipeline-output-1.svg" class="img-fluid figure-img" alt="Flow: world object, measure or encode, vector in R to the d, model."></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-pipeline-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3.9: Representation turns a thing in the world into a vector. All later mathematics works on this vector, not on the original object.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The encode step is a <strong>design choice</strong>. It decides what information the model can use. If the encoding loses a fact, no later step can recover it.</p>
+</section>
+<section id="sec-production" class="level2" data-number="3.9">
+<h2 data-number="3.9" class="anchored" data-anchor-id="sec-production"><span class="header-section-number">3.9</span> From first principles to production</h2>
+<p>We built the lookup in NumPy. PyTorch provides the same operation as a learnable layer.</p>
+<div id="code-torch" class="cell" data-execution_count="15">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch.nn <span class="im">as</span> nn</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>torch.manual_seed(<span class="dv">0</span>)</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>E_t <span class="op">=</span> torch.tensor(E, dtype<span class="op">=</span>torch.float32)               <span class="co"># (V, d)</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>layer <span class="op">=</span> nn.Embedding(num_embeddings<span class="op">=</span>V, embedding_dim<span class="op">=</span>d)  <span class="co"># holds E</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> torch.no_grad():</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>    layer.weight.copy_(E_t)</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>ids <span class="op">=</span> torch.tensor([<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">2</span>])            <span class="co"># tokens: the, cat, sat   (3,)</span></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>out <span class="op">=</span> layer(ids)                         <span class="co"># (3, d)</span></span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"output shape:"</span>, <span class="bu">tuple</span>(out.shape))</span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> torch.allclose(out, E_t[ids])</span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"PyTorch lookup matches NumPy lookup."</span>)</span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"trainable parameters:"</span>, <span class="bu">sum</span>(q.numel() <span class="cf">for</span> q <span class="kw">in</span> layer.parameters()))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>output shape: (3, 3)
+PyTorch lookup matches NumPy lookup.
+trainable parameters: 15</code></pre>
+</div>
+</div>
+<p>Note the last line. The embedding table is part of <span class="math inline">\(\theta\)</span>. The entries of <span class="math inline">\(\mathbf{E}\)</span> are <strong>parameters</strong>. The model changes them during training, exactly as it changed <span class="math inline">\(a\)</span> and <span class="math inline">\(b\)</span> in Chapter 1. A language model with a 50,000-word vocabulary and <span class="math inline">\(d = 4096\)</span> has <span class="math inline">\(50{,}000 \times 4{,}096 \approx 2 \times 10^{8}\)</span> parameters in this one table.</p>
+</section>
+<section id="sec-failure" class="level2" data-number="3.10">
+<h2 data-number="3.10" class="anchored" data-anchor-id="sec-failure"><span class="header-section-number">3.10</span> Failure modes and edge cases</h2>
+<p>Vectors are simple. Mistakes with them are common and often silent.</p>
+<section id="shape-errors-that-do-not-raise-an-error" class="level3" data-number="3.10.1">
+<h3 data-number="3.10.1" class="anchored" data-anchor-id="shape-errors-that-do-not-raise-an-error"><span class="header-section-number">3.10.1</span> Shape errors that do not raise an error</h3>
+<p>A vector of shape <code>(3,)</code> and a column of shape <code>(3, 1)</code> look the same when printed. They behave differently.</p>
+<div id="code-shape-bug" class="cell" data-execution_count="16">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>a <span class="op">=</span> np.array([<span class="fl">1.0</span>, <span class="fl">2.0</span>, <span class="fl">3.0</span>])        <span class="co"># (3,)</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>b <span class="op">=</span> a.reshape(<span class="dv">3</span>, <span class="dv">1</span>)                  <span class="co"># (3, 1)</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"a + a shape:"</span>, (a <span class="op">+</span> a).shape)    <span class="co"># (3,)   element-wise, as intended</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"a + b shape:"</span>, (a <span class="op">+</span> b).shape)    <span class="co"># (3, 3) broadcasting — usually a bug</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>a + a shape: (3,)
+a + b shape: (3, 3)</code></pre>
+</div>
+</div>
+<p>The second sum has nine numbers, not three. NumPy and PyTorch broadcast silently. Use <code>assert x.shape == (d,)</code> where a wrong shape is likely.</p>
+</section>
+<section id="features-on-different-scales" class="level3" data-number="3.10.2">
+<h3 data-number="3.10.2" class="anchored" data-anchor-id="features-on-different-scales"><span class="header-section-number">3.10.2</span> Features on different scales</h3>
+<p>Take two features: area in square meters (about 50–300) and rooms (about 1–6). A model that uses straight-line distance will see area as 50 times more important only because its numbers are larger. We fix this by <strong>standardizing</strong> each feature to zero mean and unit spread.</p>
+<div id="code-standardize" class="cell" data-execution_count="17">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">1</span>)</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>area  <span class="op">=</span> rng.uniform(<span class="dv">50</span>, <span class="dv">300</span>, size<span class="op">=</span><span class="dv">100</span>)</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>rooms <span class="op">=</span> rng.integers(<span class="dv">1</span>, <span class="dv">7</span>, size<span class="op">=</span><span class="dv">100</span>).astype(<span class="bu">float</span>)</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>H <span class="op">=</span> np.column_stack([area, rooms])                     <span class="co"># (100, 2)</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>Hs <span class="op">=</span> (H <span class="op">-</span> H.mean(axis<span class="op">=</span><span class="dv">0</span>)) <span class="op">/</span> H.std(axis<span class="op">=</span><span class="dv">0</span>)              <span class="co"># (100, 2) standardized</span></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"raw spread     :"</span>, np.<span class="bu">round</span>(H.std(axis<span class="op">=</span><span class="dv">0</span>), <span class="dv">2</span>))</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"standardized   :"</span>, np.<span class="bu">round</span>(Hs.std(axis<span class="op">=</span><span class="dv">0</span>), <span class="dv">2</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>raw spread     : [71.76  1.73]
+standardized   : [1. 1.]</code></pre>
+</div>
+</div>
+</section>
+<section id="limited-precision" class="level3" data-number="3.10.3">
+<h3 data-number="3.10.3" class="anchored" data-anchor-id="limited-precision"><span class="header-section-number">3.10.3</span> Limited precision</h3>
+<p>Computers store real numbers with finite precision. Half-precision (<code>float16</code>) is common in deep learning. It cannot represent small differences near 1.</p>
+<div id="code-precision" class="cell" data-execution_count="18">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"float16: 1 + 0.0004 ="</span>, np.float16(<span class="fl">1.0</span>) <span class="op">+</span> np.float16(<span class="fl">0.0004</span>))</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"float32: 1 + 0.0004 ="</span>, np.float32(<span class="fl">1.0</span>) <span class="op">+</span> np.float32(<span class="fl">0.0004</span>))</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"float16: 2049 is stored as"</span>, <span class="bu">float</span>(np.float16(<span class="dv">2049</span>)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>float16: 1 + 0.0004 = 1.0
+float32: 1 + 0.0004 = 1.0004
+float16: 2049 is stored as 2048.0</code></pre>
+</div>
+</div>
+<p>A small change to an embedding can disappear. Training in low precision needs care. Chapter 34 returns to this.</p>
+</section>
+<section id="high-dimension-changes-geometry" class="level3" data-number="3.10.4">
+<h3 data-number="3.10.4" class="anchored" data-anchor-id="high-dimension-changes-geometry"><span class="header-section-number">3.10.4</span> High dimension changes geometry</h3>
+<p>Many features are not always better. In high dimension, the straight-line distances between random points become almost equal. The nearest point is barely nearer than the farthest.</p>
+<div id="cell-fig-curse" class="cell" data-execution_count="19">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">0</span>)</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>dims <span class="op">=</span> np.unique(np.logspace(<span class="dv">0</span>, <span class="dv">3</span>, <span class="dv">15</span>).astype(<span class="bu">int</span>))</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>contrast <span class="op">=</span> []</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> dim <span class="kw">in</span> dims:</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>    P <span class="op">=</span> rng.uniform(size<span class="op">=</span>(<span class="dv">500</span>, dim))       <span class="co"># (500, dim) random points</span></span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>    q <span class="op">=</span> rng.uniform(size<span class="op">=</span>(<span class="dv">1</span>, dim))         <span class="co"># (1, dim)   query point</span></span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>    dist <span class="op">=</span> np.sqrt(((P <span class="op">-</span> q) <span class="op">**</span> <span class="dv">2</span>).<span class="bu">sum</span>(axis<span class="op">=</span><span class="dv">1</span>))</span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>    contrast.append((dist.<span class="bu">max</span>() <span class="op">-</span> dist.<span class="bu">min</span>()) <span class="op">/</span> dist.<span class="bu">min</span>())</span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots()</span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>ax.loglog(dims, contrast, <span class="st">"o-"</span>, color<span class="op">=</span>PALETTE[<span class="st">"loss"</span>])</span>
+<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"dimension $d$"</span>)</span>
+<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"(farthest − nearest) / nearest"</span>)</span>
+<span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="fig-curse" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A decreasing curve on a log-log plot of the relative contrast between farthest and nearest distance versus dimension, from 1 to 1000.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-curse-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="ch03_vectors_representing_information_files/figure-html/fig-curse-output-1.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-10" title="Figure&nbsp;3.10: The curse of dimensionality. For random points, the relative gap between the nearest and the farthest neighbor shrinks as the dimension d grows. In high dimension, ‘near’ loses meaning."><img src="ch03_vectors_representing_information_files/figure-html/fig-curse-output-1.svg" class="img-fluid figure-img" alt="A decreasing curve on a log-log plot of the relative contrast between farthest and nearest distance versus dimension, from 1 to 1000."></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-curse-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3.10: The curse of dimensionality. For random points, the relative gap between the nearest and the farthest neighbor shrinks as the dimension d grows. In high dimension, ‘near’ loses meaning.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Real data often lies near a structure of much lower dimension. This reduces the problem. We study this in Chapter 7.</p>
+</section>
+</section>
+<section id="sec-ai-connection" class="level2" data-number="3.11">
+<h2 data-number="3.11" class="anchored" data-anchor-id="sec-ai-connection"><span class="header-section-number">3.11</span> Where this appears in modern AI</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>System</th>
+<th>Object</th>
+<th>Vector</th>
+<th>Typical <span class="math inline">\(d\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Image classifier</td>
+<td>image</td>
+<td>flattened pixels, then feature vector</td>
+<td><span class="math inline">\(10^3\)</span> – <span class="math inline">\(10^6\)</span> pixels → <span class="math inline">\(10^2\)</span> – <span class="math inline">\(10^3\)</span> features</td>
+</tr>
+<tr class="even">
+<td>Semantic search</td>
+<td>sentence</td>
+<td>sentence embedding</td>
+<td>384 – 1536</td>
+</tr>
+<tr class="odd">
+<td>Language model</td>
+<td>token</td>
+<td>token embedding (row of <span class="math inline">\(\mathbf{E}\)</span>)</td>
+<td>768 – 12,288</td>
+</tr>
+<tr class="even">
+<td>Recommender</td>
+<td>user, item</td>
+<td>user / item embedding</td>
+<td>32 – 512</td>
+</tr>
+<tr class="odd">
+<td>Image generator</td>
+<td>image</td>
+<td>latent vector</td>
+<td><span class="math inline">\(10^3\)</span> – <span class="math inline">\(10^5\)</span></td>
+</tr>
+<tr class="even">
+<td>CLIP-style model</td>
+<td>image, text</td>
+<td>joint-space embeddings</td>
+<td>512 – 1024</td>
+</tr>
+</tbody>
+</table>
+<p>Every row has the same shape: <em>object → vector in <span class="math inline">\(\mathbb{R}^d\)</span></em>. The rest of the book computes on those vectors.</p>
+</section>
+<section id="sec-system-connection" class="level2" data-number="3.12">
+<h2 data-number="3.12" class="anchored" data-anchor-id="sec-system-connection"><span class="header-section-number">3.12</span> System connection</h2>
+<div class="callout callout-style-default callout-note callout-titled" title="What the system gained in this chapter">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>What the system gained in this chapter
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The system can now <strong>hold</strong> any object as a vector. It has addition and scaling, so it can blend, compare directions, and change coordinates.</p>
+<p>It cannot yet answer “how similar are two vectors?” or “how big is this vector?”. These questions need length, angle, and distance. Chapter 4 adds them.</p>
+</div>
+</div>
+</section>
+<section id="chapter-summary" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="chapter-summary">Chapter summary</h2>
+<ul>
+<li>A vector is an ordered list of numbers: a list, a point, or an arrow.</li>
+<li>Features are the components. The choice of features is a design decision.</li>
+<li>Addition and scaling define a vector space. A linear combination uses both.</li>
+<li>A basis gives unique coordinates. Coordinates depend on the basis. The vector does not.</li>
+<li>Images flatten to vectors. Words become one-hot vectors or learned embeddings.</li>
+<li>An embedding table <span class="math inline">\(\mathbf{E}\)</span> is a set of parameters. Lookup equals one-hot times <span class="math inline">\(\mathbf{E}\)</span>.</li>
+<li>Common failures: silent shape errors, mixed scales, low precision, and high dimension.</li>
+</ul>
+</section>
+<section id="exercises" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="exercises">Exercises</h2>
+<ol type="1">
+<li><strong>Compute.</strong> Let <span class="math inline">\(\mathbf{u} = (1, 2, 3)\)</span> and <span class="math inline">\(\mathbf{v} = (4, 0, -1)\)</span>. Compute <span class="math inline">\(\mathbf{u} + \mathbf{v}\)</span>, <span class="math inline">\(3\mathbf{u}\)</span>, and <span class="math inline">\(2\mathbf{u} - \mathbf{v}\)</span>.</li>
+<li><strong>Compute.</strong> Find the coordinates of <span class="math inline">\(\mathbf{v} = (5, 3)\)</span> in the basis <span class="math inline">\(\mathbf{b}_1 = (1, 1)\)</span>, <span class="math inline">\(\mathbf{b}_2 = (1, -1)\)</span>.</li>
+<li><strong>Derive.</strong> Show that <span class="math inline">\((1, 2)\)</span> and <span class="math inline">\((2, 4)\)</span> are not a basis of <span class="math inline">\(\mathbb{R}^2\)</span>. Which property fails?</li>
+<li><strong>Derive.</strong> Show that the vectors <span class="math inline">\((1, 0, 0)\)</span>, <span class="math inline">\((0, 1, 0)\)</span>, <span class="math inline">\((1, 1, 0)\)</span> do not span <span class="math inline">\(\mathbb{R}^3\)</span>.</li>
+<li><strong>Code.</strong> Compute the average image of each of the ten digits. Display all ten in one row.</li>
+<li><strong>Code.</strong> Blend digit 3 and digit 8 with a coefficient <span class="math inline">\(t\)</span>. At which <span class="math inline">\(t\)</span> does the image first look more like an 8?</li>
+<li><strong>Code.</strong> Add the feature “capital letter?” to the toy embedding. Add the words “King” and “Queen” and check the analogy.</li>
+<li><strong>Diagnose.</strong> A function should return a vector of shape <code>(d,)</code>. It returns shape <code>(d, d)</code>. Find the likely cause in this chapter.</li>
+<li><strong>Explain.</strong> Why is a one-hot vector a poor representation when the task needs word similarity?</li>
+<li><strong>Design.</strong> Choose five features to represent a song for a recommendation system. What information does your choice lose?</li>
+</ol>
+
+
+</section>
+
+</main> <!-- /main -->
+<script>
+/* Keep the left navigation stable between pages: all parts expanded,
+   and the sidebar scroll position remembered across page loads. */
+(function () {
+  var KEY = "mathsystems-sidebar-scroll";
+  function side() { return document.getElementById("quarto-sidebar"); }
+  function scroller() {
+    var s = side(); if (!s) return null;
+    return s.querySelector(".sidebar-menu-container") || s;
+  }
+  function expandAll() {
+    var s = side(); if (!s) return;
+    s.querySelectorAll(".collapse").forEach(function (el) { el.classList.add("show"); });
+    s.querySelectorAll('[aria-expanded="false"]').forEach(function (el) { el.setAttribute("aria-expanded", "true"); });
+    s.querySelectorAll(".sidebar-item-toggle.collapsed, a.collapsed").forEach(function (el) { el.classList.remove("collapsed"); });
+  }
+  function restore() {
+    var sc = scroller(), v = null;
+    try { v = sessionStorage.getItem(KEY); } catch (e) {}
+    if (sc && v !== null) sc.scrollTop = parseInt(v, 10);
+  }
+  function save() {
+    var sc = scroller();
+    if (!sc) return;
+    try { sessionStorage.setItem(KEY, String(sc.scrollTop)); } catch (e) {}
+  }
+  document.addEventListener("DOMContentLoaded", function () {
+    expandAll(); restore();
+    var sc = scroller();
+    if (sc) sc.addEventListener("scroll", save, { passive: true });
+    document.addEventListener("click", save, true);
+    window.addEventListener("pagehide", save);
+  });
+  window.addEventListener("load", function () {
+    expandAll(); restore();
+    setTimeout(restore, 50); setTimeout(restore, 250);   /* after the theme's own scroll-into-view */
+  });
+})();
+</script>
+<style>
+/* no jump while the menu is being expanded */
+#quarto-sidebar .collapse { transition: none !important; }
+</style>
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/vsrveera\.github\.io\/books\/mathai\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../chapters/ch02_language_of_mathematical_ai.html" class="pagination-link" aria-label="The Language of Mathematical AI">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">The Language of Mathematical AI</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../chapters/ch04_geometry_of_representations.html" class="pagination-link" aria-label="Geometry of Representations">
+        <span class="nav-page-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Geometry of Representations</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<script>var lightboxQuarto = GLightbox({"closeEffect":"zoom","descPosition":"bottom","loop":false,"openEffect":"zoom","selector":".lightbox"});
+(function() {
+  let previousOnload = window.onload;
+  window.onload = () => {
+    if (previousOnload) {
+      previousOnload();
+    }
+    lightboxQuarto.on('slide_before_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      const href = trigger.getAttribute('href');
+      if (href !== null) {
+        const imgEl = window.document.querySelector(`a[href="${href}"] img`);
+        if (imgEl !== null) {
+          const srcAttr = imgEl.getAttribute("src");
+          if (srcAttr && srcAttr.startsWith("data:")) {
+            slideConfig.href = srcAttr;
+          }
+        }
+      } 
+    });
+  
+    lightboxQuarto.on('slide_after_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(slideNode);
+      }
+    });
+  
+  };
+  
+})();
+          </script>
+
+
+
+
+<script src="../site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

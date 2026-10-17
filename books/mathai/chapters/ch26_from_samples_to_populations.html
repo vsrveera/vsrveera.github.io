@@ -1,0 +1,1622 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.19">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>26&nbsp; From Samples to Populations – Mathematics of Artificial Intelligence</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../chapters/ch27_generalization.html" rel="next">
+<link href="../chapters/ch25_statistical_estimation.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-43d2fa13cb35dd2022b3c25d65fdd634.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-19432b6b5c85f3ab30851b7038f884b0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="../site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
+<link href="../site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
+<link href="../site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar docked quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/ch26_from_samples_to_populations.html">Part VII — Generalization</a></li><li class="breadcrumb-item"><a href="../chapters/ch26_from_samples_to_populations.html"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">From Samples to Populations</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">Mathematics of Artificial Intelligence</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part I — The Mathematical Machine</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch01_ai_as_a_mathematical_system.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">AI as a Mathematical System</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch02_language_of_mathematical_ai.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">The Language of Mathematical AI</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part II — Representation</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch03_vectors_representing_information.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Vectors: Representing Information</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch04_geometry_of_representations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Geometry of Representations</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch05_matrices_representing_transformations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Matrices: Representing Transformations</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch06_tensors_and_high_dimensional_data.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Tensors and High-Dimensional Data</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch07_structure_hidden_in_data.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Structure Hidden in Data</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part III — Transformation</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch08_functions_as_machines.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Functions as Machines</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch09_linear_transformations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Linear Transformations</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch10_nonlinearity_and_expressiveness.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Nonlinearity and Expressiveness</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch11_neural_networks_as_function_composition.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Neural Networks as Function Composition</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch12_convolution_and_structured_transformations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Convolution and Structured Transformations</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part IV — Measurement</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch13_distance_similarity_and_geometry.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Distance, Similarity and Geometry</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch14_loss_functions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Loss Functions</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch15_information_as_a_mathematical_quantity.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Information as a Mathematical Quantity</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part V — Learning</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch16_change_and_derivatives.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Change and Derivatives</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch17_gradients_and_multivariable_calculus.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Gradients and Multivariable Calculus</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch18_chain_rule_and_backpropagation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">The Chain Rule and Backpropagation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch19_optimization.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Optimization</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch20_the_geometry_and_dynamics_of_learning.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">The Geometry and Dynamics of Learning</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part VI — Uncertainty</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch21_probability_as_a_language_of_uncertainty.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Probability as a Language of Uncertainty</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch22_conditional_probability_and_bayes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Conditional Probability and Bayes</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch23_probability_distributions_used_in_ai.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Probability Distributions Used in AI</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch24_from_scores_to_probabilities.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">From Scores to Probabilities</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch25_statistical_estimation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Statistical Estimation</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part VII — Generalization</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch26_from_samples_to_populations.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">From Samples to Populations</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch27_generalization.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Generalization</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch28_bias_variance_and_regularization.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Bias, Variance and Regularization</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch29_statistical_learning_theory.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Statistical Learning Theory</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part VIII — Putting the Mathematical Systems Together</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch30_the_mathematics_of_attention.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">30</span>&nbsp; <span class="chapter-title">The Mathematics of Attention</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch31_the_mathematics_of_the_transformer.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">31</span>&nbsp; <span class="chapter-title">The Mathematics of the Transformer</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch32_decoder_only_language_models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">32</span>&nbsp; <span class="chapter-title">Decoder-only Language Models</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch33_autoregressive_generation_and_sampling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">33</span>&nbsp; <span class="chapter-title">Autoregressive Generation and Sampling</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch34_mixture_of_experts_scale_and_numerical_precision.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">34</span>&nbsp; <span class="chapter-title">Mixture-of-Experts, Scale and Numerical Precision</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch35_convolutional_vision_in_depth.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">Convolutional Vision in Depth</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch36_vision_transformers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Vision Transformers</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch37_detection_and_structured_prediction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">Detection and Structured Prediction</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch38_representation_and_self_supervised_learning.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">38</span>&nbsp; <span class="chapter-title">Representation and Self-Supervised Learning</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch39_clip_and_multimodal_language_models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">39</span>&nbsp; <span class="chapter-title">CLIP and Multimodal Language Models</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch40_latent_variable_models_and_vaes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">40</span>&nbsp; <span class="chapter-title">Latent-Variable Models and VAEs</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch41_diffusion_models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">41</span>&nbsp; <span class="chapter-title">Diffusion Models</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch42_latent_diffusion_and_diffusion_transformers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">42</span>&nbsp; <span class="chapter-title">Latent Diffusion and Diffusion Transformers</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch43_flow_matching.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">43</span>&nbsp; <span class="chapter-title">Flow Matching</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch44_one_ai_system_all_the_mathematics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">44</span>&nbsp; <span class="chapter-title">One AI System, All the Mathematics</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part IX — Systems Thinking and Performance Characterisation</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch45_systems_thinking_components_and_interfaces.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">45</span>&nbsp; <span class="chapter-title">Systems Thinking: Components, Interfaces and Contracts</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch46_feedback_coupling_and_stability.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">46</span>&nbsp; <span class="chapter-title">Feedback, Coupling and Stability</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch47_performance_characterisation_the_paradigm.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">47</span>&nbsp; <span class="chapter-title">Performance Characterisation: The Paradigm</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch48_random_perturbation_and_error_propagation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">48</span>&nbsp; <span class="chapter-title">Random Perturbation and Error Propagation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch49_operating_curves_roc_and_confidence.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">49</span>&nbsp; <span class="chapter-title">Operating Curves, ROC and Confidence</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch50_characterisation_protocol_and_experimental_design.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">50</span>&nbsp; <span class="chapter-title">A Characterisation Protocol: Experimental Design and Reporting</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch51_characterising_large_models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">51</span>&nbsp; <span class="chapter-title">Characterising Large Models</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#sec-system-problem" id="toc-sec-system-problem" class="nav-link active" data-scroll-target="#sec-system-problem"><span class="header-section-number">26.1</span> The system problem</a></li>
+  <li><a href="#sec-sample" id="toc-sec-sample" class="nav-link" data-scroll-target="#sec-sample"><span class="header-section-number">26.2</span> Population and sample</a></li>
+  <li><a href="#sec-estimators" id="toc-sec-estimators" class="nav-link" data-scroll-target="#sec-estimators"><span class="header-section-number">26.3</span> Estimators: bias and variance</a>
+  <ul class="collapse">
+  <li><a href="#the-sample-mean" id="toc-the-sample-mean" class="nav-link" data-scroll-target="#the-sample-mean"><span class="header-section-number">26.3.1</span> The sample mean</a></li>
+  <li><a href="#the-variance-why-n-1" id="toc-the-variance-why-n-1" class="nav-link" data-scroll-target="#the-variance-why-n-1"><span class="header-section-number">26.3.2</span> The variance: why <span class="math inline">\(N-1\)</span></a></li>
+  </ul></li>
+  <li><a href="#sec-bootstrap" id="toc-sec-bootstrap" class="nav-link" data-scroll-target="#sec-bootstrap"><span class="header-section-number">26.4</span> The bootstrap</a>
+  <ul class="collapse">
+  <li><a href="#does-the-interval-cover-the-truth" id="toc-does-the-interval-cover-the-truth" class="nav-link" data-scroll-target="#does-the-interval-cover-the-truth"><span class="header-section-number">26.4.1</span> Does the interval cover the truth?</a></li>
+  </ul></li>
+  <li><a href="#sec-accuracy" id="toc-sec-accuracy" class="nav-link" data-scroll-target="#sec-accuracy"><span class="header-section-number">26.5</span> How sure are we about an accuracy?</a></li>
+  <li><a href="#sec-mc" id="toc-sec-mc" class="nav-link" data-scroll-target="#sec-mc"><span class="header-section-number">26.6</span> Monte Carlo and importance sampling</a></li>
+  <li><a href="#sec-splits" id="toc-sec-splits" class="nav-link" data-scroll-target="#sec-splits"><span class="header-section-number">26.7</span> Splitting data</a></li>
+  <li><a href="#sec-production" id="toc-sec-production" class="nav-link" data-scroll-target="#sec-production"><span class="header-section-number">26.8</span> Production</a></li>
+  <li><a href="#sec-failure" id="toc-sec-failure" class="nav-link" data-scroll-target="#sec-failure"><span class="header-section-number">26.9</span> Failure modes</a></li>
+  <li><a href="#sec-ai-connection" id="toc-sec-ai-connection" class="nav-link" data-scroll-target="#sec-ai-connection"><span class="header-section-number">26.10</span> Where this appears in modern AI</a></li>
+  <li><a href="#sec-system-connection" id="toc-sec-system-connection" class="nav-link" data-scroll-target="#sec-system-connection"><span class="header-section-number">26.11</span> System connection</a></li>
+  <li><a href="#chapter-summary" id="toc-chapter-summary" class="nav-link" data-scroll-target="#chapter-summary">Chapter summary</a></li>
+  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises">Exercises</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/ch26_from_samples_to_populations.html">Part VII — Generalization</a></li><li class="breadcrumb-item"><a href="../chapters/ch26_from_samples_to_populations.html"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">From Samples to Populations</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">From Samples to Populations</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="callout callout-style-default callout-note callout-titled" title="Key ideas">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Key ideas
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li>A dataset is a <strong>sample</strong> from an unknown <strong>population</strong>. Everything we compute from it is itself random.</li>
+<li>An <strong>estimator</strong> is a rule that turns a sample into a number. Its quality is its <strong>bias</strong> and <strong>variance</strong>: <span class="math inline">\(\text{MSE}=\text{bias}^2+\text{variance}\)</span>.</li>
+<li>The <strong>standard error</strong> of a mean falls as <span class="math inline">\(1/\sqrt{n}\)</span>. Dividing by <span class="math inline">\(n-1\)</span> (not <span class="math inline">\(n\)</span>) makes the variance estimate unbiased.</li>
+<li>The <strong>bootstrap</strong> estimates uncertainty by resampling the data.</li>
+<li>All of this assumes samples are <strong>independent and identically distributed</strong>. Leakage and correlation break it.</li>
+</ul>
+</div>
+</div>
+<section id="sec-system-problem" class="level2" data-number="26.1">
+<h2 data-number="26.1" class="anchored" data-anchor-id="sec-system-problem"><span class="header-section-number">26.1</span> The system problem</h2>
+<p>A model is trained and tested on a finite set of examples. We report “92% accuracy”. But a different test set would give 91% or 94%. And the real aim is accuracy on <strong>all future data</strong>, which we never see.</p>
+<blockquote class="blockquote">
+<p><strong>What can a finite dataset tell us about the world it came from, and how sure can we be?</strong></p>
+</blockquote>
+<p>Part VII studies this question. This chapter builds the tools: sampling, estimators, and uncertainty of estimates.</p>
+<div id="cell-fig-where" class="cell" data-execution_count="2">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>system_map(highlight<span class="op">=</span>[<span class="st">"Data"</span>, <span class="st">"Uncertainty"</span>, <span class="st">"Generalization"</span>],</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>           sublabels<span class="op">=</span>{<span class="st">"Generalization"</span>: <span class="st">"Ch. 26–29"</span>})<span class="op">;</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="fig-where" class="quarto-float quarto-figure quarto-figure-center anchored" alt="System map with Uncertainty and Generalization highlighted.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-where-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="ch26_from_samples_to_populations_files/figure-html/fig-where-output-1.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-1" title="Figure&nbsp;26.1: Part VII builds the Generalization stage. This chapter asks what a sample tells us about its population."><img src="ch26_from_samples_to_populations_files/figure-html/fig-where-output-1.svg" class="img-fluid figure-img" alt="System map with Uncertainty and Generalization highlighted."></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-where-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;26.1: Part VII builds the Generalization stage. This chapter asks what a sample tells us about its population.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="sec-sample" class="level2" data-number="26.2">
+<h2 data-number="26.2" class="anchored" data-anchor-id="sec-sample"><span class="header-section-number">26.2</span> Population and sample</h2>
+<p>The <strong>population</strong> is the distribution <span class="math inline">\(p\)</span> that generates the data: all the cases we care about. A <strong>sample</strong> is <span class="math inline">\(N\)</span> draws <span class="math inline">\(x_1,\dots,x_N\)</span> from it. We assume they are <strong>independent and identically distributed (iid)</strong>.</p>
+<p>The sample defines its own distribution, the <strong>empirical distribution</strong> <span class="math inline">\(\hat p_N\)</span>, which puts mass <span class="math inline">\(1/N\)</span> on each data point. Its CDF is the empirical CDF</p>
+<p><span id="eq-ecdf"><span class="math display">\[
+\hat{F}_N(t)=\frac1N\sum_{i=1}^{N}\mathbb{1}[x_{i}\le t].
+\tag{26.1}\]</span></span></p>
+<p>It converges to the true CDF as <span class="math inline">\(N\)</span> grows.</p>
+<div id="cell-fig-ecdf" class="cell" data-execution_count="3">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.stats <span class="im">import</span> norm</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">0</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> np.linspace(<span class="op">-</span><span class="fl">3.5</span>, <span class="fl">3.5</span>, <span class="dv">600</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">6.2</span>, <span class="fl">3.5</span>))</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>ax.plot(t, norm.cdf(t), color<span class="op">=</span><span class="st">"black"</span>, lw<span class="op">=</span><span class="dv">2</span>, label<span class="op">=</span><span class="st">"true CDF"</span>)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> n, c <span class="kw">in</span> <span class="bu">zip</span>([<span class="dv">10</span>, <span class="dv">100</span>, <span class="dv">1000</span>], [PALETTE[<span class="st">"loss"</span>], PALETTE[<span class="st">"model"</span>], PALETTE[<span class="st">"grad"</span>]]):</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> np.sort(rng.normal(size<span class="op">=</span>n))</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    F <span class="op">=</span> np.searchsorted(x, t, side<span class="op">=</span><span class="st">"right"</span>) <span class="op">/</span> n</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    ax.plot(t, F, color<span class="op">=</span>c, lw<span class="op">=</span><span class="fl">1.4</span>, label<span class="op">=</span><span class="ss">f"N = </span><span class="sc">{</span>n<span class="sc">}</span><span class="ss">   max gap </span><span class="sc">{</span>np<span class="sc">.</span><span class="bu">abs</span>(F <span class="op">-</span> norm.cdf(t))<span class="sc">.</span><span class="bu">max</span>()<span class="sc">:.3f}</span><span class="ss">"</span>)</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>ax.legend(fontsize<span class="op">=</span><span class="dv">8</span>)<span class="op">;</span> ax.set_xlabel(<span class="st">"t"</span>)</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="fig-ecdf" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Three staircase curves of increasing smoothness approaching a smooth S-shaped black curve.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-ecdf-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="ch26_from_samples_to_populations_files/figure-html/fig-ecdf-output-1.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-2" title="Figure&nbsp;26.2: Empirical CDFs of samples of size 10, 100, and 1000 from a standard normal, against the true CDF (black). A larger sample gives a closer step function. The maximum gap shrinks roughly as 1/√N."><img src="ch26_from_samples_to_populations_files/figure-html/fig-ecdf-output-1.svg" class="img-fluid figure-img" alt="Three staircase curves of increasing smoothness approaching a smooth S-shaped black curve."></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ecdf-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;26.2: Empirical CDFs of samples of size 10, 100, and 1000 from a standard normal, against the true CDF (black). A larger sample gives a closer step function. The maximum gap shrinks roughly as 1/√N.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="sec-estimators" class="level2" data-number="26.3">
+<h2 data-number="26.3" class="anchored" data-anchor-id="sec-estimators"><span class="header-section-number">26.3</span> Estimators: bias and variance</h2>
+<p>An <strong>estimator</strong> <span class="math inline">\(\hat\theta\)</span> is a function of the sample. Because the sample is random, <span class="math inline">\(\hat\theta\)</span> is a random variable with its own distribution, the <strong>sampling distribution</strong>. Two numbers describe how good it is:</p>
+<p><span id="eq-bias-var"><span class="math display">\[
+\text{Bias}(\hat\theta)=\mathbb{E}[\hat\theta]-\theta,\qquad\text{Var}(\hat\theta)=\mathbb{E}\bigl[(\hat\theta-\mathbb{E}\hat\theta)^{2}\bigr].
+\tag{26.2}\]</span></span></p>
+<p>Their combination is the <strong>mean squared error</strong>:</p>
+<p><span id="eq-mse-decomp"><span class="math display">\[
+\text{MSE}(\hat\theta)=\mathbb{E}\bigl[(\hat\theta-\theta)^{2}\bigr]=\text{Bias}^2+\text{Var}.
+\tag{26.3}\]</span></span></p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Derivation of the decomposition">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Derivation of the decomposition
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Add and subtract <span class="math inline">\(\mathbb{E}[\hat\theta]\)</span>: <span class="math display">\[
+\mathbb{E}\bigl[(\hat\theta-\theta)^{2}\bigr]=\mathbb{E}\bigl[(\hat\theta-\mathbb{E}\hat\theta)^{2}\bigr]+2\,\mathbb{E}\bigl[\hat\theta-\mathbb{E}\hat\theta\bigr](\mathbb{E}\hat\theta-\theta)+(\mathbb{E}\hat\theta-\theta)^2.
+\]</span> The middle term is zero because <span class="math inline">\(\mathbb{E}[\hat\theta-\mathbb{E}\hat\theta]=0\)</span>. <span class="math inline">\(\blacksquare\)</span></p>
+</div>
+</div>
+<p>This is the same decomposition that Chapter 28 applies to the prediction error of a model.</p>
+<section id="the-sample-mean" class="level3" data-number="26.3.1">
+<h3 data-number="26.3.1" class="anchored" data-anchor-id="the-sample-mean"><span class="header-section-number">26.3.1</span> The sample mean</h3>
+<p>For iid samples with mean <span class="math inline">\(\mu\)</span> and variance <span class="math inline">\(\sigma^2\)</span>, the sample mean <span class="math inline">\(\bar{x}=\frac1N\sum x_i\)</span> is <strong>unbiased</strong>: <span class="math inline">\(\mathbb{E}[\bar{x}]=\mu\)</span>. Its variance is <span class="math inline">\(\sigma^2/N\)</span> (Chapter 21). Its standard deviation is the <strong>standard error</strong>:</p>
+<p><span id="eq-se"><span class="math display">\[
+\text{SE}(\bar{x})=\frac{\sigma}{\sqrt{N}}.
+\tag{26.4}\]</span></span></p>
+</section>
+<section id="the-variance-why-n-1" class="level3" data-number="26.3.2">
+<h3 data-number="26.3.2" class="anchored" data-anchor-id="the-variance-why-n-1"><span class="header-section-number">26.3.2</span> The variance: why <span class="math inline">\(N-1\)</span></h3>
+<p>The “obvious” estimator of the variance is <span class="math inline">\(\hat\sigma^2_N=\frac1N\sum_i(x_i-\bar{x})^2\)</span>. It is biased low, because <span class="math inline">\(\bar{x}\)</span> was fitted to the same data and is, on average, closer to the points than the true <span class="math inline">\(\mu\)</span>.</p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Derivation: the bias of the variance estimate">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Derivation: the bias of the variance estimate
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Write <span class="math inline">\(x_i-\bar{x}=(x_i-\mu)-(\bar{x}-\mu)\)</span>. Then <span class="math display">\[
+\sum_i(x_i-\bar{x})^2=\sum_i(x_i-\mu)^2-N(\bar{x}-\mu)^2.
+\]</span> Take expectations: <span class="math inline">\(\mathbb{E}\sum_i(x_i-\mu)^2=N\sigma^2\)</span> and <span class="math inline">\(\mathbb{E}\,N(\bar{x}-\mu)^2=N\cdot\sigma^2/N=\sigma^2\)</span>. So <span class="math display">\[
+\mathbb{E}\Bigl[\sum_i(x_i-\bar{x})^{2}\Bigr]=(N-1)\,\sigma^2.
+\]</span> Dividing by <span class="math inline">\(N-1\)</span> gives an unbiased estimator. Dividing by <span class="math inline">\(N\)</span> gives <span class="math inline">\(\frac{N-1}{N}\sigma^2\)</span>. <span class="math inline">\(\blacksquare\)</span></p>
+</div>
+</div>
+<div id="cell-fig-var-bias" class="cell" data-execution_count="4">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">0</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>Ns <span class="op">=</span> [<span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">5</span>, <span class="dv">10</span>, <span class="dv">20</span>, <span class="dv">30</span>]</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>biased, unbiased <span class="op">=</span> [], []</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> N <span class="kw">in</span> Ns:</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> rng.normal(size<span class="op">=</span>(<span class="dv">100_000</span>, N))</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    ss <span class="op">=</span> ((x <span class="op">-</span> x.mean(axis<span class="op">=</span><span class="dv">1</span>, keepdims<span class="op">=</span><span class="va">True</span>)) <span class="op">**</span> <span class="dv">2</span>).<span class="bu">sum</span>(axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    biased.append((ss <span class="op">/</span> N).mean())<span class="op">;</span> unbiased.append((ss <span class="op">/</span> (N <span class="op">-</span> <span class="dv">1</span>)).mean())</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">5.8</span>, <span class="fl">3.4</span>))</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>ax.plot(Ns, biased, <span class="st">"o-"</span>, color<span class="op">=</span>PALETTE[<span class="st">"loss"</span>], label<span class="op">=</span><span class="st">"divide by N"</span>)</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>ax.plot(Ns, unbiased, <span class="st">"o-"</span>, color<span class="op">=</span>PALETTE[<span class="st">"grad"</span>], label<span class="op">=</span><span class="st">"divide by N − 1"</span>)</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>ax.plot(Ns, [(n <span class="op">-</span> <span class="dv">1</span>) <span class="op">/</span> n <span class="cf">for</span> n <span class="kw">in</span> Ns], <span class="st">":"</span>, color<span class="op">=</span><span class="st">"black"</span>, label<span class="op">=</span><span class="st">"(N − 1)/N"</span>)</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>ax.axhline(<span class="dv">1</span>, ls<span class="op">=</span><span class="st">"--"</span>, color<span class="op">=</span>PALETTE[<span class="st">"neutral"</span>])<span class="op">;</span> ax.set_xlabel(<span class="st">"sample size N"</span>)<span class="op">;</span> ax.legend()</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"average estimate (truth 1)"</span>)</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="fig-var-bias" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Two curves of average estimated variance versus sample size from 2 to 30; the divide-by-N curve is below 1 and rises towards 1, the divide-by-N-minus-1 curve is flat at 1.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-var-bias-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="ch26_from_samples_to_populations_files/figure-html/fig-var-bias-output-1.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-3" title="Figure&nbsp;26.3: Average of the two variance estimators over 100,000 samples of size N from N(0, 1). Dividing by N (red) is biased low, strongly for small N: its average is (N−1)/N. Dividing by N − 1 (green) is unbiased."><img src="ch26_from_samples_to_populations_files/figure-html/fig-var-bias-output-1.svg" class="img-fluid figure-img" alt="Two curves of average estimated variance versus sample size from 2 to 30; the divide-by-N curve is below 1 and rises towards 1, the divide-by-N-minus-1 curve is flat at 1."></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-var-bias-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;26.3: Average of the two variance estimators over 100,000 samples of size N from N(0, 1). Dividing by N (red) is biased low, strongly for small N: its average is (N−1)/N. Dividing by N − 1 (green) is unbiased.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>NumPy’s <code>np.var</code> divides by <span class="math inline">\(N\)</span> by default (<code>ddof=0</code>). <code>np.var(x, ddof=1)</code> divides by <span class="math inline">\(N-1\)</span>. PyTorch’s <code>torch.var</code> divides by <span class="math inline">\(N-1\)</span> by default. This difference causes silent bugs.</p>
+</section>
+</section>
+<section id="sec-bootstrap" class="level2" data-number="26.4">
+<h2 data-number="26.4" class="anchored" data-anchor-id="sec-bootstrap"><span class="header-section-number">26.4</span> The bootstrap</h2>
+<p>The standard error formula <span class="math inline">\(\sigma/\sqrt N\)</span> exists for the mean. For a median, a correlation, or a model’s accuracy, there is no simple formula. The <strong>bootstrap</strong> gives one for any statistic.</p>
+<p><strong>Idea.</strong> The sample is our best picture of the population. Treat <span class="math inline">\(\hat p_N\)</span> as the population, and draw new samples <strong>from the data, with replacement</strong>. Compute the statistic on each. Their spread estimates the sampling variability.</p>
+<ol type="1">
+<li>Repeat <span class="math inline">\(B\)</span> times: draw <span class="math inline">\(N\)</span> points with replacement from the data. Compute the statistic.</li>
+<li>The standard deviation of the <span class="math inline">\(B\)</span> values is the standard error.</li>
+<li>The 2.5% and 97.5% quantiles form a 95% confidence interval.</li>
+</ol>
+<div id="cell-fig-bootstrap" class="cell" data-execution_count="5">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">1</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> rng.exponential(<span class="fl">2.0</span>, size<span class="op">=</span><span class="dv">40</span>)                     <span class="co"># skewed; true median 2 ln 2 = 1.386</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>B <span class="op">=</span> <span class="dv">2000</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>boot <span class="op">=</span> np.array([np.median(rng.choice(data, size<span class="op">=</span><span class="bu">len</span>(data), replace<span class="op">=</span><span class="va">True</span>)) <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(B)])</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>lo, hi <span class="op">=</span> np.quantile(boot, [<span class="fl">0.025</span>, <span class="fl">0.975</span>])</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"sample median </span><span class="sc">{</span>np<span class="sc">.</span>median(data)<span class="sc">:.3f}</span><span class="ss">; bootstrap SE </span><span class="sc">{</span>boot<span class="sc">.</span>std()<span class="sc">:.3f}</span><span class="ss">; "</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>      <span class="ss">f"95% interval [</span><span class="sc">{</span>lo<span class="sc">:.3f}</span><span class="ss">, </span><span class="sc">{</span>hi<span class="sc">:.3f}</span><span class="ss">]; true median </span><span class="sc">{</span><span class="dv">2</span> <span class="op">*</span> np<span class="sc">.</span>log(<span class="dv">2</span>)<span class="sc">:.3f}</span><span class="ss">"</span>)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">5.8</span>, <span class="fl">3.2</span>))</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>ax.hist(boot, bins<span class="op">=</span><span class="dv">40</span>, color<span class="op">=</span>PALETTE[<span class="st">"data"</span>], alpha<span class="op">=</span><span class="fl">0.7</span>)</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>ax.axvline(np.median(data), color<span class="op">=</span>PALETTE[<span class="st">"loss"</span>], lw<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> q <span class="kw">in</span> (lo, hi): ax.axvline(q, ls<span class="op">=</span><span class="st">"--"</span>, color<span class="op">=</span><span class="st">"black"</span>)</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"median of a resample"</span>)</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>sample median 1.822; bootstrap SE 0.391; 95% interval [0.961, 2.332]; true median 1.386</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div id="fig-bootstrap" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A histogram of bootstrap medians with a red line at the sample median and two dashed lines marking the 2.5 and 97.5 percent quantiles.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-bootstrap-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="ch26_from_samples_to_populations_files/figure-html/fig-bootstrap-output-2.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-4" title="Figure&nbsp;26.4: Bootstrap distribution of the median for a skewed sample (N = 40). The 2000 resampled medians give a standard error and a 95% interval (dashed lines), with no formula needed. The red line is the sample median."><img src="ch26_from_samples_to_populations_files/figure-html/fig-bootstrap-output-2.svg" class="img-fluid figure-img" alt="A histogram of bootstrap medians with a red line at the sample median and two dashed lines marking the 2.5 and 97.5 percent quantiles."></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-bootstrap-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;26.4: Bootstrap distribution of the median for a skewed sample (N = 40). The 2000 resampled medians give a standard error and a 95% interval (dashed lines), with no formula needed. The red line is the sample median.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<section id="does-the-interval-cover-the-truth" class="level3" data-number="26.4.1">
+<h3 data-number="26.4.1" class="anchored" data-anchor-id="does-the-interval-cover-the-truth"><span class="header-section-number">26.4.1</span> Does the interval cover the truth?</h3>
+<p>A 95% interval should contain the true value in about 95% of repeated experiments. We check by simulation with many fresh datasets.</p>
+<div id="code-coverage" class="cell" data-execution_count="6">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">2</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>true_median <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> np.log(<span class="dv">2</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>hits, trials <span class="op">=</span> <span class="dv">0</span>, <span class="dv">400</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(trials):</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    d <span class="op">=</span> rng.exponential(<span class="fl">2.0</span>, size<span class="op">=</span><span class="dv">40</span>)</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    bm <span class="op">=</span> np.array([np.median(rng.choice(d, size<span class="op">=</span><span class="dv">40</span>)) <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">300</span>)])</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    l, h <span class="op">=</span> np.quantile(bm, [<span class="fl">0.025</span>, <span class="fl">0.975</span>])</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    hits <span class="op">+=</span> (l <span class="op">&lt;=</span> true_median <span class="op">&lt;=</span> h)</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"coverage of the 95% bootstrap interval over </span><span class="sc">{</span>trials<span class="sc">}</span><span class="ss"> experiments: </span><span class="sc">{</span>hits <span class="op">/</span> trials<span class="sc">:.3f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>coverage of the 95% bootstrap interval over 400 experiments: 0.938</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="sec-accuracy" class="level2" data-number="26.5">
+<h2 data-number="26.5" class="anchored" data-anchor-id="sec-accuracy"><span class="header-section-number">26.5</span> How sure are we about an accuracy?</h2>
+<p>A classifier is correct on <span class="math inline">\(k\)</span> of <span class="math inline">\(n\)</span> test examples. Treat each test example as a Bernoulli trial. The accuracy <span class="math inline">\(\hat{a}=k/n\)</span> has standard error <span class="math inline">\(\sqrt{\hat{a}(1-\hat{a})/n}\)</span>.</p>
+<div id="code-accuracy" class="cell" data-execution_count="7">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.datasets <span class="im">import</span> load_digits</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.linear_model <span class="im">import</span> LogisticRegression</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.neighbors <span class="im">import</span> KNeighborsClassifier</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.model_selection <span class="im">import</span> train_test_split</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>D <span class="op">=</span> load_digits()</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>Xtr, Xte, ytr, yte <span class="op">=</span> train_test_split(D.data <span class="op">/</span> <span class="fl">16.0</span>, D.target, test_size<span class="op">=</span><span class="fl">0.25</span>,</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>                                      random_state<span class="op">=</span><span class="dv">0</span>, stratify<span class="op">=</span>D.target)</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>lr <span class="op">=</span> LogisticRegression(max_iter<span class="op">=</span><span class="dv">3000</span>).fit(Xtr, ytr)</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>kn <span class="op">=</span> KNeighborsClassifier(<span class="dv">3</span>).fit(Xtr, ytr)</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>c_lr <span class="op">=</span> (lr.predict(Xte) <span class="op">==</span> yte).astype(<span class="bu">float</span>)            <span class="co"># per-example correctness</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>c_kn <span class="op">=</span> (kn.predict(Xte) <span class="op">==</span> yte).astype(<span class="bu">float</span>)</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> <span class="bu">len</span>(yte)</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> name, c <span class="kw">in</span> [(<span class="st">"logistic regression"</span>, c_lr), (<span class="st">"3-NN"</span>, c_kn)]:</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>    a <span class="op">=</span> c.mean()<span class="op">;</span> se <span class="op">=</span> np.sqrt(a <span class="op">*</span> (<span class="dv">1</span> <span class="op">-</span> a) <span class="op">/</span> n)</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>name<span class="sc">:20s}</span><span class="ss"> accuracy </span><span class="sc">{</span>a<span class="sc">:.3f}</span><span class="ss"> ± </span><span class="sc">{</span><span class="fl">1.96</span> <span class="op">*</span> se<span class="sc">:.3f}</span><span class="ss">  (95% interval, n = </span><span class="sc">{</span>n<span class="sc">}</span><span class="ss">)"</span>)</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">0</span>)</span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>diffs <span class="op">=</span> []</span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">5000</span>):</span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>    idx <span class="op">=</span> rng.integers(<span class="dv">0</span>, n, n)                          <span class="co"># paired bootstrap</span></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>    diffs.append(c_kn[idx].mean() <span class="op">-</span> c_lr[idx].mean())</span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>lo, hi <span class="op">=</span> np.quantile(diffs, [<span class="fl">0.025</span>, <span class="fl">0.975</span>])</span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"3-NN minus logistic: </span><span class="sc">{</span>c_kn<span class="sc">.</span>mean() <span class="op">-</span> c_lr<span class="sc">.</span>mean()<span class="sc">:+.3f}</span><span class="ss">, 95% interval [</span><span class="sc">{</span>lo<span class="sc">:+.3f}</span><span class="ss">, </span><span class="sc">{</span>hi<span class="sc">:+.3f}</span><span class="ss">]"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>logistic regression  accuracy 0.969 ± 0.016  (95% interval, n = 450)
+3-NN                 accuracy 0.987 ± 0.011  (95% interval, n = 450)
+3-NN minus logistic: +0.018, 95% interval [+0.002, +0.033]</code></pre>
+</div>
+</div>
+<p>The two accuracies differ by about two percentage points, and each has an interval of about <span class="math inline">\(\pm1.5\)</span> points. The interval for the <em>difference</em>, from a paired bootstrap, just excludes 0. That is weak evidence that 3-NN is better. If it had included 0, the data could not have told the models apart. With 450 test images, claims about differences of one or two points need this kind of check.</p>
+<div id="cell-fig-ci-width" class="cell" data-execution_count="8">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>ns <span class="op">=</span> np.array([<span class="dv">50</span>, <span class="dv">100</span>, <span class="dv">200</span>, <span class="dv">500</span>, <span class="dv">1000</span>, <span class="dv">5000</span>, <span class="dv">20000</span>])</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>half <span class="op">=</span> <span class="dv">100</span> <span class="op">*</span> <span class="fl">1.96</span> <span class="op">*</span> np.sqrt(<span class="fl">0.9</span> <span class="op">*</span> <span class="fl">0.1</span> <span class="op">/</span> ns)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">5.6</span>, <span class="fl">3.3</span>))</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>ax.loglog(ns, half, <span class="st">"o-"</span>, color<span class="op">=</span>PALETTE[<span class="st">"model"</span>])</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"number of test examples"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"95% half-width (points)"</span>)</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>({<span class="bu">int</span>(k): <span class="bu">round</span>(<span class="bu">float</span>(v), <span class="dv">1</span>) <span class="cf">for</span> k, v <span class="kw">in</span> <span class="bu">zip</span>(ns, half)})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="fig-ci-width" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A falling curve on log-log axes of interval half-width in percentage points versus test set size.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-ci-width-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="ch26_from_samples_to_populations_files/figure-html/fig-ci-width-output-1.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-5" title="Figure&nbsp;26.5: Width of the 95% interval for an accuracy of 90%, against the number of test examples. It falls as 1/√n.&nbsp;With 100 test examples the interval is about ±6 points. To resolve differences of one point, several thousand examples are needed."><img src="ch26_from_samples_to_populations_files/figure-html/fig-ci-width-output-1.svg" class="img-fluid figure-img" alt="A falling curve on log-log axes of interval half-width in percentage points versus test set size."></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ci-width-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;26.5: Width of the 95% interval for an accuracy of 90%, against the number of test examples. It falls as 1/√n.&nbsp;With 100 test examples the interval is about ±6 points. To resolve differences of one point, several thousand examples are needed.
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>{50: 8.3, 100: 5.9, 200: 4.2, 500: 2.6, 1000: 1.9, 5000: 0.8, 20000: 0.4}</code></pre>
+</div>
+</div>
+</section>
+<section id="sec-mc" class="level2" data-number="26.6">
+<h2 data-number="26.6" class="anchored" data-anchor-id="sec-mc"><span class="header-section-number">26.6</span> Monte Carlo and importance sampling</h2>
+<p>Chapter 21 used the law of large numbers to estimate expectations: <span class="math inline">\(\mathbb{E}[f(X)]\approx\frac1N\sum f(x_i)\)</span>. The error is <span class="math inline">\(\sigma_f/\sqrt N\)</span>. For <strong>rare events</strong> this is wasteful. To estimate <span class="math inline">\(P(X&gt;4)\)</span> for <span class="math inline">\(X\sim\mathcal{N}(0,1)\)</span> (true value <span class="math inline">\(3.2\times10^{-5}\)</span>), a million samples give about 30 hits.</p>
+<p><strong>Importance sampling</strong> draws from a proposal <span class="math inline">\(q\)</span> that makes the rare event common, and corrects with weights:</p>
+<p><span id="eq-importance"><span class="math display">\[
+\mathbb{E}_p[f(X)]=\mathbb{E}_q\!\Bigl[f(X)\frac{p(X)}{q(X)}\Bigr].
+\tag{26.5}\]</span></span></p>
+<div id="code-importance" class="cell" data-execution_count="9">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.stats <span class="im">import</span> norm</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">0</span>)</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>truth <span class="op">=</span> norm.sf(<span class="fl">4.0</span>)</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plain(n):</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.mean(rng.normal(size<span class="op">=</span>n) <span class="op">&gt;</span> <span class="fl">4.0</span>)</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> importance(n):</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>    z <span class="op">=</span> rng.normal(<span class="fl">4.0</span>, <span class="fl">1.0</span>, size<span class="op">=</span>n)                         <span class="co"># proposal N(4, 1)</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    w <span class="op">=</span> norm.pdf(z) <span class="op">/</span> norm.pdf(z, <span class="fl">4.0</span>, <span class="fl">1.0</span>)                  <span class="co"># p(z) / q(z)</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.mean((z <span class="op">&gt;</span> <span class="fl">4.0</span>) <span class="op">*</span> w)</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>n, reps <span class="op">=</span> <span class="dv">10_000</span>, <span class="dv">300</span></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>pl <span class="op">=</span> np.array([plain(n) <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(reps)])<span class="op">;</span> im <span class="op">=</span> np.array([importance(n) <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(reps)])</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"truth </span><span class="sc">{</span>truth<span class="sc">:.2e}</span><span class="ss">"</span>)</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"plain MC    : mean </span><span class="sc">{</span>pl<span class="sc">.</span>mean()<span class="sc">:.2e}</span><span class="ss">, relative std </span><span class="sc">{</span>pl<span class="sc">.</span>std() <span class="op">/</span> truth<span class="sc">:.2f}</span><span class="ss">"</span>)</span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"importance  : mean </span><span class="sc">{</span>im<span class="sc">.</span>mean()<span class="sc">:.2e}</span><span class="ss">, relative std </span><span class="sc">{</span>im<span class="sc">.</span>std() <span class="op">/</span> truth<span class="sc">:.2f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>truth 3.17e-05
+plain MC    : mean 2.83e-05, relative std 1.76
+importance  : mean 3.16e-05, relative std 0.02</code></pre>
+</div>
+</div>
+<p>Both are unbiased. Importance sampling has a far smaller variance for the same number of samples. It is used in reinforcement learning, in rare-event simulation, and for evaluating a model on data from a different distribution (Chapter 27).</p>
+</section>
+<section id="sec-splits" class="level2" data-number="26.7">
+<h2 data-number="26.7" class="anchored" data-anchor-id="sec-splits"><span class="header-section-number">26.7</span> Splitting data</h2>
+<p>To measure generalisation we hold out data the model never trained on. A standard split is <strong>train</strong> (fit parameters), <strong>validation</strong> (choose hyperparameters), and <strong>test</strong> (final report, used once).</p>
+<p>For classification, a <strong>stratified</strong> split keeps the class proportions equal in each part.</p>
+<p>The most serious error is <strong>leakage</strong>: information from the test set reaching training. The simplest case is duplicates.</p>
+<div id="code-leakage" class="cell" data-execution_count="10">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.datasets <span class="im">import</span> make_classification</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">0</span>)</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> knn_acc(Xa, ya, Xb, yb, k<span class="op">=</span><span class="dv">1</span>):</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> KNeighborsClassifier(k).fit(Xa, ya).score(Xb, yb)</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="co"># a noisy problem (30% label noise), where honest accuracy is modest</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>Xn, yn <span class="op">=</span> make_classification(n_samples<span class="op">=</span><span class="dv">1200</span>, n_features<span class="op">=</span><span class="dv">10</span>, n_informative<span class="op">=</span><span class="dv">4</span>, n_classes<span class="op">=</span><span class="dv">3</span>,</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>                             flip_y<span class="op">=</span><span class="fl">0.3</span>, class_sep<span class="op">=</span><span class="fl">1.0</span>, random_state<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>Xa, Xb, ya, yb <span class="op">=</span> train_test_split(Xn, yn, test_size<span class="op">=</span><span class="fl">0.4</span>, random_state<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>clean <span class="op">=</span> knn_acc(Xa, ya, Xb, yb)</span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>leak_idx <span class="op">=</span> rng.choice(<span class="bu">len</span>(Xb), size<span class="op">=</span><span class="bu">int</span>(<span class="fl">0.3</span> <span class="op">*</span> <span class="bu">len</span>(Xb)), replace<span class="op">=</span><span class="va">False</span>)       <span class="co"># 30% of test</span></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>Xa_leak <span class="op">=</span> np.vstack([Xa, Xb[leak_idx]])<span class="op">;</span> ya_leak <span class="op">=</span> np.r_[ya, yb[leak_idx]]</span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>leaked <span class="op">=</span> knn_acc(Xa_leak, ya_leak, Xb, yb)</span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"1-NN test accuracy, clean split          : </span><span class="sc">{</span>clean<span class="sc">:.3f}</span><span class="ss">"</span>)</span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"1-NN test accuracy, 30% of test in train : </span><span class="sc">{</span>leaked<span class="sc">:.3f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>1-NN test accuracy, clean split          : 0.562
+1-NN test accuracy, 30% of test in train : 0.681</code></pre>
+</div>
+</div>
+<p>The leaked score is inflated. The model has not become better. It has seen the answers.</p>
+</section>
+<section id="sec-production" class="level2" data-number="26.8">
+<h2 data-number="26.8" class="anchored" data-anchor-id="sec-production"><span class="header-section-number">26.8</span> Production</h2>
+<p>SciPy provides a bootstrap. We compare it with ours.</p>
+<div id="code-scipy" class="cell" data-execution_count="11">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.stats <span class="im">import</span> bootstrap</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>res <span class="op">=</span> bootstrap((data,), np.median, n_resamples<span class="op">=</span><span class="dv">2000</span>, confidence_level<span class="op">=</span><span class="fl">0.95</span>,</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>                method<span class="op">=</span><span class="st">"percentile"</span>, random_state<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>ours_lo, ours_hi <span class="op">=</span> np.quantile(boot, [<span class="fl">0.025</span>, <span class="fl">0.975</span>])</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"scipy bootstrap interval for the median: "</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>      <span class="ss">f"[</span><span class="sc">{</span>res<span class="sc">.</span>confidence_interval<span class="sc">.</span>low<span class="sc">:.3f}</span><span class="ss">, </span><span class="sc">{</span>res<span class="sc">.</span>confidence_interval<span class="sc">.</span>high<span class="sc">:.3f}</span><span class="ss">]"</span>)</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"our bootstrap interval                  : [</span><span class="sc">{</span>ours_lo<span class="sc">:.3f}</span><span class="ss">, </span><span class="sc">{</span>ours_hi<span class="sc">:.3f}</span><span class="ss">]"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>scipy bootstrap interval for the median: [0.961, 2.362]
+our bootstrap interval                  : [0.961, 2.332]</code></pre>
+</div>
+</div>
+</section>
+<section id="sec-failure" class="level2" data-number="26.9">
+<h2 data-number="26.9" class="anchored" data-anchor-id="sec-failure"><span class="header-section-number">26.9</span> Failure modes</h2>
+<p><strong>Samples that are not independent.</strong> Time series, video frames, patches from one image, and several photos of one patient are correlated. Their effective sample size is far below <span class="math inline">\(N\)</span>. For an AR(1) series with correlation <span class="math inline">\(\rho\)</span>, the variance of the mean is inflated by about <span class="math inline">\(\frac{1+\rho}{1-\rho}\)</span>.</p>
+<div id="code-autocorr" class="cell" data-execution_count="12">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">0</span>)</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>rho, N, reps <span class="op">=</span> <span class="fl">0.9</span>, <span class="dv">500</span>, <span class="dv">2000</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>means, naive_se <span class="op">=</span> [], []</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(reps):</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    e <span class="op">=</span> rng.normal(size<span class="op">=</span>N)<span class="op">;</span> x <span class="op">=</span> np.zeros(N)</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> t <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, N):</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>        x[t] <span class="op">=</span> rho <span class="op">*</span> x[t <span class="op">-</span> <span class="dv">1</span>] <span class="op">+</span> e[t]</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>    means.append(x.mean())<span class="op">;</span> naive_se.append(x.std(ddof<span class="op">=</span><span class="dv">1</span>) <span class="op">/</span> np.sqrt(N))</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"naive standard error      : </span><span class="sc">{</span>np<span class="sc">.</span>mean(naive_se)<span class="sc">:.3f}</span><span class="ss">"</span>)</span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"true spread of the mean   : </span><span class="sc">{</span>np<span class="sc">.</span>std(means)<span class="sc">:.3f}</span><span class="ss">"</span>)</span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"effective sample size ≈ N(1−ρ)/(1+ρ) = </span><span class="sc">{</span>N <span class="op">*</span> (<span class="dv">1</span> <span class="op">-</span> rho) <span class="op">/</span> (<span class="dv">1</span> <span class="op">+</span> rho)<span class="sc">:.0f}</span><span class="ss"> of </span><span class="sc">{</span>N<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>naive standard error      : 0.100
+true spread of the mean   : 0.443
+effective sample size ≈ N(1−ρ)/(1+ρ) = 26 of 500</code></pre>
+</div>
+</div>
+<p><strong>Leakage.</strong> Duplicates, near-duplicates, preprocessing fitted on all data before splitting, and future information in time series all inflate test scores.</p>
+<p><strong>Tiny test sets.</strong> An accuracy from 50 examples has an interval of about <span class="math inline">\(\pm8\)</span> points.</p>
+<p><strong>Distribution shift.</strong> The population at deployment may differ from the one sampled (Chapter 27).</p>
+<p><strong>Selection.</strong> Choosing the best of many models on the test set biases the estimate upward (Chapter 27).</p>
+<p><strong>Heavy tails.</strong> The standard error formula assumes a finite variance. The sample mean of a Cauchy variable has no useful standard error (Chapter 21).</p>
+</section>
+<section id="sec-ai-connection" class="level2" data-number="26.10">
+<h2 data-number="26.10" class="anchored" data-anchor-id="sec-ai-connection"><span class="header-section-number">26.10</span> Where this appears in modern AI</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Place</th>
+<th>Use</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Minibatch gradient (Chapter 19)</td>
+<td>a sample mean of per-example gradients; its variance falls as <span class="math inline">\(1/B\)</span></td>
+</tr>
+<tr class="even">
+<td>Benchmark reporting</td>
+<td>accuracy with confidence interval; paired bootstrap for model comparison</td>
+</tr>
+<tr class="odd">
+<td>Test-set contamination in LLMs</td>
+<td>leakage of benchmark text into training data</td>
+</tr>
+<tr class="even">
+<td>Monte Carlo in VAEs and diffusion (Chapters 40, 41)</td>
+<td>sampled estimates of expectations</td>
+</tr>
+<tr class="odd">
+<td>Importance sampling in RL</td>
+<td>off-policy corrections</td>
+</tr>
+<tr class="even">
+<td>A/B tests</td>
+<td>standard errors for differences of means</td>
+</tr>
+<tr class="odd">
+<td>Data deduplication</td>
+<td>prevents leakage and memorisation</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="sec-system-connection" class="level2" data-number="26.11">
+<h2 data-number="26.11" class="anchored" data-anchor-id="sec-system-connection"><span class="header-section-number">26.11</span> System connection</h2>
+<div class="callout callout-style-default callout-note callout-titled" title="What the system gained in this chapter">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>What the system gained in this chapter
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The system can now <strong>quantify how much a finite sample can be trusted</strong>: the bias and variance of an estimator, the standard error, bootstrap intervals, and the importance of independent, leak-free splits.</p>
+<p>We know how well we can <em>measure</em> performance on held-out data. Chapter 27 asks the next question: why should performance on the data a model was trained on tell us anything about performance on new data, and when does it fail?</p>
+</div>
+</div>
+</section>
+<section id="chapter-summary" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="chapter-summary">Chapter summary</h2>
+<ul>
+<li>A sample is <span class="math inline">\(N\)</span> iid draws from a population. The empirical distribution converges to it.</li>
+<li><span class="math inline">\(\text{MSE}=\text{Bias}^2+\text{Var}\)</span>. The sample mean is unbiased with <span class="math inline">\(\text{SE}=\sigma/\sqrt N\)</span>.</li>
+<li>The variance estimator with <span class="math inline">\(1/N\)</span> is biased by the factor <span class="math inline">\((N-1)/N\)</span>; use <span class="math inline">\(1/(N-1)\)</span>.</li>
+<li>The bootstrap resamples the data to estimate the uncertainty of any statistic.</li>
+<li>An accuracy has <span class="math inline">\(\text{SE}=\sqrt{\hat{a}(1-\hat{a})/n}\)</span>. Small test sets give wide intervals.</li>
+<li>Importance sampling reduces the variance for rare events.</li>
+<li>Dependence and leakage invalidate all of the above.</li>
+</ul>
+</section>
+<section id="exercises" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="exercises">Exercises</h2>
+<ol type="1">
+<li><strong>Compute.</strong> A classifier gets 172 of 200 test examples right. Give the accuracy and its 95% interval.</li>
+<li><strong>Compute.</strong> For the data <span class="math inline">\((2,4,4,4,5,5,7,9)\)</span>, compute the variance with <span class="math inline">\(N\)</span> and with <span class="math inline">\(N-1\)</span> in the denominator.</li>
+<li><strong>Derive.</strong> Show that the sample mean of <span class="math inline">\(N\)</span> iid variables has variance <span class="math inline">\(\sigma^2/N\)</span>.</li>
+<li><strong>Derive.</strong> Show that importance sampling is unbiased, using <a href="#eq-importance" class="quarto-xref">Equation&nbsp;<span>26.5</span></a>.</li>
+<li><strong>Derive.</strong> For AR(1) data with correlation <span class="math inline">\(\rho\)</span>, the variance of the mean is about <span class="math inline">\(\frac{\sigma^2}{N}\frac{1+\rho}{1-\rho}\)</span>. Check the case <span class="math inline">\(\rho=0\)</span>.</li>
+<li><strong>Code.</strong> Use the bootstrap to give a 95% interval for the correlation coefficient of two features of the digits data.</li>
+<li><strong>Code.</strong> Compare the bootstrap and the normal-approximation intervals for the mean of 20 samples from an exponential distribution. Which covers 95% more often?</li>
+<li><strong>Code.</strong> Show that standardising features using the mean of the <em>whole</em> dataset before splitting leaks information. Quantify the effect on a small dataset.</li>
+<li><strong>Diagnose.</strong> A model’s test accuracy is 99% on frames from a video dataset, but 70% in deployment. The train/test split was random over frames. Explain.</li>
+<li><strong>Explain.</strong> Why does a larger test set not fix a biased estimate?</li>
+</ol>
+
+
+</section>
+
+</main> <!-- /main -->
+<script>
+/* Keep the left navigation stable between pages: all parts expanded,
+   and the sidebar scroll position remembered across page loads. */
+(function () {
+  var KEY = "mathsystems-sidebar-scroll";
+  function side() { return document.getElementById("quarto-sidebar"); }
+  function scroller() {
+    var s = side(); if (!s) return null;
+    return s.querySelector(".sidebar-menu-container") || s;
+  }
+  function expandAll() {
+    var s = side(); if (!s) return;
+    s.querySelectorAll(".collapse").forEach(function (el) { el.classList.add("show"); });
+    s.querySelectorAll('[aria-expanded="false"]').forEach(function (el) { el.setAttribute("aria-expanded", "true"); });
+    s.querySelectorAll(".sidebar-item-toggle.collapsed, a.collapsed").forEach(function (el) { el.classList.remove("collapsed"); });
+  }
+  function restore() {
+    var sc = scroller(), v = null;
+    try { v = sessionStorage.getItem(KEY); } catch (e) {}
+    if (sc && v !== null) sc.scrollTop = parseInt(v, 10);
+  }
+  function save() {
+    var sc = scroller();
+    if (!sc) return;
+    try { sessionStorage.setItem(KEY, String(sc.scrollTop)); } catch (e) {}
+  }
+  document.addEventListener("DOMContentLoaded", function () {
+    expandAll(); restore();
+    var sc = scroller();
+    if (sc) sc.addEventListener("scroll", save, { passive: true });
+    document.addEventListener("click", save, true);
+    window.addEventListener("pagehide", save);
+  });
+  window.addEventListener("load", function () {
+    expandAll(); restore();
+    setTimeout(restore, 50); setTimeout(restore, 250);   /* after the theme's own scroll-into-view */
+  });
+})();
+</script>
+<style>
+/* no jump while the menu is being expanded */
+#quarto-sidebar .collapse { transition: none !important; }
+</style>
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/vsrveera\.github\.io\/books\/mathai\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../chapters/ch25_statistical_estimation.html" class="pagination-link" aria-label="Statistical Estimation">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Statistical Estimation</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../chapters/ch27_generalization.html" class="pagination-link" aria-label="Generalization">
+        <span class="nav-page-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Generalization</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<script>var lightboxQuarto = GLightbox({"closeEffect":"zoom","descPosition":"bottom","loop":false,"openEffect":"zoom","selector":".lightbox"});
+(function() {
+  let previousOnload = window.onload;
+  window.onload = () => {
+    if (previousOnload) {
+      previousOnload();
+    }
+    lightboxQuarto.on('slide_before_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      const href = trigger.getAttribute('href');
+      if (href !== null) {
+        const imgEl = window.document.querySelector(`a[href="${href}"] img`);
+        if (imgEl !== null) {
+          const srcAttr = imgEl.getAttribute("src");
+          if (srcAttr && srcAttr.startsWith("data:")) {
+            slideConfig.href = srcAttr;
+          }
+        }
+      } 
+    });
+  
+    lightboxQuarto.on('slide_after_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(slideNode);
+      }
+    });
+  
+  };
+  
+})();
+          </script>
+
+
+
+
+<script src="../site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

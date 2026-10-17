@@ -1,0 +1,1583 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.19">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>51&nbsp; Characterising Large Models – Mathematics of Artificial Intelligence</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../chapters/ch50_characterisation_protocol_and_experimental_design.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-43d2fa13cb35dd2022b3c25d65fdd634.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-19432b6b5c85f3ab30851b7038f884b0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="../site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
+<link href="../site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
+<link href="../site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar docked quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/ch45_systems_thinking_components_and_interfaces.html">Part IX — Systems Thinking and Performance Characterisation</a></li><li class="breadcrumb-item"><a href="../chapters/ch51_characterising_large_models.html"><span class="chapter-number">51</span>&nbsp; <span class="chapter-title">Characterising Large Models</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">Mathematics of Artificial Intelligence</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part I — The Mathematical Machine</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch01_ai_as_a_mathematical_system.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">AI as a Mathematical System</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch02_language_of_mathematical_ai.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">The Language of Mathematical AI</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part II — Representation</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch03_vectors_representing_information.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Vectors: Representing Information</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch04_geometry_of_representations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Geometry of Representations</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch05_matrices_representing_transformations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Matrices: Representing Transformations</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch06_tensors_and_high_dimensional_data.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Tensors and High-Dimensional Data</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch07_structure_hidden_in_data.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Structure Hidden in Data</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part III — Transformation</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch08_functions_as_machines.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Functions as Machines</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch09_linear_transformations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Linear Transformations</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch10_nonlinearity_and_expressiveness.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Nonlinearity and Expressiveness</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch11_neural_networks_as_function_composition.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Neural Networks as Function Composition</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch12_convolution_and_structured_transformations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Convolution and Structured Transformations</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part IV — Measurement</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch13_distance_similarity_and_geometry.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Distance, Similarity and Geometry</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch14_loss_functions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Loss Functions</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch15_information_as_a_mathematical_quantity.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Information as a Mathematical Quantity</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part V — Learning</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch16_change_and_derivatives.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Change and Derivatives</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch17_gradients_and_multivariable_calculus.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Gradients and Multivariable Calculus</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch18_chain_rule_and_backpropagation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">The Chain Rule and Backpropagation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch19_optimization.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Optimization</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch20_the_geometry_and_dynamics_of_learning.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">The Geometry and Dynamics of Learning</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part VI — Uncertainty</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch21_probability_as_a_language_of_uncertainty.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Probability as a Language of Uncertainty</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch22_conditional_probability_and_bayes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Conditional Probability and Bayes</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch23_probability_distributions_used_in_ai.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Probability Distributions Used in AI</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch24_from_scores_to_probabilities.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">From Scores to Probabilities</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch25_statistical_estimation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Statistical Estimation</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part VII — Generalization</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch26_from_samples_to_populations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">From Samples to Populations</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch27_generalization.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Generalization</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch28_bias_variance_and_regularization.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Bias, Variance and Regularization</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch29_statistical_learning_theory.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Statistical Learning Theory</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part VIII — Putting the Mathematical Systems Together</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch30_the_mathematics_of_attention.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">30</span>&nbsp; <span class="chapter-title">The Mathematics of Attention</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch31_the_mathematics_of_the_transformer.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">31</span>&nbsp; <span class="chapter-title">The Mathematics of the Transformer</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch32_decoder_only_language_models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">32</span>&nbsp; <span class="chapter-title">Decoder-only Language Models</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch33_autoregressive_generation_and_sampling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">33</span>&nbsp; <span class="chapter-title">Autoregressive Generation and Sampling</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch34_mixture_of_experts_scale_and_numerical_precision.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">34</span>&nbsp; <span class="chapter-title">Mixture-of-Experts, Scale and Numerical Precision</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch35_convolutional_vision_in_depth.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">Convolutional Vision in Depth</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch36_vision_transformers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Vision Transformers</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch37_detection_and_structured_prediction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">Detection and Structured Prediction</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch38_representation_and_self_supervised_learning.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">38</span>&nbsp; <span class="chapter-title">Representation and Self-Supervised Learning</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch39_clip_and_multimodal_language_models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">39</span>&nbsp; <span class="chapter-title">CLIP and Multimodal Language Models</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch40_latent_variable_models_and_vaes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">40</span>&nbsp; <span class="chapter-title">Latent-Variable Models and VAEs</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch41_diffusion_models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">41</span>&nbsp; <span class="chapter-title">Diffusion Models</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch42_latent_diffusion_and_diffusion_transformers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">42</span>&nbsp; <span class="chapter-title">Latent Diffusion and Diffusion Transformers</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch43_flow_matching.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">43</span>&nbsp; <span class="chapter-title">Flow Matching</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch44_one_ai_system_all_the_mathematics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">44</span>&nbsp; <span class="chapter-title">One AI System, All the Mathematics</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part IX — Systems Thinking and Performance Characterisation</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch45_systems_thinking_components_and_interfaces.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">45</span>&nbsp; <span class="chapter-title">Systems Thinking: Components, Interfaces and Contracts</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch46_feedback_coupling_and_stability.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">46</span>&nbsp; <span class="chapter-title">Feedback, Coupling and Stability</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch47_performance_characterisation_the_paradigm.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">47</span>&nbsp; <span class="chapter-title">Performance Characterisation: The Paradigm</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch48_random_perturbation_and_error_propagation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">48</span>&nbsp; <span class="chapter-title">Random Perturbation and Error Propagation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch49_operating_curves_roc_and_confidence.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">49</span>&nbsp; <span class="chapter-title">Operating Curves, ROC and Confidence</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch50_characterisation_protocol_and_experimental_design.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">50</span>&nbsp; <span class="chapter-title">A Characterisation Protocol: Experimental Design and Reporting</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch51_characterising_large_models.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">51</span>&nbsp; <span class="chapter-title">Characterising Large Models</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#sec-system-problem" id="toc-sec-system-problem" class="nav-link active" data-scroll-target="#sec-system-problem"><span class="header-section-number">51.1</span> The system problem</a></li>
+  <li><a href="#sec-mapping" id="toc-sec-mapping" class="nav-link" data-scroll-target="#sec-mapping"><span class="header-section-number">51.2</span> The paradigm applied</a></li>
+  <li><a href="#sec-perturbation" id="toc-sec-perturbation" class="nav-link" data-scroll-target="#sec-perturbation"><span class="header-section-number">51.3</span> A model under perturbation</a></li>
+  <li><a href="#sec-slices" id="toc-sec-slices" class="nav-link" data-scroll-target="#sec-slices"><span class="header-section-number">51.4</span> Slices: where the failures sit</a></li>
+  <li><a href="#sec-contract" id="toc-sec-contract" class="nav-link" data-scroll-target="#sec-contract"><span class="header-section-number">51.5</span> Interface contract violation</a></li>
+  <li><a href="#sec-runs" id="toc-sec-runs" class="nav-link" data-scroll-target="#sec-runs"><span class="header-section-number">51.6</span> Random runs: a second source of variance</a></li>
+  <li><a href="#sec-rag" id="toc-sec-rag" class="nav-link" data-scroll-target="#sec-rag"><span class="header-section-number">51.7</span> Composition: a retrieval pipeline</a></li>
+  <li><a href="#sec-report" id="toc-sec-report" class="nav-link" data-scroll-target="#sec-report"><span class="header-section-number">51.8</span> What a model report contains</a></li>
+  <li><a href="#sec-failure" id="toc-sec-failure" class="nav-link" data-scroll-target="#sec-failure"><span class="header-section-number">51.9</span> Failure modes</a></li>
+  <li><a href="#sec-ai-connection" id="toc-sec-ai-connection" class="nav-link" data-scroll-target="#sec-ai-connection"><span class="header-section-number">51.10</span> Where this appears in modern AI</a></li>
+  <li><a href="#sec-system-connection" id="toc-sec-system-connection" class="nav-link" data-scroll-target="#sec-system-connection"><span class="header-section-number">51.11</span> System connection</a></li>
+  <li><a href="#chapter-summary" id="toc-chapter-summary" class="nav-link" data-scroll-target="#chapter-summary">Chapter summary</a></li>
+  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises">Exercises</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/ch45_systems_thinking_components_and_interfaces.html">Part IX — Systems Thinking and Performance Characterisation</a></li><li class="breadcrumb-item"><a href="../chapters/ch51_characterising_large_models.html"><span class="chapter-number">51</span>&nbsp; <span class="chapter-title">Characterising Large Models</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">51</span>&nbsp; <span class="chapter-title">Characterising Large Models</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="callout callout-style-default callout-note callout-titled" title="Key ideas">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Key ideas
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li>The method of Part IX does not change for large models: state conditions, perturb, measure with intervals, separate tuning from reporting, state limits. What changes is the <strong>size of the condition space</strong>, the <strong>cost</strong> of one measurement, and the <strong>randomness</strong> of the output.</li>
+<li>A single benchmark score is a point. A characterisation is a <strong>curve over perturbation severity</strong> with intervals. Rankings of models can <strong>flip</strong> along the curve.</li>
+<li>Stochastic decoding adds a second source of variance: <strong>runs</strong> as well as <strong>items</strong>. Report both.</li>
+<li>A large model is one component in a pipeline. Its contract (format, length, scale) and its interfaces need the same checks as a small one (Chapter 45).</li>
+<li>A model card is a characterisation report. Its value is in the conditions, the intervals and the stated limits.</li>
+</ul>
+</div>
+</div>
+<section id="sec-system-problem" class="level2" data-number="51.1">
+<h2 data-number="51.1" class="anchored" data-anchor-id="sec-system-problem"><span class="header-section-number">51.1</span> The system problem</h2>
+<p>Chapters 45 to 50 used small components: a threshold, a line fit, a detector. Their input space is small enough to sweep. A large language or vision model has an input space that nobody can sweep. Its output may be free text. Its answer can change between two runs with the same input.</p>
+<blockquote class="blockquote">
+<p><strong>What does it mean to characterise a model that we cannot enumerate, cannot see inside, and cannot run twice with the same result?</strong></p>
+</blockquote>
+<p>The answer is the same paradigm with three adaptations: choose <strong>factors</strong> that matter, measure <strong>distributions</strong> over runs, and <strong>budget</strong> the number of evaluations from the requirement (Chapter 49).</p>
+<div id="cell-fig-llm-flow" class="cell" data-execution_count="2">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>box_flow([<span class="st">"Input"</span>, <span class="st">"Prompt</span><span class="ch">\n</span><span class="st">build"</span>, <span class="st">"Retrieval"</span>, <span class="st">"Large</span><span class="ch">\n</span><span class="st">model"</span>, <span class="st">"Parse"</span>, <span class="st">"Filter"</span>],</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>         colors<span class="op">=</span>[PALETTE[<span class="st">"neutral"</span>], PALETTE[<span class="st">"data"</span>], PALETTE[<span class="st">"data"</span>], PALETTE[<span class="st">"model"</span>],</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>                 PALETTE[<span class="st">"prob"</span>], PALETTE[<span class="st">"prob"</span>]], figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="fl">1.6</span>))</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="fig-llm-flow" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Six boxes in a row: Input, Prompt build, Retrieval, Model, Parse, Filter.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-llm-flow-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="ch51_characterising_large_models_files/figure-html/fig-llm-flow-output-1.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-1" title="Figure&nbsp;51.1: A large model in a system. The user input passes a pre-processing step, a retrieval step and the model, then a parser and a safety filter. Each arrow is an interface and each box has its own characterisation."><img src="ch51_characterising_large_models_files/figure-html/fig-llm-flow-output-1.svg" class="img-fluid figure-img" alt="Six boxes in a row: Input, Prompt build, Retrieval, Model, Parse, Filter."></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-llm-flow-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;51.1: A large model in a system. The user input passes a pre-processing step, a retrieval step and the model, then a parser and a safety filter. Each arrow is an interface and each box has its own characterisation.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="sec-mapping" class="level2" data-number="51.2">
+<h2 data-number="51.2" class="anchored" data-anchor-id="sec-mapping"><span class="header-section-number">51.2</span> The paradigm applied</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Step in Chapter 47</th>
+<th>For a small component</th>
+<th>For a large model</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Ideal input</td>
+<td>step edge, height <span class="math inline">\(h\)</span></td>
+<td>a task with a known correct answer (a labelled item)</td>
+</tr>
+<tr class="even">
+<td>Perturbation model</td>
+<td>additive noise <span class="math inline">\(\sigma\)</span></td>
+<td>paraphrase, typos, format change, image corruption, distractor text, language</td>
+</tr>
+<tr class="odd">
+<td>Parameters</td>
+<td>window <span class="math inline">\(w\)</span>, threshold <span class="math inline">\(\tau\)</span></td>
+<td>prompt template, temperature, number of samples, retrieval depth</td>
+</tr>
+<tr class="even">
+<td>Output measure</td>
+<td>detect, false alarm, location</td>
+<td>accuracy, calibration, refusal, format validity, cost, latency</td>
+</tr>
+<tr class="odd">
+<td>Validation</td>
+<td>real data</td>
+<td>held-out, fresh, <strong>uncontaminated</strong> items from the target use</td>
+</tr>
+<tr class="even">
+<td>Report</td>
+<td>curve with interval</td>
+<td>slice table with intervals and limits</td>
+</tr>
+</tbody>
+</table>
+<p>The mapping shows what to do. We now do it, on a model small enough to run here, so that the numbers are real. The same code applies to a large model: replace <code>predict</code> with an API call.</p>
+</section>
+<section id="sec-perturbation" class="level2" data-number="51.3">
+<h2 data-number="51.3" class="anchored" data-anchor-id="sec-perturbation"><span class="header-section-number">51.3</span> A model under perturbation</h2>
+<p>We use the 1,797 handwritten digits that come with scikit-learn (8×8 pixel images). We train two models: a logistic regression (<strong>LR</strong>) and a one-hidden-layer network (<strong>MLP</strong>). We then perturb the <strong>test</strong> images with increasing noise and measure accuracy with a confidence interval. This is a robustness sweep in the style of corruption benchmarks.</p>
+<div id="code-sweep" class="cell" data-execution_count="3">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.datasets <span class="im">import</span> load_digits</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.model_selection <span class="im">import</span> train_test_split</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.linear_model <span class="im">import</span> LogisticRegression</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.neural_network <span class="im">import</span> MLPClassifier</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>X, y <span class="op">=</span> load_digits(return_X_y<span class="op">=</span><span class="va">True</span>)<span class="op">;</span> X <span class="op">=</span> X <span class="op">/</span> <span class="fl">16.0</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>Xtr, Xte, ytr, yte <span class="op">=</span> train_test_split(X, y, test_size<span class="op">=</span><span class="fl">0.5</span>, random_state<span class="op">=</span><span class="dv">0</span>, stratify<span class="op">=</span>y)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>lr <span class="op">=</span> LogisticRegression(max_iter<span class="op">=</span><span class="dv">2000</span>).fit(Xtr, ytr)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>mlp <span class="op">=</span> MLPClassifier((<span class="dv">64</span>,), max_iter<span class="op">=</span><span class="dv">600</span>, random_state<span class="op">=</span><span class="dv">0</span>).fit(Xtr, ytr)</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> cp(k, n, a<span class="op">=</span><span class="fl">0.05</span>):</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (<span class="fl">0.0</span> <span class="cf">if</span> k <span class="op">==</span> <span class="dv">0</span> <span class="cf">else</span> beta.ppf(a <span class="op">/</span> <span class="dv">2</span>, k, n <span class="op">-</span> k <span class="op">+</span> <span class="dv">1</span>),</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>            <span class="fl">1.0</span> <span class="cf">if</span> k <span class="op">==</span> n <span class="cf">else</span> beta.ppf(<span class="dv">1</span> <span class="op">-</span> a <span class="op">/</span> <span class="dv">2</span>, k <span class="op">+</span> <span class="dv">1</span>, n <span class="op">-</span> k))</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">51</span>)</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>levels <span class="op">=</span> [<span class="fl">0.0</span>, <span class="fl">0.1</span>, <span class="fl">0.2</span>, <span class="fl">0.3</span>, <span class="fl">0.5</span>]</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>res <span class="op">=</span> {}</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"test items: </span><span class="sc">{</span><span class="bu">len</span>(yte)<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"noise sigma   LR acc [95% CI]            MLP acc [95% CI]"</span>)</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> s <span class="kw">in</span> levels:</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    Xn <span class="op">=</span> np.clip(Xte <span class="op">+</span> rng.normal(<span class="dv">0</span>, s, Xte.shape), <span class="dv">0</span>, <span class="dv">1</span>)</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>    cl, cm <span class="op">=</span> lr.predict(Xn) <span class="op">==</span> yte, mlp.predict(Xn) <span class="op">==</span> yte</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>    res[s] <span class="op">=</span> (cl, cm)</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>    a <span class="op">=</span> cp(cl.<span class="bu">sum</span>(), cl.size)<span class="op">;</span> b <span class="op">=</span> cp(cm.<span class="bu">sum</span>(), cm.size)</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"   </span><span class="sc">{</span>s<span class="sc">:3.1f}</span><span class="ss">       </span><span class="sc">{</span>cl<span class="sc">.</span>mean()<span class="sc">:.3f}</span><span class="ss"> [</span><span class="sc">{</span>a[<span class="dv">0</span>]<span class="sc">:.3f}</span><span class="ss">, </span><span class="sc">{</span>a[<span class="dv">1</span>]<span class="sc">:.3f}</span><span class="ss">]     </span><span class="sc">{</span>cm<span class="sc">.</span>mean()<span class="sc">:.3f}</span><span class="ss"> [</span><span class="sc">{</span>b[<span class="dv">0</span>]<span class="sc">:.3f}</span><span class="ss">, </span><span class="sc">{</span>b[<span class="dv">1</span>]<span class="sc">:.3f}</span><span class="ss">]"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>test items: 899
+noise sigma   LR acc [95% CI]            MLP acc [95% CI]
+   0.0       0.961 [0.946, 0.973]     0.971 [0.958, 0.981]
+   0.1       0.949 [0.932, 0.962]     0.956 [0.940, 0.968]
+   0.2       0.919 [0.899, 0.936]     0.904 [0.883, 0.923]
+   0.3       0.857 [0.832, 0.879]     0.801 [0.773, 0.827]
+   0.5       0.654 [0.622, 0.685]     0.537 [0.504, 0.570]</code></pre>
+</div>
+</div>
+<p>On clean data, the MLP is better: <span class="math inline">\(0.971\)</span> against <span class="math inline">\(0.961\)</span>. At <span class="math inline">\(\sigma=0.3\)</span> the order is <strong>reversed</strong>: LR scores <span class="math inline">\(0.857\)</span> and the MLP <span class="math inline">\(0.801\)</span>. A ranking from the clean test set alone would have picked the wrong model for noisy deployment.</p>
+<div id="cell-fig-sweep" class="cell" data-execution_count="4">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">6.4</span>, <span class="fl">3.6</span>))</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> j, (name, c) <span class="kw">in</span> <span class="bu">enumerate</span>([(<span class="st">"logistic regression"</span>, PALETTE[<span class="st">"data"</span>]), (<span class="st">"MLP"</span>, PALETTE[<span class="st">"model"</span>])]):</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    m <span class="op">=</span> np.array([res[s][j].mean() <span class="cf">for</span> s <span class="kw">in</span> levels])</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    ci <span class="op">=</span> np.array([cp(res[s][j].<span class="bu">sum</span>(), res[s][j].size) <span class="cf">for</span> s <span class="kw">in</span> levels])</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    ax.errorbar(np.array(levels) <span class="op">+</span> <span class="fl">0.004</span> <span class="op">*</span> (j <span class="op">-</span> <span class="fl">0.5</span>), m, yerr<span class="op">=</span>[m <span class="op">-</span> ci[:, <span class="dv">0</span>], ci[:, <span class="dv">1</span>] <span class="op">-</span> m],</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>                fmt<span class="op">=</span><span class="st">"o-"</span>, color<span class="op">=</span>c, capsize<span class="op">=</span><span class="dv">3</span>, label<span class="op">=</span>name)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"noise standard deviation σ"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"accuracy"</span>)<span class="op">;</span> ax.legend()</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="fig-sweep" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Two falling curves of accuracy against noise level from 0 to 0.5; the MLP starts above the logistic regression and ends below it; the curves cross between sigma 0.1 and 0.2.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-sweep-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="ch51_characterising_large_models_files/figure-html/fig-sweep-output-1.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-2" title="Figure&nbsp;51.2: Accuracy against noise level for two models on 899 test images. Bars are 95% intervals. The models swap places between sigma = 0.1 and sigma = 0.2."><img src="ch51_characterising_large_models_files/figure-html/fig-sweep-output-1.svg" class="img-fluid figure-img" alt="Two falling curves of accuracy against noise level from 0 to 0.5; the MLP starts above the logistic regression and ends below it; the curves cross between sigma 0.1 and 0.2."></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-sweep-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;51.2: Accuracy against noise level for two models on 899 test images. Bars are 95% intervals. The models swap places between sigma = 0.1 and sigma = 0.2.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The intervals at one level overlap. We use the <strong>paired</strong> comparison of Chapter 49: the same images go to both models, so the difference has less noise than the separate intervals suggest.</p>
+<div id="code-paired" class="cell" data-execution_count="5">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> paired_diff(ca, cb, B<span class="op">=</span><span class="dv">4000</span>, seed<span class="op">=</span><span class="dv">0</span>):</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    r <span class="op">=</span> np.random.default_rng(seed)<span class="op">;</span> n <span class="op">=</span> ca.size</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    d <span class="op">=</span> np.array([cb[i].mean() <span class="op">-</span> ca[i].mean() <span class="cf">for</span> i <span class="kw">in</span> (r.integers(<span class="dv">0</span>, n, n) <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(B))])</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> cb.mean() <span class="op">-</span> ca.mean(), np.percentile(d, [<span class="fl">2.5</span>, <span class="fl">97.5</span>])</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"MLP minus LR accuracy, paired bootstrap"</span>)</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> s <span class="kw">in</span> levels:</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    d, (lo, hi) <span class="op">=</span> paired_diff(<span class="op">*</span>res[s])</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    verdict <span class="op">=</span> <span class="st">"MLP better"</span> <span class="cf">if</span> lo <span class="op">&gt;</span> <span class="dv">0</span> <span class="cf">else</span> (<span class="st">"LR better"</span> <span class="cf">if</span> hi <span class="op">&lt;</span> <span class="dv">0</span> <span class="cf">else</span> <span class="st">"not separated"</span>)</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"  sigma </span><span class="sc">{</span>s<span class="sc">:3.1f}</span><span class="ss">: </span><span class="sc">{</span>d<span class="sc">:+.3f}</span><span class="ss">  [</span><span class="sc">{</span>lo<span class="sc">:+.3f}</span><span class="ss">, </span><span class="sc">{</span>hi<span class="sc">:+.3f}</span><span class="ss">]   </span><span class="sc">{</span>verdict<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>MLP minus LR accuracy, paired bootstrap
+  sigma 0.0: +0.010  [+0.000, +0.020]   not separated
+  sigma 0.1: +0.007  [-0.004, +0.018]   not separated
+  sigma 0.2: -0.014  [-0.030, +0.002]   not separated
+  sigma 0.3: -0.056  [-0.078, -0.036]   LR better
+  sigma 0.5: -0.117  [-0.147, -0.087]   LR better</code></pre>
+</div>
+</div>
+<p>The data support “LR is better” at <span class="math inline">\(\sigma=0.3\)</span> (by <span class="math inline">\(0.056\)</span>) and <span class="math inline">\(\sigma=0.5\)</span> (by <span class="math inline">\(0.117\)</span>). They give “not separated” at the three low levels. At <span class="math inline">\(\sigma=0\)</span> the interval <span class="math inline">\([+0.000,\,+0.020]\)</span> only just touches zero. Two honest statements follow: the models are <strong>not</strong> distinguished on clean data with 899 items, and the noisy-condition ranking <strong>is</strong> established.</p>
+</section>
+<section id="sec-slices" class="level2" data-number="51.4">
+<h2 data-number="51.4" class="anchored" data-anchor-id="sec-slices"><span class="header-section-number">51.4</span> Slices: where the failures sit</h2>
+<p>An average hides sub-populations (Chapter 45). A slice table reports the measure for each class, with the sample count.</p>
+<div id="code-slice" class="cell" data-execution_count="6">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>Xn <span class="op">=</span> np.clip(Xte <span class="op">+</span> np.random.default_rng(<span class="dv">7</span>).normal(<span class="dv">0</span>, <span class="fl">0.3</span>, Xte.shape), <span class="dv">0</span>, <span class="dv">1</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>pred <span class="op">=</span> mlp.predict(Xn)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"MLP at sigma = 0.3, accuracy per digit class"</span>)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>worst <span class="op">=</span> []</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> c <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">10</span>):</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    m <span class="op">=</span> yte <span class="op">==</span> c</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    k <span class="op">=</span> <span class="bu">int</span>((pred[m] <span class="op">==</span> c).<span class="bu">sum</span>())<span class="op">;</span> n <span class="op">=</span> <span class="bu">int</span>(m.<span class="bu">sum</span>())<span class="op">;</span> lo, hi <span class="op">=</span> cp(k, n)</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    worst.append((k <span class="op">/</span> n, c))</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"  digit </span><span class="sc">{</span>c<span class="sc">}</span><span class="ss">: </span><span class="sc">{</span>k<span class="sc">:2d}</span><span class="ss">/</span><span class="sc">{</span>n<span class="sc">:2d}</span><span class="ss"> = </span><span class="sc">{</span>k<span class="op">/</span>n<span class="sc">:.2f}</span><span class="ss">  [</span><span class="sc">{</span>lo<span class="sc">:.2f}</span><span class="ss">, </span><span class="sc">{</span>hi<span class="sc">:.2f}</span><span class="ss">]"</span>)</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"lowest classes:"</span>, <span class="bu">sorted</span>(worst)[:<span class="dv">3</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>MLP at sigma = 0.3, accuracy per digit class
+  digit 0: 85/89 = 0.96  [0.89, 0.99]
+  digit 1: 54/91 = 0.59  [0.49, 0.70]
+  digit 2: 76/88 = 0.86  [0.77, 0.93]
+  digit 3: 77/92 = 0.84  [0.75, 0.91]
+  digit 4: 83/91 = 0.91  [0.83, 0.96]
+  digit 5: 60/91 = 0.66  [0.55, 0.76]
+  digit 6: 71/91 = 0.78  [0.68, 0.86]
+  digit 7: 81/89 = 0.91  [0.83, 0.96]
+  digit 8: 59/87 = 0.68  [0.57, 0.77]
+  digit 9: 55/90 = 0.61  [0.50, 0.71]
+lowest classes: [(0.5934065934065934, 1), (0.6111111111111112, 9), (0.6593406593406593, 5)]</code></pre>
+</div>
+</div>
+<p>Each class has about 90 test images, so each interval is wide, about <span class="math inline">\(\pm0.1\)</span>. A slice with a low point value and a wide interval is a <strong>lead</strong>, not a finding. To test it, collect more items for that slice. This is the cost of slicing: every slice divides the sample.</p>
+</section>
+<section id="sec-contract" class="level2" data-number="51.5">
+<h2 data-number="51.5" class="anchored" data-anchor-id="sec-contract"><span class="header-section-number">51.5</span> Interface contract violation</h2>
+<p>Chapter 45 listed the silent unit error. Here it is, with a model. The training pixels were scaled to <span class="math inline">\([0,1]\)</span>. A serving pipeline forgets to divide by 16 and feeds <span class="math inline">\([0,16]\)</span>.</p>
+<div id="code-scale" class="cell" data-execution_count="7">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> name, m <span class="kw">in</span> ((<span class="st">"LR"</span>, lr), (<span class="st">"MLP"</span>, mlp)):</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    ok <span class="op">=</span> (m.predict(Xte) <span class="op">==</span> yte).mean()<span class="op">;</span> bad <span class="op">=</span> (m.predict(Xte <span class="op">*</span> <span class="dv">16</span>) <span class="op">==</span> yte).mean()</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>name<span class="sc">}</span><span class="ss">: correct scale </span><span class="sc">{</span>ok<span class="sc">:.3f}</span><span class="ss">   unscaled input </span><span class="sc">{</span>bad<span class="sc">:.3f}</span><span class="ss">"</span>)</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"max input value fed to the model:"</span>, (Xte <span class="op">*</span> <span class="dv">16</span>).<span class="bu">max</span>())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>LR: correct scale 0.961   unscaled input 0.887
+MLP: correct scale 0.971   unscaled input 0.963
+max input value fed to the model: 16.0</code></pre>
+</div>
+</div>
+<p>No error is raised. The logistic regression loses about 7 points. The MLP loses about 1 point here, but with a different architecture or training the loss could be total. The point of a contract is that <strong>it does not depend on luck</strong>: a range check on the input rejects the batch at once.</p>
+</section>
+<section id="sec-runs" class="level2" data-number="51.6">
+<h2 data-number="51.6" class="anchored" data-anchor-id="sec-runs"><span class="header-section-number">51.6</span> Random runs: a second source of variance</h2>
+<p>A large language model samples tokens. Two runs on one prompt can differ. An evaluation then has two sources of variance: the <strong>item</strong> sample (which questions we ask) and the <strong>run</strong> (which answer the sampler gave). The code below is a <strong>simulation</strong>, not a measurement of any real model. Each item <span class="math inline">\(i\)</span> has a probability <span class="math inline">\(p_i\)</span> that one sampled answer is correct. The items differ in difficulty: <span class="math inline">\(p_i\sim\text{Beta}(2.1,\,0.9)\)</span>, a mean of <span class="math inline">\(0.7\)</span> with many easy and a few hard items.</p>
+<div id="code-runs" class="cell" data-execution_count="8">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">52</span>)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>n_items <span class="op">=</span> <span class="dv">500</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>p <span class="op">=</span> rng.beta(<span class="fl">2.1</span>, <span class="fl">0.9</span>, n_items)</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"mean per-item success probability: </span><span class="sc">{</span>p<span class="sc">.</span>mean()<span class="sc">:.3f}</span><span class="ss">"</span>)</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> one_run():</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (rng.random(n_items) <span class="op">&lt;</span> p).mean()</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>acc <span class="op">=</span> np.array([one_run() <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">2000</span>)])</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"one run of 500 items: mean </span><span class="sc">{</span>acc<span class="sc">.</span>mean()<span class="sc">:.3f}</span><span class="ss">   std across repeated runs </span><span class="sc">{</span>acc<span class="sc">.</span>std()<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"run-to-run std predicted by sqrt(sum p(1-p))/n: </span><span class="sc">{</span>np<span class="sc">.</span>sqrt((p<span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>p)).<span class="bu">sum</span>())<span class="op">/</span>n_items<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a><span class="co"># item-sampling std: the benchmark itself is a sample of n_items from a population of items</span></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"item-sampling std (spread of p across items / sqrt(n)): </span><span class="sc">{</span>p<span class="sc">.</span>std()<span class="op">/</span>np<span class="sc">.</span>sqrt(n_items)<span class="sc">:.4f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>mean per-item success probability: 0.701
+one run of 500 items: mean 0.702   std across repeated runs 0.0174
+run-to-run std predicted by sqrt(sum p(1-p))/n: 0.0172
+item-sampling std (spread of p across items / sqrt(n)): 0.0111</code></pre>
+</div>
+</div>
+<p>On this benchmark the run noise is about <span class="math inline">\(0.017\)</span> and the item-sampling noise about <span class="math inline">\(0.011\)</span>. They are of similar size. A single run of a single benchmark is therefore uncertain by about <span class="math inline">\(\pm0.04\)</span> at 95% from both sources together. Two models whose scores differ by one point on one run each are <strong>not</strong> separated.</p>
+<p>Sampling several answers changes the measure. Three common ones:</p>
+<div id="code-passk" class="cell" data-execution_count="9">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>k <span class="op">=</span> <span class="dv">5</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>single <span class="op">=</span> p.mean()</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>maj <span class="op">=</span> np.mean([(rng.binomial(k, p) <span class="op">&gt;</span> k <span class="op">/</span> <span class="dv">2</span>) <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">2000</span>)])   <span class="co"># majority vote of k samples</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>pass_k <span class="op">=</span> (<span class="dv">1</span> <span class="op">-</span> (<span class="dv">1</span> <span class="op">-</span> p) <span class="op">**</span> k).mean()                                   <span class="co"># at least one of k correct</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"single sample accuracy        : </span><span class="sc">{</span>single<span class="sc">:.3f}</span><span class="ss">"</span>)</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"majority vote over </span><span class="sc">{</span>k<span class="sc">}</span><span class="ss"> samples : </span><span class="sc">{</span>maj<span class="sc">:.3f}</span><span class="ss">"</span>)</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"pass@</span><span class="sc">{</span>k<span class="sc">}</span><span class="ss"> (any of </span><span class="sc">{</span>k<span class="sc">}</span><span class="ss"> correct)    : </span><span class="sc">{</span>pass_k<span class="sc">:.3f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>single sample accuracy        : 0.701
+majority vote over 5 samples : 0.749
+pass@5 (any of 5 correct)    : 0.951</code></pre>
+</div>
+</div>
+<p>The three numbers are <span class="math inline">\(0.701\)</span>, <span class="math inline">\(0.749\)</span> and <span class="math inline">\(0.951\)</span>. They answer three different questions: what a user sees in one try (single), what a system with voting delivers (majority), and what a system with a perfect checker delivers (pass@<span class="math inline">\(k\)</span>). The headline number must say which one it is. Majority voting helps only on items with <span class="math inline">\(p_i&gt;0.5\)</span>. On items with <span class="math inline">\(p_i&lt;0.5\)</span> it <strong>hurts</strong>.</p>
+</section>
+<section id="sec-rag" class="level2" data-number="51.7">
+<h2 data-number="51.7" class="anchored" data-anchor-id="sec-rag"><span class="header-section-number">51.7</span> Composition: a retrieval pipeline</h2>
+<p>A retrieval-augmented system is a chain (Chapter 45). The answer is correct if the retriever finds the passage and the reader uses it, or if the reader knows the answer without it. For a retrieval recall <span class="math inline">\(r\)</span>, a reader accuracy <span class="math inline">\(a_1\)</span> with the passage and <span class="math inline">\(a_0\)</span> without it:</p>
+<p><span id="eq-rag"><span class="math display">\[
+P(\text{correct})=r\,a_1+(1-r)\,a_0.
+\tag{51.1}\]</span></span></p>
+<p>Take the following <strong>hypothetical</strong> values: <span class="math inline">\(r=0.80\)</span>, <span class="math inline">\(a_1=0.90\)</span>, <span class="math inline">\(a_0=0.35\)</span>.</p>
+<div id="code-rag" class="cell" data-execution_count="10">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>r, a1, a0 <span class="op">=</span> <span class="fl">0.80</span>, <span class="fl">0.90</span>, <span class="fl">0.35</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>total <span class="op">=</span> r <span class="op">*</span> a1 <span class="op">+</span> (<span class="dv">1</span> <span class="op">-</span> r) <span class="op">*</span> a0</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"system accuracy              : </span><span class="sc">{</span>total<span class="sc">:.3f}</span><span class="ss">"</span>)</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"gain from +0.05 retrieval recall : </span><span class="sc">{</span>(r<span class="op">+</span><span class="fl">0.05</span>)<span class="op">*</span>a1 <span class="op">+</span> (<span class="dv">1</span><span class="op">-</span>r<span class="op">-</span><span class="fl">0.05</span>)<span class="op">*</span>a0 <span class="op">-</span> total<span class="sc">:+.4f}</span><span class="ss">   (slope a1-a0 = </span><span class="sc">{</span>a1<span class="op">-</span>a0<span class="sc">:.2f}</span><span class="ss">)"</span>)</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"gain from +0.05 reader accuracy with passage: </span><span class="sc">{</span>r<span class="op">*</span>(a1<span class="op">+</span><span class="fl">0.05</span>) <span class="op">+</span> (<span class="dv">1</span><span class="op">-</span>r)<span class="op">*</span>a0 <span class="op">-</span> total<span class="sc">:+.4f}</span><span class="ss">   (slope r = </span><span class="sc">{</span>r<span class="sc">:.2f}</span><span class="ss">)"</span>)</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"gain from +0.05 reader accuracy without passage: </span><span class="sc">{</span>r<span class="op">*</span>a1 <span class="op">+</span> (<span class="dv">1</span><span class="op">-</span>r)<span class="op">*</span>(a0<span class="op">+</span><span class="fl">0.05</span>) <span class="op">-</span> total<span class="sc">:+.4f}</span><span class="ss">   (slope 1-r = </span><span class="sc">{</span><span class="dv">1</span><span class="op">-</span>r<span class="sc">:.2f}</span><span class="ss">)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>system accuracy              : 0.790
+gain from +0.05 retrieval recall : +0.0275   (slope a1-a0 = 0.55)
+gain from +0.05 reader accuracy with passage: +0.0400   (slope r = 0.80)
+gain from +0.05 reader accuracy without passage: +0.0100   (slope 1-r = 0.20)</code></pre>
+</div>
+</div>
+<p>The partial derivatives of <a href="#eq-rag" class="quarto-xref">Equation&nbsp;<span>51.1</span></a> give the <strong>error budget</strong> of Chapter 48: <span class="math inline">\(\partial P/\partial r=a_1-a_0\)</span>, <span class="math inline">\(\partial P/\partial a_1=r\)</span>, <span class="math inline">\(\partial P/\partial a_0=1-r\)</span>. With these values, a retrieval gain of <span class="math inline">\(0.05\)</span> is worth <span class="math inline">\(0.0275\)</span> and the same gain on the reader with the passage is worth <span class="math inline">\(0.04\)</span>. The larger lever is the second, but only a characterisation of each stage with the numbers <span class="math inline">\(r,a_1,a_0\)</span> shows it. An end-to-end score cannot.</p>
+</section>
+<section id="sec-report" class="level2" data-number="51.8">
+<h2 data-number="51.8" class="anchored" data-anchor-id="sec-report"><span class="header-section-number">51.8</span> What a model report contains</h2>
+<p>A model card, written as a characterisation report (Chapter 50), has these parts.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Part</th>
+<th>Content</th>
+<th>Check</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Intended use</td>
+<td>tasks, languages, users, conditions</td>
+<td>Is each condition tested?</td>
+</tr>
+<tr class="even">
+<td>Data</td>
+<td>tuning, validation, test; time of collection</td>
+<td>Is the test set fresh and uncontaminated?</td>
+</tr>
+<tr class="odd">
+<td>Measures</td>
+<td>definition of each, with the decision rule</td>
+<td>Could someone else recompute it?</td>
+</tr>
+<tr class="even">
+<td>Results</td>
+<td>per slice and per severity, with intervals and counts</td>
+<td>Does it show the worst slice?</td>
+</tr>
+<tr class="odd">
+<td>Randomness</td>
+<td>runs, seeds, temperature</td>
+<td>Run variance reported?</td>
+</tr>
+<tr class="even">
+<td>Stress</td>
+<td>perturbations, shift, adversarial cases</td>
+<td>Where does it break?</td>
+</tr>
+<tr class="odd">
+<td>Interfaces</td>
+<td>input contract, output contract</td>
+<td>Is the contract checked in serving?</td>
+</tr>
+<tr class="even">
+<td>Limits</td>
+<td>what is not claimed</td>
+<td>Is it specific?</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="sec-failure" class="level2" data-number="51.9">
+<h2 data-number="51.9" class="anchored" data-anchor-id="sec-failure"><span class="header-section-number">51.9</span> Failure modes</h2>
+<p><strong>Contaminated test set.</strong> Test items were in the training data. Scores measure memory, not capability.</p>
+<p><strong>One run.</strong> A single sampled run is reported as if it were deterministic.</p>
+<p><strong>Prompt-tuned benchmark.</strong> The prompt template was tuned on the test set (Chapter 27).</p>
+<p><strong>Average over slices.</strong> The mean hides the slice with the safety problem.</p>
+<p><strong>Metric with free text.</strong> An automatic judge (a rule or another model) is itself a component with an error rate. It needs a characterisation too.</p>
+<p><strong>Moving target.</strong> The model behind an API changes. A result without a version date is not reproducible.</p>
+<p><strong>Evaluation cost.</strong> The budget allows only a few hundred items per slice. The intervals are wide. Say so.</p>
+</section>
+<section id="sec-ai-connection" class="level2" data-number="51.10">
+<h2 data-number="51.10" class="anchored" data-anchor-id="sec-ai-connection"><span class="header-section-number">51.10</span> Where this appears in modern AI</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Place</th>
+<th>Characterisation idea</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Corruption and robustness benchmarks</td>
+<td>severity sweep with intervals</td>
+</tr>
+<tr class="even">
+<td>Language-model evaluation harnesses</td>
+<td>many tasks, fixed prompts; need run variance and paired tests</td>
+</tr>
+<tr class="odd">
+<td>Calibration studies</td>
+<td>confidence against accuracy (Chapter 24)</td>
+</tr>
+<tr class="even">
+<td>Red teaming</td>
+<td>targeted stress on the intended-use model</td>
+</tr>
+<tr class="odd">
+<td>LLM-as-judge</td>
+<td>characterise the judge against human labels</td>
+</tr>
+<tr class="even">
+<td>Safety evaluation</td>
+<td>tail rates; rule of three for “no failure seen”</td>
+</tr>
+<tr class="odd">
+<td>Retrieval-augmented generation</td>
+<td>stage-wise budget of <a href="#eq-rag" class="quarto-xref">Equation&nbsp;<span>51.1</span></a></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="sec-system-connection" class="level2" data-number="51.11">
+<h2 data-number="51.11" class="anchored" data-anchor-id="sec-system-connection"><span class="header-section-number">51.11</span> System connection</h2>
+<div class="callout callout-style-default callout-note callout-titled" title="What the system gained in this chapter">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>What the system gained in this chapter
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The method of Part IX now applies to a large model. We have the mapping of each step, a robustness sweep with paired intervals, a slice table with its cost, an interface check, a decomposition of run and item variance, three measures that answer three questions, and a budget for a retrieval pipeline.</p>
+<p>The book started from the idea that an AI system is a mathematical system. It ends with the discipline that makes the claim checkable: say what the system is, say what it should do, measure it against conditions with confidence, and write down where it stops being true.</p>
+</div>
+</div>
+</section>
+<section id="chapter-summary" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="chapter-summary">Chapter summary</h2>
+<ul>
+<li>The paradigm is unchanged. The condition space, the measurement cost and the randomness are larger.</li>
+<li>Rankings can flip along a perturbation sweep. Compare pairs with a paired analysis.</li>
+<li>Slice tables cost sample size. Report counts.</li>
+<li>Sampled outputs have run variance and item variance. Name the measure: single, majority, pass@<span class="math inline">\(k\)</span>.</li>
+<li>Pipeline error budgets come from stage-wise characterisation.</li>
+</ul>
+</section>
+<section id="exercises" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="exercises">Exercises</h2>
+<ol type="1">
+<li><strong>Compute.</strong> A benchmark of 400 items gives accuracy <span class="math inline">\(0.82\)</span>. Give the 95% interval using the normal approximation.</li>
+<li><strong>Compute.</strong> In <a href="#eq-rag" class="quarto-xref">Equation&nbsp;<span>51.1</span></a>, find <span class="math inline">\(r\)</span> at which a gain of <span class="math inline">\(0.05\)</span> in retrieval recall equals a gain of <span class="math inline">\(0.05\)</span> in <span class="math inline">\(a_1\)</span>.</li>
+<li><strong>Derive.</strong> For an odd <span class="math inline">\(k\ge3\)</span> and independent samples with success probability <span class="math inline">\(p\)</span>, show that the majority vote is correct with probability above <span class="math inline">\(p\)</span> if and only if <span class="math inline">\(p&gt;1/2\)</span>. Check with <span class="math inline">\(k=3\)</span>: the vote is correct with probability <span class="math inline">\(3p^2-2p^3\)</span>.</li>
+<li><strong>Derive.</strong> The variance of one run’s accuracy over <span class="math inline">\(n\)</span> items with item probabilities <span class="math inline">\(p_i\)</span> is <span class="math inline">\(\frac1{n^2}\sum p_i(1-p_i)\)</span>. Show that it is always at most <span class="math inline">\(\frac{1}{4n}\)</span>.</li>
+<li><strong>Code.</strong> Add a second perturbation to <span class="citation" data-cites="code-sweep">@code-sweep</span>: random removal (set a pixel to zero with probability <span class="math inline">\(q\)</span>). Does the ranking flip again?</li>
+<li><strong>Code.</strong> Train the MLP with five random seeds. Report the spread of clean accuracy across seeds and compare it with the 95% interval width from the test items.</li>
+<li><strong>Code.</strong> In <span class="citation" data-cites="code-runs">@code-runs</span>, change the item distribution to <span class="math inline">\(\text{Beta}(1,1)\)</span> with the same mean. How do the run and item noise change?</li>
+<li><strong>Diagnose.</strong> A model reaches 92% on a public benchmark and 71% on a new private set of the same task. Give three causes and a test for each.</li>
+<li><strong>Explain.</strong> Why is “pass@<span class="math inline">\(k\)</span>” not a fair comparison between a system that samples once and a system that samples 100 times?</li>
+<li><strong>Design.</strong> Write the characterisation plan for a customer-support assistant: factors, perturbations, slices, measures, data split, number of items, stress tests, report outline.</li>
+</ol>
+
+
+</section>
+
+</main> <!-- /main -->
+<script>
+/* Keep the left navigation stable between pages: all parts expanded,
+   and the sidebar scroll position remembered across page loads. */
+(function () {
+  var KEY = "mathsystems-sidebar-scroll";
+  function side() { return document.getElementById("quarto-sidebar"); }
+  function scroller() {
+    var s = side(); if (!s) return null;
+    return s.querySelector(".sidebar-menu-container") || s;
+  }
+  function expandAll() {
+    var s = side(); if (!s) return;
+    s.querySelectorAll(".collapse").forEach(function (el) { el.classList.add("show"); });
+    s.querySelectorAll('[aria-expanded="false"]').forEach(function (el) { el.setAttribute("aria-expanded", "true"); });
+    s.querySelectorAll(".sidebar-item-toggle.collapsed, a.collapsed").forEach(function (el) { el.classList.remove("collapsed"); });
+  }
+  function restore() {
+    var sc = scroller(), v = null;
+    try { v = sessionStorage.getItem(KEY); } catch (e) {}
+    if (sc && v !== null) sc.scrollTop = parseInt(v, 10);
+  }
+  function save() {
+    var sc = scroller();
+    if (!sc) return;
+    try { sessionStorage.setItem(KEY, String(sc.scrollTop)); } catch (e) {}
+  }
+  document.addEventListener("DOMContentLoaded", function () {
+    expandAll(); restore();
+    var sc = scroller();
+    if (sc) sc.addEventListener("scroll", save, { passive: true });
+    document.addEventListener("click", save, true);
+    window.addEventListener("pagehide", save);
+  });
+  window.addEventListener("load", function () {
+    expandAll(); restore();
+    setTimeout(restore, 50); setTimeout(restore, 250);   /* after the theme's own scroll-into-view */
+  });
+})();
+</script>
+<style>
+/* no jump while the menu is being expanded */
+#quarto-sidebar .collapse { transition: none !important; }
+</style>
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/vsrveera\.github\.io\/books\/mathai\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../chapters/ch50_characterisation_protocol_and_experimental_design.html" class="pagination-link" aria-label="A Characterisation Protocol: Experimental Design and Reporting">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">50</span>&nbsp; <span class="chapter-title">A Characterisation Protocol: Experimental Design and Reporting</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+  </div>
+</nav>
+</div> <!-- /content -->
+<script>var lightboxQuarto = GLightbox({"closeEffect":"zoom","descPosition":"bottom","loop":false,"openEffect":"zoom","selector":".lightbox"});
+(function() {
+  let previousOnload = window.onload;
+  window.onload = () => {
+    if (previousOnload) {
+      previousOnload();
+    }
+    lightboxQuarto.on('slide_before_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      const href = trigger.getAttribute('href');
+      if (href !== null) {
+        const imgEl = window.document.querySelector(`a[href="${href}"] img`);
+        if (imgEl !== null) {
+          const srcAttr = imgEl.getAttribute("src");
+          if (srcAttr && srcAttr.startsWith("data:")) {
+            slideConfig.href = srcAttr;
+          }
+        }
+      } 
+    });
+  
+    lightboxQuarto.on('slide_after_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(slideNode);
+      }
+    });
+  
+  };
+  
+})();
+          </script>
+
+
+
+
+<script src="../site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>
